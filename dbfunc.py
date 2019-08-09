@@ -169,9 +169,9 @@ def xmls(mimetype, data):
             xdata = zio.read(fnm)
             with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
                 mt = m.id_buffer(xdata)
-                if mt == 'application/xml':
+                if mt == 'application/xml' or mt == 'text/xml':
                     yield xdata
-    elif mimetype == 'application/xml':
+    elif mimetype == 'application/xml' or mimetype == 'text/xml':
         print ('processing single xml')
         yield data
     else:
