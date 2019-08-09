@@ -185,31 +185,45 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
     from models import Datasets_single_entry
 
     for xml in xmls(mimetype, data):
-        T = lxml.etree.parse(xml)
+        
+        tree = lxml.etree.parse(xml)
         xpath = xpath.strip()
-        if xpath.startswith('"') and xpath.endswith('"'):
-            xpath = xpath[1:-1]
-        if xpath.startswith("'") and xpath.endswith("'"):
-            xpath = xpath[1:-1]
-        nodes = T.xpath(xpath)
+        
+        namespaces = tree.getroot().nsmap
+        namespace=''
+        namespace_prefix = False
+        for prefix, ns in namespaces.items():
+            if prefix:
+                namespace_prefix = True
+                namespace = {prefix:ns}
+                break
+            else:
+                namespace = ns
+
+        if namespace_prefix:
+            nodes = tree.xpath('.//' + xpath, namespaces=namespace)
+        else:
+            nodes = tree.findall('.//{' + namespace + '}' + xpath)
+
         print('have nodes', len(nodes))
         counter = 0
+
+        base = declarative_base()
+        Session = sessionmaker(db)  
+        session = Session()
+        base.metadata.create_all(db)
+
         for entry in nodes:
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
             entry_head = entry_str.split('\n',1)[0] #!!
+            print(entry_head)
             
-            base = declarative_base()
-            Session = sessionmaker(db)  
-            session = Session()
-            base.metadata.create_all(db)
+            
             
             # Create 
             dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, contents=entry_str)
-            print('Tole: ', dsid, xfid, entry_head, entry_str)
             session.add(dataset)  
-            counter += 1
-        if counter > 0:
-            session.commit()
+        session.commit()
 
 
     connection.close()
