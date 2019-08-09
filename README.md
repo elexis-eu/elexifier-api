@@ -32,6 +32,9 @@ Install dependencies:
 
 <code>pip install -r requirements.txt</code><br/>
 
+If the command fails for OSX users because of `psycopg2` package, then run the following command to install the missing pacgake:<br/>
+<code>env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install psycopg2</code>
+
 Create the sqlite database and migrate the models into it: 
 
 <code>python manage.py db init</code><br/>
