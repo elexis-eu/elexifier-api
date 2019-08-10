@@ -551,7 +551,7 @@ const vm = new Vue({
 	    chunkSize: 2000000,
 	    chunking: true,
 	    forceChunking: true,
-	}
+	}	
     },
     computed: {
 	current_transform: function() {
@@ -805,12 +805,14 @@ const vm = new Vue({
 	    }
 	},
 	run_transform_entity: function() {
+		console.log(this.selected_entity)
 	    if (!this.selected_entity) return;
+	    console.log('Sm pride')
 	    let xfid = this.selected_transform;
 	    let entity_id = this.selected_entity;
 	    axios.get(
 		`/api/transform/${xfid}/apply/${entity_id}`,
-		{ params: { strip_ns: this.transform_strip_ns}}
+		{ params: { strip_ns: this.transform_strip_ns, Authorization: this.$root.auth_token}}
 	    ).then((response) => {
 		//console.log(response);
 		this.$refs['xfin'].value = response.data.entity_xml;
@@ -820,7 +822,9 @@ const vm = new Vue({
 	upload_transform: function() {
 	    axios.post(`/api/transform/${this.selected_transform}`, {
 		'xfspec': transform_js_to_db(this.transform_spec)
-	    }).then((response) => {
+	    },
+        {headers: {Authorization: this.$root.auth_token,}}
+	    ).then((response) => {
 		this.transform_modified = false;
 		this.run_transform_entity();
 	    });
@@ -828,7 +832,9 @@ const vm = new Vue({
 	populate_transform: function() {
 	    if (!this.selected_transform) return;
 	    this.entity_list_waiting = true;
-	    axios.get(`/api/transform/${this.selected_transform}`).then((response) => {
+	    axios.get(`/api/transform/${this.selected_transform}`,
+        {headers: {Authorization: this.$root.auth_token,}
+	    }).then((response) => {
 		this.entity_list_waiting = false;
 		let t = vm;
 		t.entity_list.splice(0);
@@ -849,7 +855,9 @@ const vm = new Vue({
 		'dsid': dsid,
 		'xfname': name,
 		'entry_spec': xpath
-	    }).then((request) => {
+	    },
+        {headers: {Authorization: this.$root.auth_token,}}
+	    ).then((request) => {
 		this.transform_list_refresh();
 	    });
 	},
@@ -862,8 +870,9 @@ const vm = new Vue({
 	    this.dict_refresh();
 	},
 	dict_refresh: function() {
-	    axios.get("/api/dataset/list")
-		.then((response) => {
+	    axios.get("/api/dataset/list", 
+	    {headers: {Authorization: this.$root.auth_token,}
+	    }).then((response) => {
 		    let t = vm;
 		    t.dict_list.splice(0);
 		    response.data.forEach((item,index) => {
@@ -875,7 +884,9 @@ const vm = new Vue({
 	transform_list_refresh: function() {
 	    let ds = this.selected_ds;
 	    if (!ds) return;
-	    axios.get(`/api/transform/list/${ds}`).then((response) => {
+	    axios.get(`/api/transform/list/${ds}`,
+        {headers: {Authorization: this.$root.auth_token,}
+	    }).then((response) => {
 		let t = vm;
 		t.transform_list.splice(0);
 		response.data.forEach((item,index) => {
@@ -888,8 +899,19 @@ const vm = new Vue({
 	vueDropzone: vue2Dropzone
     },
     created: function() {
-	var vm = this;
-	this.dict_refresh();
-	document.addEventListener('beforeunload', this.unload_handler);
+		var vm = this;
+		let uri = window.location.search.substring(1); 
+	    let params = new URLSearchParams(uri);
+	    this.$root.auth_token = JSON.parse(params.get("response"))["auth_token"];
+	    console.log(this.$refs.dictdropzone)
+	    this.dict_refresh();
+
+	    this.dropzoneOptions.headers = {Authorization: this.$root.auth_token,}
+	    //this.$refs.dictdropzone.setOption('url', `http://your-url.com/`);
+	    console.log(this.data)
+	    
+	    document.addEventListener('beforeunload', this.unload_handler);
     }
 });
+
+

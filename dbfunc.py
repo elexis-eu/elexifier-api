@@ -50,7 +50,7 @@ def check_login(db, username, password, bcrypt):
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
-    print(dataset)
+    #print(dataset)
     rv = [ {key:row[key] for key in row.keys()} for row in dataset]
     if not single:
         return rv
@@ -184,6 +184,8 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
     mimetype, data = result.fetchone()
     from models import Datasets_single_entry
 
+    print(mimetype)
+
     for xml in xmls(mimetype, data):
         
         tree = lxml.etree.parse(xml)
@@ -216,7 +218,7 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
         for entry in nodes:
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
             entry_head = entry_str.split('\n',1)[0] #!!
-            print(entry_head)
+            #print(entry_head)
             
             
             
