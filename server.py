@@ -187,6 +187,7 @@ def xf_update_transform(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     xfspec = flask.request.json.get('xfspec', None)
+    print('Update transform')
     if xfspec is None:
         return flask.make_response(('Invalid API call'), 422)
     rv = dbfunc.update_transform(db, id, xfid, xfspec)
@@ -195,27 +196,28 @@ def xf_update_transform(xfid):
 @app.route('/api/transform/<int:xfid>/apply/<int:entityid>', methods=['GET'])
 #@flask_login.login_required
 def xf_entity_transform(xfid,entityid):
-    print('tuki gre')
+    print('entity transform')
     token = flask.request.args.get('Authorization')
     id = verify_user(token)
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
     entity, spec = dbfunc.get_entity_and_spec(db, id, xfid, entityid)
+
+    print(spec)
 
 
     if spec is None:
         return _j({'spec': None, 'entity_xml': None, 'output': None})
 
     for t in ('entry', 'sense'):
-        print("Tuki: ", t, spec)
 
         if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
             spec[t] = spec[t]['selector']
-            print(spec[t])
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element = transformator.TMyElement)
     myParser = lxml.etree.XMLParser()
     myParser.set_element_class_lookup(parserLookup)
     entity_xml = lxml.etree.fromstring(entity, parser = myParser)
+
 
     mapping = transformator.TMapping(spec)
     mapper = transformator.TMapper()
@@ -244,10 +246,10 @@ def login():
         #flask_login.login_user(user, remember=True)
         auth_token = user.encode_auth_token(user.id)
         if auth_token:
-            responseObject = {
+            response = {
                 'auth_token': auth_token.decode()
             }
-            return flask.redirect(flask.url_for('.return_token', response=json.dumps(responseObject)))
+            return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
 
 
 @app.route('/static/build_transform.html')

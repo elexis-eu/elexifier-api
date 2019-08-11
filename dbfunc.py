@@ -9,6 +9,7 @@ import hashlib
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
 import base64
+import json
 
 
 
@@ -88,12 +89,21 @@ def list_transforms(db, uid, dsid):
     result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND ds.id='{1:s}'".format(str(uid), str(dsid)))
     transforms = extract_keys(result)
     connection.close()
+    print('list transformers')
     return transforms
 
 def describe_transform(db, uid, xfid):
     connection = db.connect()
     result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.transform FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.id='{1:s}'".format(str(uid), str(xfid)))
-    transform = extract_keys(result, single=True)
+    transform = extract_keys(result)
+    print('describe transform')
+    for r in transform:
+        try:
+            r['transform'] = json.loads(r['transform'])
+        except:
+            pass
+
+    print("Transform: ", transform)
     result = connection.execute("SELECT id, dsid, COALESCE(entry_name, entry_head) as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
     return {'transform': transform, 'entities': entities}
@@ -104,6 +114,7 @@ def new_transform(db, uid, uuid, xfname, dsid, xpath):
     Session = sessionmaker(db)  
     session = Session()
     base.metadata.create_all(db)
+    print('new transform')
 
     # Create 
     #print(dzcontent.stream.read())
@@ -115,13 +126,14 @@ def new_transform(db, uid, uuid, xfname, dsid, xpath):
 
 def update_transform(db, uid, xfid, xfspec):
     from models import Transformer
-
     base = declarative_base()
     Session = sessionmaker(db)  
     session = Session()
     base.metadata.create_all(db)
+    print('update transformer')
 
     transformer = session.query(Transformer).get(xfid)
+    print(xfspec['slots'])
     transformer.transform = xfspec
     session.commit()
     return 1
@@ -130,6 +142,9 @@ def get_entity_and_spec(db, uid, xfid, entityid):
     connection = db.connect()
     result = connection.execute("SELECT tf.transform, dse.contents FROM transformers tf INNER JOIN datasets ds ON tf.dsid=ds.id INNER JOIN datasets_single_entry dse ON ds.id=dse.dsid WHERE tf.id='{0:s}' AND ds.uid='{1:s}' AND dse.id='{2:s}'".format(str(xfid), str(uid), str(entityid)))
     spec, entry = result.fetchone()
+    print(spec)
+    spec = json.loads(spec)
+    print("Tale spec: ", spec)
     connection.close()
     return entry, spec
 
@@ -169,9 +184,9 @@ def xmls(mimetype, data):
             xdata = zio.read(fnm)
             with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
                 mt = m.id_buffer(xdata)
-                if mt == 'application/xml' or mt == 'text/xml':
+                if mt == 'application/xml':
                     yield xdata
-    elif mimetype == 'application/xml' or mimetype == 'text/xml':
+    elif mimetype == 'application/xml':
         print ('processing single xml')
         yield data
     else:

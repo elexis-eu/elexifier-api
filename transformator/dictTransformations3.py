@@ -2,6 +2,7 @@
 #import xml.etree, xml.etree.ElementTree
 from lxml import etree
 import copy, re, logging, traceback, zipfile, json, pathlib, sys, datetime, os, os.path, io
+from werkzeug.utils import secure_filename
 
 Verbose = False
 
@@ -1449,7 +1450,8 @@ class TMapper:
         parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
         self.parser = etree.XMLParser()
         self.parser.set_element_class_lookup(parserLookup)
-        with open("TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), secure_filename("TEILex0-ODD.rng"))
+        with open(path, "rt", encoding = "utf8") as f:
             relaxNgDoc = etree.parse(f)
         self.relaxNg = etree.RelaxNG(relaxNgDoc)
     def E(self, tag, attrib_ = {}, children = [], text = None, tail = None):

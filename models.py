@@ -135,6 +135,6 @@ class Transformer(db.Model):
     name = db.Column(db.String)
     created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     entity_spec = db.Column(db.String)
-    transform = db.Column(db.PickleType)
+    transform = db.Column(db.JSON)
    
 
