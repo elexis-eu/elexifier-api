@@ -9,7 +9,7 @@ import hashlib
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
 import base64
-
+import re
 
 
     
@@ -230,3 +230,43 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
 
     connection.close()
     return (True, 'Done')
+
+def extract_xml_heads(xml_file):
+
+    ## TODO: requests around this
+    with open(xml_file, 'r') as file:
+        xml_file = file.read()
+
+    all_heads = set()
+    for el in xml_file.split("\n"):
+        if "<" in el:
+            el = el.replace("\t","")
+            current_head = []
+            append_trigger = False
+            for enx, j in enumerate(el):
+                if j == "<":
+                    if el[enx+1] != "/":                        
+                        append_trigger = True
+                        current_head.append(j)
+                    else:
+                        break
+                elif j == ">":
+                    current_head.append(j)
+                    break
+                else:
+                    current_head.append(j)
+            if len(current_head) > 0:
+                all_heads.add("".join(current_head))
+    print(len(all_heads))
+
+    ## TODO: requests which send this ..
+                        
+if __name__ == "__main__":
+
+    import glob
+    for fil in glob.glob("./example_xml/*"):
+        try:
+            results = extract_xml_heads(fil)
+        except Exception as es:
+            pass
+#            print(es)            
