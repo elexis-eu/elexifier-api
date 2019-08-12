@@ -3,15 +3,21 @@ from getpass import getpass
 import sys
 
 from flask import current_app
-from server import app, bcrypt
-from models import User
+from app.models import User
+from app import db
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+import flask
 
+app = flask.Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 
 def main():
     """Main entry point for script."""
+    bcrypt = Bcrypt()
     db = SQLAlchemy()
     db.init_app(app)
     with app.app_context():

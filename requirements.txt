@@ -1,7 +1,6 @@
 flask==1.1.1
 flask-login==0.4.1
 pendulum==2.0.5
-psycopg2==2.8.3
 lxml==4.4.0
 python-magic==0.4.15
 flask-bcrypt==0.7.1
@@ -10,3 +9,4 @@ flask-migrate==2.5.2
 filemagic==1.6
 flask-script==2.0.6
 pyjwt==1.4.2
+uwsgi

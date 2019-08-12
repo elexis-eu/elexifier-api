@@ -6,11 +6,7 @@ Python 3 is needed. These instructions are for linux.<br/>
 Clone the project from the repository.<br/>
 Go inside the folder:
 
-<code>cd elexifier</code><br/>
-
-Make a media folder for xml files:
-
-<code>mkdir media</code><br/>
+<code>cd elexifier-api</code><br/>
 
 Install python virtual environment if you don't have it yet:
 
@@ -47,7 +43,7 @@ Create a user so you can log in:
 
 Run the local server:
 
-<code>python server.py</code><br/>
+<code>python run.py</code><br/>
 
 Go to url:
 

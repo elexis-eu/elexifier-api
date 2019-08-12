@@ -1,0 +1,31 @@
+server {
+   listen 80;
+   server_name localhost;
+
+   location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/docker/elexifier-api/elexifier-api.sock;
+    }
+	
+	location /templates/ {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/docker/elexifier-api/elexifier-api.sock;
+    }
+   
+   location /static/ {
+    alias /home/docker/elexifier-api/app/static/;
+    if ($query_string) {
+      expires max;
+    }
+  }
+  
+
+  location /media/ {
+    alias /home/docker/elexifier-api/app/media/;
+    if ($query_string) {
+      expires max;
+    }
+  }
+  
+  client_max_body_size 100M;
+}

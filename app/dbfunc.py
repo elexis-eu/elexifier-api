@@ -1,5 +1,3 @@
-import psycopg2
-import psycopg2.extras
 import magic
 import io
 import zipfile
@@ -10,20 +8,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import base64
 import json
+from app.models import *
 
-
-
-    
-#def db_connect():
-#    db = psycopg2.extras.DictConnection("dbname=harmonizator user=harmonizator password=blarg11.")
-#    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
-#    psycopg2.extras.register_json(oid=3802, array_oid=3807, globally=True)
-#    return db
 
 
 
 def user_loader(db, uid):
-    from models import User
     return User.query.get(int(uid))
     #uid = int(uid)
     #cur = db.cursor()
@@ -31,7 +21,6 @@ def user_loader(db, uid):
 
 
 def check_login(db, username, password, bcrypt):
-    from models import User
     connection = db.connect()
     result = connection.execute("SELECT id, password_hash FROM users WHERE username='{0:s}'".format(username))
     for r in result:  
@@ -109,7 +98,6 @@ def describe_transform(db, uid, xfid):
     return {'transform': transform, 'entities': entities}
 
 def new_transform(db, uid, uuid, xfname, dsid, xpath):
-    from models import Transformer
     base = declarative_base()
     Session = sessionmaker(db)  
     session = Session()
@@ -125,7 +113,6 @@ def new_transform(db, uid, uuid, xfname, dsid, xpath):
 
 
 def update_transform(db, uid, xfid, xfspec):
-    from models import Transformer
     base = declarative_base()
     Session = sessionmaker(db)  
     session = Session()
@@ -158,7 +145,6 @@ def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
 
 
 def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
-    from models import Datasets
     
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_filename(dzfilepath)
@@ -197,9 +183,6 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
     connection = db.connect()
     result = connection.execute("SELECT upload_mimetype, file_path FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
     mimetype, data = result.fetchone()
-    from models import Datasets_single_entry
-
-    print(mimetype)
 
     for xml in xmls(mimetype, data):
         

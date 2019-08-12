@@ -1,0 +1,3207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<artikel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="16820" xsi:noNamespaceSchemaLocation="N:/ANW/Werkstation/Schema/ANWSchema-main.xsd" pid="47968">
+	<Lemma>
+		<Lemmavorm>eten</Lemmavorm>
+		<Lemmatype>woord</Lemmatype>
+	</Lemma>
+	<Koepelartikel pid="515828">
+		<Koepelnummer>1</Koepelnummer>
+		<Lemma>
+			<Lemmavorm>eten</Lemmavorm>
+			<Lemmatype>woord</Lemmatype>
+		</Lemma>
+		<Woordsoort>
+			<Type>werkwoord</Type>
+			<Werkwoord>
+				<Functie>zelfstandig werkwoord</Functie>
+				<SyntactischeSubklasse>overgankelijk en onovergankelijk</SyntactischeSubklasse>
+				<Vervoeging>onregelmatig/sterk</Vervoeging>
+				<HulpwerkwoordVTBody>
+					<HulpwerkwoordVoltooideTijden>hebben</HulpwerkwoordVoltooideTijden>
+				</HulpwerkwoordVTBody>
+			</Werkwoord>
+		</Woordsoort>
+		<SpellingEnFlexie>
+			<WerkwoordVormen>
+				<Infinitief>
+					<Woordvorm>eten</Woordvorm>
+					<Afbreking>eten</Afbreking>
+				</Infinitief>
+				<Eerste_persoon_o.t.t.>
+					<Woordvorm>eet</Woordvorm>
+					<Afbreking>eet</Afbreking>
+				</Eerste_persoon_o.t.t.>
+				<Tweede_persoon_o.t.t>
+					<Woordvorm>eet</Woordvorm>
+					<Afbreking>eet</Afbreking>
+				</Tweede_persoon_o.t.t>
+				<Derde_persoon_o.t.t>
+					<Woordvorm>eet</Woordvorm>
+					<Afbreking>eet</Afbreking>
+				</Derde_persoon_o.t.t>
+				<Meervoud_o.t.t.>
+					<Woordvorm>eten</Woordvorm>
+					<Afbreking>eten</Afbreking>
+				</Meervoud_o.t.t.>
+				<Enkelvoud_o.v.t>
+					<Woordvorm>at</Woordvorm>
+					<Afbreking>at</Afbreking>
+				</Enkelvoud_o.v.t>
+				<Meervoud_o.v.t.>
+					<Woordvorm>aten</Woordvorm>
+					<Afbreking>aten</Afbreking>
+				</Meervoud_o.v.t.>
+				<Tegenwoordig_deelwoord>
+					<Woordvorm>etend</Woordvorm>
+					<Afbreking>etend</Afbreking>
+				</Tegenwoordig_deelwoord>
+				<Voltooid_deelwoord>
+					<Woordvorm>gegeten</Woordvorm>
+					<Afbreking>ge.ge.ten</Afbreking>
+				</Voltooid_deelwoord>
+			</WerkwoordVormen>
+		</SpellingEnFlexie>
+		<Uitspraak>
+			<AantalLettergrepenBody>
+				<AantalLettergrepen>2</AantalLettergrepen>
+			</AantalLettergrepenBody>
+			<HoofdklemtoonBody>
+				<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+			</HoofdklemtoonBody>
+		</Uitspraak>
+		<Woordvorming>
+			<WoordvormingType>ongeleed</WoordvormingType>
+		</Woordvorming>
+		<BijzonderhedenGebruik>
+			<Frequentie>
+				<FrequentieTotaal>19290</FrequentieTotaal>
+			</Frequentie>
+		</BijzonderhedenGebruik>
+		<KoepelBetekenisaanduiding>Als werkwoord</KoepelBetekenisaanduiding>
+		<BetekenisEnGebruik>
+			<Kernbetekenis pid="47971">
+				<betekenisInfo>
+					<Betekenisnummer>1.0</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>eten</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>werkwoord</Type>
+						<Werkwoord>
+							<Functie>zelfstandig werkwoord</Functie>
+							<SyntactischeSubklasse>overgankelijk</SyntactischeSubklasse>
+							<Vervoeging>onregelmatig/sterk</Vervoeging>
+							<HulpwerkwoordVTBody>
+								<HulpwerkwoordVoltooideTijden>hebben</HulpwerkwoordVoltooideTijden>
+							</HulpwerkwoordVTBody>
+						</Werkwoord>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<WerkwoordVormen>
+							<Infinitief>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Infinitief>
+							<Eerste_persoon_o.t.t.>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Eerste_persoon_o.t.t.>
+							<Tweede_persoon_o.t.t>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Tweede_persoon_o.t.t>
+							<Derde_persoon_o.t.t>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Derde_persoon_o.t.t>
+							<Meervoud_o.t.t.>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Meervoud_o.t.t.>
+							<Enkelvoud_o.v.t>
+								<Woordvorm>at</Woordvorm>
+								<Afbreking>at</Afbreking>
+							</Enkelvoud_o.v.t>
+							<Meervoud_o.v.t.>
+								<Woordvorm>aten</Woordvorm>
+								<Afbreking>aten</Afbreking>
+							</Meervoud_o.v.t.>
+							<Tegenwoordig_deelwoord>
+								<Woordvorm>etend</Woordvorm>
+								<Afbreking>etend</Afbreking>
+							</Tegenwoordig_deelwoord>
+							<Voltooid_deelwoord>
+								<Woordvorm>gegeten</Woordvorm>
+								<Afbreking>ge.ge.ten</Afbreking>
+							</Voltooid_deelwoord>
+						</WerkwoordVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>2</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<HoofdklemtoonBody>
+							<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+						</HoofdklemtoonBody>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>ongeleed</WoordvormingType>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>iets als voedsel tot zich nemen; iets opeten; iets nuttigen</Definitie>
+						<Minidefinitie>iets als voedsel tot zich nemen</Minidefinitie>
+					</definitieBody>
+					<Woordrelaties>
+						<Hyperoniem>
+							<link>
+								<lemma>gebruiken</lemma>
+								<dtype>art</dtype>
+								<pid>55099</pid>
+							</link>
+						</Hyperoniem>
+					</Woordrelaties>
+					<Semagram>
+						<Semagramaanhef>Eten</Semagramaanhef>
+						<Categorieen>
+							<Categorie>is een handeling</Categorie>
+							<Categorie>is een activiteit</Categorie>
+						</Categorieen>
+						<Kenmerken>
+							<Handeling_of_werking>
+								<Activiteit_of_handeling>is het tot zich nemen van voedsel</Activiteit_of_handeling>
+							</Handeling_of_werking>
+							<Betrokken_personen_of_zaken>
+								<Handelende_persoon>wordt gedaan door mensen en dieren</Handelende_persoon>
+							</Betrokken_personen_of_zaken>
+						</Kenmerken>
+					</Semagram>
+					<combinatiesBody>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met object</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[iets, wat] eten; [brood, een boterham, een broodje, gras, groente, pannenkoeken, vis, vlees] eten; te veel vet eten; iets verkeerds gegeten hebben</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515847">
+											<Tekst>Bij boerderijen maakte men nog wel eens kans op een maaltijd of wat centen in ruil voor een paar uur werk. Mannen, vrouwen en kinderen boden zich zo te huur aan, of bedelden bij gebrek aan werk om iets te eten.</Tekst>
+											<BronID>59405</BronID>
+											<URL>http://www.cultuurwijzer.nl/cultuurwijzer.nl/cultuurwijzer.nl/i000302.html</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516088">
+											<Tekst>Ik heb hier in de stad wat gegeten met een vriend van me van vroeger.</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>De passievrucht</Bron>
+											<BronID>69612</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515892">
+											<Tekst>We hebben brood gegeten en de laatste chocomel opgedronken en Bo begint moe te worden.</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>De passievrucht</Bron>
+											<BronID>69612</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515893">
+											<Tekst>Ik heb een boterham gegeten en een glas melk gedronken.</Tekst>
+											<Auteur>Knap, Henri</Auteur>
+											<Bron>Met voorbedachten rade</Bron>
+											<BronID>206</BronID>
+											<Datering>1981</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515848">
+											<Tekst>Om 12.00 uur eten we daar een broodje en proeven we de wijnen die we 's avonds gaan schenken.</Tekst>
+											<BronID>61989</BronID>
+											<URL>http://www.restaurantoliva.nl/kooklessen_bij_oliva.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515894">
+											<Tekst>Voor de jonge vogels maakt Karli een eigen mengsel, 'want' zo zegt hij 'vooral de voeding in de eerste week is erg belangrijk. Ze eten ook wel gras en groente, maar verder krijgen ze speciaal voer met mineralen en vitamines.'</Tekst>
+											<Bron>Meppeler Courant</Bron>
+											<BronID>16508</BronID>
+											<Datering>1993</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515895">
+											<Tekst>Daarna gaan we naar drie verschillende meubelzaken, maar tante Mathilde vindt niets naar haar smaak en we gaan pannenkoeken eten.</Tekst>
+											<Auteur>Hemmerechts, Kristien</Auteur>
+											<Bron>Alle verhalen</Bron>
+											<BronID>497</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515839">
+											<Tekst>Ze hielden geen vee (zoals bij ons varkens en koeien) en moesten dus op jacht gaan als ze vlees wilden eten.</Tekst>
+											<BronID>57031</BronID>
+											<URL>http://home.tiscali.be/an.bloemen/leven.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515859">
+											<Tekst>&quot;Ik eet zeer weinig vlees. Ik eet meestal vis&quot;.</Tekst>
+											<Bron>De Standaard</Bron>
+											<BronID>9316</BronID>
+											<Datering>1996</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515908">
+											<Tekst>De reeën staan naast het rozenperk. Ze vreten de rozenknoppen, denkt Lechner [...]. Waarom komen ze in de tuin? In het bos hebben ze genoeg te eten. Ze worden almaar brutaler.</Tekst>
+											<Auteur>Faschinger, Lilian</Auteur>
+											<Bron>Mooie dingen</Bron>
+											<BronID>569</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516106">
+											<Tekst>Zijn maag gedroeg zich alsof hij iets verkeerds gegeten had.</Tekst>
+											<Auteur>Cock, Tom De</Auteur>
+											<Bron>De Openbaring</Bron>
+											<BronID>136</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met object en substantiefindirect object</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>iemand iets te eten geven</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516778">
+											<Tekst>'En heb je haar iets te eten gegeven?'</Tekst>
+											<Auteur>Keuls, Yvonne</Auteur>
+											<Bron>Mevrouw mijn moeder</Bron>
+											<BronID>90</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met object en adjectief</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>iets [gekookt, koud, rauw, warm] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515987">
+											<Tekst>Zeeuwse platte oesters hebben zo'n verfijnde smaak, dat het zonde is om ze verder te bereiden. De platte oesters worden daarom vrijwel altijd rauw gegeten.</Tekst>
+											<BronID>8739</BronID>
+											<URL>http://www.visbureau.nl/vissoorten.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515989">
+											<Tekst>Dit gerecht kan zowel koud als warm gegeten worden.</Tekst>
+											<Bron>NRC</Bron>
+											<BronID>39389</BronID>
+											<Datering>1993</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515988">
+											<Tekst>U kunt raapstelen rauw en gekookt eten.</Tekst>
+											<BronID>7543</BronID>
+											<URL>http://www.hollandsepot.dordt.nl/producten/producten.htm</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met object en bijwoord</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>iets [dagelijks, voornamelijk] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516094">
+											<Tekst>&quot;U hebt een zeker overgewicht. U zou 1 kilo moeten verliezen.&quot; Dat valt nog mee. &quot;U overschrijdt het aanbevolen maximum van 20 gram alkohol per dag&quot;. Oei, dat zit minder goed. Maar dan krijg ik weer lof: &quot;U eet dagelijks fruit en groenten. Dat is zeer goed. U gebruikt geen extra zout aan tafel en dat is prima.&quot;</Tekst>
+											<Bron>De Standaard</Bron>
+											<BronID>9277</BronID>
+											<Datering>1996</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516095">
+											<Tekst>Mollen hebben zo echter ook hun voordelen: ze eten voornamelijk parasieten, insecten, wormen enz... en hun gangen dragen bij tot verluchting en drainage van vochtige gronden.</Tekst>
+											<BronID>3843</BronID>
+											<URL>http://www.ecoline.org/verde/publicaties/stopdeplaag/index.shtml</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met ander, nevengeschikt werkwoord</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>iets eten of drinken</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516210">
+											<Tekst>Als je tussendoor even iets wilt eten of drinken kan dat niet.</Tekst>
+											<Auteur>Vliet, Paul van</Auteur>
+											<Bron>Kan ik even langskomen?</Bron>
+											<BronID>449</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+					</combinatiesBody>
+					<verbindingenBody>
+						<Verbindingen pid="515836">
+							<Vorm>dat is het hele eieren eten</Vorm>
+							<ArtikelRef>
+								<link>
+									<lemma>ei</lemma>
+									<dtype>ver</dtype>
+									<desc>dat is het hele eieren eten</desc>
+									<pid>514454</pid>
+								</link>
+							</ArtikelRef>
+						</Verbindingen>
+						<Verbindingen pid="516853">
+							<Vorm>er geen boterham minder om eten</Vorm>
+							<ArtikelRef>
+								<link>
+									<lemma>boterham</lemma>
+									<dtype>ver</dtype>
+									<desc>er geen boterham minder om eten</desc>
+									<pid>502268</pid>
+								</link>
+							</ArtikelRef>
+						</Verbindingen>
+						<Verbindingen pid="516865">
+							<Vorm>eten wat de pot schaft</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>eten wat je voorgeschoteld krijgt en niet kieskeurig zijn</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516864">
+										<Tekst>Vroeger moest je eten wat de pot schafte. Als het je niet aanstond, moest je maar honger lijden. En wat kledij betreft, was er ook weinig keuze. De kinderen droegen afleggertjes van oudere broers of zussen, of ze je voorkeur wegdroegen of niet.</Tekst>
+										<BronID>48104</BronID>
+										<URL>http://users.pandora.be/lyceum/ticket.htm</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516143">
+							<Vorm>(geen) kaas gegeten hebben van iets</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>er (niet) veel van afweten; er (geen) verstand van hebben</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516147">
+										<Tekst>Jordan zit meestal te staren naar een punt in de verte. Van acteren heeft hij geen kaas gegeten.</Tekst>
+										<Bron>De Standaard</Bron>
+										<BronID>9219</BronID>
+										<Datering>1997</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516149">
+										<Tekst>En de auteurs zelf? Die hebben er kaas van gegeten. Geef toe, als je een paar tienduizend exemplaren meer kan verkopen door van jezelf een merk te maken, wie zou nee zeggen?</Tekst>
+										<Auteur>Meesdom, Tony</Auteur>
+										<Bron>Van GAFPA tot PRAVDA</Bron>
+										<BronID>37</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516861">
+							<Vorm>genadebrood eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>door anderen worden onderhouden uit genade</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516862">
+										<Tekst>Ja, ze at jullie genadebrood - vijf lange ongelukkige jaren na de oorlog - maar daarom hadden jullie nog niet de vrijheid gestapootje te spelen met haar zo kwetsbare ziel.</Tekst>
+										<Auteur>Seghers, Greta</Auteur>
+										<Bron>Het blauwe meisje en de andere kleuren van de verschrikking</Bron>
+										<BronID>288</BronID>
+										<Datering>1983</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516272">
+							<Vorm>(goed) te eten zijn</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>best eetbaar zijn; niet zo slecht om te eten zijn</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516274">
+										<Tekst>Dat mannen koken, moge dan zo zijn, maar kunnen ze het ook? Is het te eten?</Tekst>
+										<Bron>Intermediair</Bron>
+										<BronID>12433</BronID>
+										<Datering>2002</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516275">
+										<Tekst>Bambu bevat naast cichorei ook nog ingrediënten uit vijgen, tarwe, gemoute gerst en eikels. De tweede cultuurvorm (var. foliosum) wordt gekweekt voor zijn bladeren. Ook de stengelbladeren van de wilde vorm zijn goed te eten, mits ze voor de bloei geplukt zijn.</Tekst>
+										<BronID>64485</BronID>
+										<Datering>1998</Datering>
+										<URL>http://www.botaniewebsite.nl/cichorei.html</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516875">
+							<Vorm>heb je het ooit zo zout gegeten?; zo zout heb ik het nog nooit gegeten!</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>uitroep van verontwaardiging</Definitie>
+									<BijzonderhedenGebruik>
+										<Taalvarieteit>(vooral) in Nederland</Taalvarieteit>
+									</BijzonderhedenGebruik>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516879">
+										<Tekst>We stonden aan zijn bed en hij maar prevelen. Dat hij ging sterven. Hij wilde jullie wat meegeven in het leven. Een pedofiel die iets wil meegeven. Heb je 't ooit zo zout gegeten? Ik niet.</Tekst>
+										<Auteur>Zandwijk, Nelleke</Auteur>
+										<Bron>De dag van de jas</Bron>
+										<BronID>116</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516316">
+							<Vorm>het eet geen brood</Vorm>
+							<ArtikelRef>
+								<link>
+									<lemma>brood</lemma>
+									<dtype>ver</dtype>
+									<desc>het eet geen brood</desc>
+									<pid>504993</pid>
+								</link>
+							</ArtikelRef>
+						</Verbindingen>
+						<Verbindingen pid="516314">
+							<Vorm>iemands brood eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>voor iemand werken; bij iemand in dienst zijn; door iemand betaald worden</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516315">
+										<Tekst>Dat Van Thijn, ondanks zijn falen, onder algemene lof is uitgewuifd, kan er alleen maar op duiden dat hij zich heeft omringd met een clan van mensen, die dagelijks bereid waren zijn brood te eten.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>42918</BronID>
+										<Datering>1994</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516230">
+							<Vorm>ïets eten en slapen</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>bezeten zijn van iets; er dag en nacht mee bezig zijn</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516229">
+										<Tekst>Gould eet en slaapt voetbal. Zijn passie voor het spel kent geen grenzen.</Tekst>
+										<Bron>De Standaard</Bron>
+										<BronID>9448</BronID>
+										<Datering>1997</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516279">
+							<Vorm>niet te eten zijn</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>vies zijn; slecht smaken</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516280">
+										<Tekst>Brood dat ouder was dan een dag was niet te eten.</Tekst>
+										<BronID>8766</BronID>
+										<URL>http://www.brood.net/gesc_00.cfm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="516282">
+										<Tekst>Natuurlijk zou ze op mijn soep pochen, zo was ze ook wel, maar liever nog pochte ze op haar eigen eten, vooral als dat niet te eten was.</Tekst>
+										<Auteur>Zandwijk, Nelleke</Auteur>
+										<Bron>De dag van de jas</Bron>
+										<BronID>116</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516304">
+							<Vorm>woorden eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>kennis vergaren; de geest voeden door te lezen en te luisteren</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516303">
+										<Tekst>'Kijk, dames en heren', zegt Korzybski fijntjes, 'zojuist heb ik aangetoond dat mensen niet alleen voedsel, maar ook woorden eten en dat de smaak van het eerste vaak wordt overstemd door die van het laatste.'</Tekst>
+										<BronID>6725</BronID>
+										<Datering>1996</Datering>
+										<URL>http://www.iepdoc.nl/biblio/artikel_detail.asp?ID=41</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516317">
+							<Vorm>woorden opeten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>woorden inslikken; woorden terugnemen, niet uitspreken</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516318">
+										<Tekst>Ze liggen in mijn mond, die woorden, ik vind dat ik ze zou moeten uitspreken, dat het mijn plicht is als echtgenote van een schrijver, maar ze willen mijn mond niet verlaten, ze blijven daar zitten. Gestremd. Andere woorden kan ik nauwelijks in mijn mond houden. Waarom heb jij nooit getreurd om ons? Waarom treur jij niet om ons? Ik slik krampachtig, eet ze op die woorden, die ik zeker nu niet mag uitspreken, nu hij blij is en enthousiast, nu het weer lukt, het schrijven.</Tekst>
+										<Auteur>Hemmerechts, Kristien</Auteur>
+										<Bron>Alle verhalen</Bron>
+										<BronID>497</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+					</verbindingenBody>
+					<spreekwoordenBody>
+						<Spreekwoorden pid="516370">
+							<Vorm>De mens is wat hij eet</Vorm>
+							<Info>
+								<definitieBody>
+									<Definitie>aan iemands eetgewoonten kan men zien hoe iemand werkelijk is; uit iemands eetgewoonten kan men veel afleiden</Definitie>
+									<Definitieaanvulling>
+										<Opmerking>Naar de stelling &quot;Der mensch ist was er isst&quot; van de Duitse filosoof Ludwig Feuerbach (1804 - 1872).</Opmerking>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516371">
+										<Tekst>Feuerbach is van mening dat een individu en zijn geest, de produkten zijn van hun omgeving. De hele bewustwording van een mens is het resultaat van de interactie tussen de zintuigelijke waarnemingen en de buitenwereld. Hij beweerde dat &quot;Der mensch ist was er isst&quot; (De mens is wat hij eet) en hij pleitte voor beter voedsel om de mensheid te verbeteren.</Tekst>
+										<URL>http://home.kpn.nl/P.Tuin3/Filosofie/Html/Feuerbach.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="516372">
+										<Tekst>De mens is wat hij eet, leerde ik op de middelbare school. Je leert de mens echter nog beter kennen door wat hij principieel níét eet, zeker wanneer hij die overtuigingen als strikt gebod aan anderen oplegt.</Tekst>
+										<URL>http://www.volkskrant.nl/vk/nl/2844/Archief/archief/article/detail/3300184/2012/08/13/Gevaarlijke-driehoekjes.dhtml</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Spreekwoorden>
+						<Spreekwoorden pid="516781">
+							<Vorm>De soep wordt [niet, nooit] zo heet gegeten als ze opgediend wordt</Vorm>
+							<Info>
+								<definitieBody>
+									<Definitie>het zal uiteindelijk wel meevallen; in de praktijk zal het niet zo'n vaart lopen met de uitvoering van aangekondigde strenge maatregelen</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516782">
+										<Tekst>Erbakan trachtte vooral het Westen duidelijk te maken dat er niet zo veel zal veranderen aan de internationale positie van Turkije. Volgens analisten zal de soep niet zo heet worden gegeten als ze bij de verkiezingen eind vorig jaar werd opgediend.</Tekst>
+										<Bron>De Standaard</Bron>
+										<BronID>9072</BronID>
+										<Datering>1996</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Spreekwoorden>
+						<Spreekwoorden pid="516290">
+							<Vorm>Wie meer wil weten, moet woorden eten</Vorm>
+							<Info>
+								<definitieBody>
+									<Definitie>wie kennis wil vergaren, moet veel lezen</Definitie>
+									<Definitieaanvulling>
+										<Opmerking>Naar een dichtregel  van Gerrit Kouwenaar.</Opmerking>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516292">
+										<Tekst>Wie meer wil weten moet woorden eten [...]. Op 20 september werd in het Rotterdamse Delfshaven een lichtkunstwerk onthuld [...]. Een dichtregel van Gerrit Kouwenaar in neon uitgevoerd, prijkt op de gevel van de bibliotheek.</Tekst>
+										<URL>http://www.openbarekunst.nl/kunstwerk/index/id/505</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Spreekwoorden>
+						<Spreekwoorden pid="515838">
+							<Vorm>Wiens brood men eet, diens woord men spreekt</Vorm>
+							<ArtikelRef>
+								<link>
+									<lemma>brood</lemma>
+									<dtype>spr</dtype>
+									<desc>Wiens brood men eet, diens woord men spreekt</desc>
+									<pid>505311</pid>
+								</link>
+							</ArtikelRef>
+						</Spreekwoorden>
+					</spreekwoordenBody>
+					<Woordfamilie>
+						<Afleidingen>eetbaar; eetster; eter; eterij</Afleidingen>
+						<SamenstellingenMetTrefwoordAlsRechterlid>afeten; dooreten; eiereneten; leegeten; opeten; uiteten; vleeseten; wegeten</SamenstellingenMetTrefwoordAlsRechterlid>
+						<SamenstellingenMetTrefwoordAlsLinkerlid>eetrijp; eetwaar; eetwaren; etensklaar; etenswaar; etenswaren</SamenstellingenMetTrefwoordAlsLinkerlid>
+					</Woordfamilie>
+				</betekenisInfo>
+				<Subbetekenis pid="516322">
+					<betekenisInfo>
+						<Betekenisnummer>1.1</Betekenisnummer>
+						<Lemma>
+							<Lemmavorm>eten</Lemmavorm>
+							<Lemmatype>woord</Lemmatype>
+						</Lemma>
+						<Woordsoort>
+							<Type>werkwoord</Type>
+							<Werkwoord>
+								<Functie>zelfstandig werkwoord</Functie>
+								<SyntactischeSubklasse>overgankelijk en noodzakelijk wederkerend</SyntactischeSubklasse>
+								<Vervoeging>onregelmatig/sterk</Vervoeging>
+								<HulpwerkwoordVTBody>
+									<HulpwerkwoordVoltooideTijden>hebben</HulpwerkwoordVoltooideTijden>
+								</HulpwerkwoordVTBody>
+							</Werkwoord>
+						</Woordsoort>
+						<SpellingEnFlexie>
+							<WerkwoordVormen>
+								<Infinitief>
+									<Woordvorm>eten</Woordvorm>
+									<Afbreking>eten</Afbreking>
+								</Infinitief>
+								<Eerste_persoon_o.t.t.>
+									<Woordvorm>eet</Woordvorm>
+									<Afbreking>eet</Afbreking>
+								</Eerste_persoon_o.t.t.>
+								<Tweede_persoon_o.t.t>
+									<Woordvorm>eet</Woordvorm>
+									<Afbreking>eet</Afbreking>
+								</Tweede_persoon_o.t.t>
+								<Derde_persoon_o.t.t>
+									<Woordvorm>eet</Woordvorm>
+									<Afbreking>eet</Afbreking>
+								</Derde_persoon_o.t.t>
+								<Meervoud_o.t.t.>
+									<Woordvorm>eten</Woordvorm>
+									<Afbreking>eten</Afbreking>
+								</Meervoud_o.t.t.>
+								<Enkelvoud_o.v.t>
+									<Woordvorm>at</Woordvorm>
+									<Afbreking>at</Afbreking>
+								</Enkelvoud_o.v.t>
+								<Meervoud_o.v.t.>
+									<Woordvorm>aten</Woordvorm>
+									<Afbreking>aten</Afbreking>
+								</Meervoud_o.v.t.>
+								<Tegenwoordig_deelwoord>
+									<Woordvorm>etend</Woordvorm>
+									<Afbreking>etend</Afbreking>
+								</Tegenwoordig_deelwoord>
+								<Voltooid_deelwoord>
+									<Woordvorm>gegeten</Woordvorm>
+									<Afbreking>ge.ge.ten</Afbreking>
+								</Voltooid_deelwoord>
+							</WerkwoordVormen>
+						</SpellingEnFlexie>
+						<Uitspraak>
+							<AantalLettergrepenBody>
+								<AantalLettergrepen>2</AantalLettergrepen>
+							</AantalLettergrepenBody>
+							<HoofdklemtoonBody>
+								<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+							</HoofdklemtoonBody>
+						</Uitspraak>
+						<Woordvorming>
+							<WoordvormingType>ongeleed</WoordvormingType>
+						</Woordvorming>
+						<definitieBody>
+							<Definitie>zich door te [i]eten[/i] op de hals halen; door te [i]eten[/i] krijgen; te veel eten</Definitie>
+							<Minidefinitie>door te [i]eten[/i] krijgen</Minidefinitie>
+						</definitieBody>
+						<combinatiesBody>
+							<Combinaties>
+								<TrefwoordType>werkwoord</TrefwoordType>
+								<WerkwoordCombi>
+									<WerkwoordRol>met object</WerkwoordRol>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>zich een beroerte eten aan iets; zich een ongeluk eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516330">
+												<Tekst>Beneden in de kelder zitten al vroeg in de ochtend jonge toeristen te blowen en op de bovenste etage klaagt Witteman over de onverantwoordelijke overheid die via een falend gedoogbeleid onder ander veroorzaakt dat steeds meer argeloze opa's en oma's zich in Amsterdam een beroerte eten aan space cake.</Tekst>
+												<Bron>NRC</Bron>
+												<BronID>46129</BronID>
+												<Datering>1994</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516366">
+												<Tekst>Een vergelijking aangaande de aard van het voedsel ging evenmin op: thuis was het onveranderlijk aardappels, pap, pekelharing, bruine haring en een ham aan de spijker voor tegen de kermis, die ene week in het jaar waarin iedereen zich een ongeluk at.</Tekst>
+												<Auteur>Seghers, Greta</Auteur>
+												<Bron>Het blauwe meisje en de andere kleuren van de verschrikking</Bron>
+												<BronID>288</BronID>
+												<Datering>1983</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>zich een indigestie eten</Realisatie>
+											<BijzonderhedenGebruik>
+												<Taalvarieteit>(vooral) in België</Taalvarieteit>
+											</BijzonderhedenGebruik>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516369">
+												<Tekst>Tim heeft zich een indigestie gegeten door de spaghetti van Nancy en ligt kermend op de bank.</Tekst>
+												<URL>http://www.thuisonline.be/viewtopic.php?t=900938&amp;p=313732</URL>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+								</WerkwoordCombi>
+							</Combinaties>
+						</combinatiesBody>
+					</betekenisInfo>
+				</Subbetekenis>
+			</Kernbetekenis>
+			<Kernbetekenis pid="515832">
+				<betekenisInfo>
+					<Betekenisnummer>2.0</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>eten</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>werkwoord</Type>
+						<Werkwoord>
+							<Functie>zelfstandig werkwoord</Functie>
+							<SyntactischeSubklasse>onovergankelijk</SyntactischeSubklasse>
+							<Vervoeging>onregelmatig/sterk</Vervoeging>
+							<HulpwerkwoordVTBody>
+								<HulpwerkwoordVoltooideTijden>hebben</HulpwerkwoordVoltooideTijden>
+							</HulpwerkwoordVTBody>
+						</Werkwoord>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<WerkwoordVormen>
+							<Infinitief>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Infinitief>
+							<Eerste_persoon_o.t.t.>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Eerste_persoon_o.t.t.>
+							<Tweede_persoon_o.t.t>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Tweede_persoon_o.t.t>
+							<Derde_persoon_o.t.t>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Derde_persoon_o.t.t>
+							<Meervoud_o.t.t.>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Meervoud_o.t.t.>
+							<Enkelvoud_o.v.t>
+								<Woordvorm>at</Woordvorm>
+								<Afbreking>at</Afbreking>
+							</Enkelvoud_o.v.t>
+							<Meervoud_o.v.t.>
+								<Woordvorm>aten</Woordvorm>
+								<Afbreking>aten</Afbreking>
+							</Meervoud_o.v.t.>
+							<Tegenwoordig_deelwoord>
+								<Woordvorm>etend</Woordvorm>
+								<Afbreking>etend</Afbreking>
+							</Tegenwoordig_deelwoord>
+							<Voltooid_deelwoord>
+								<Woordvorm>gegeten</Woordvorm>
+								<Afbreking>ge.ge.ten</Afbreking>
+							</Voltooid_deelwoord>
+						</WerkwoordVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>2</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<HoofdklemtoonBody>
+							<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+						</HoofdklemtoonBody>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>ongeleed</WoordvormingType>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>voedsel tot zich nemen</Definitie>
+						<Minidefinitie>voedsel tot zich nemen</Minidefinitie>
+					</definitieBody>
+					<Semagram>
+						<Semagramaanhef>Eten</Semagramaanhef>
+						<Categorieen>
+							<Categorie>is een handeling</Categorie>
+							<Categorie>is een activiteit</Categorie>
+						</Categorieen>
+						<Kenmerken>
+							<Functie_of_doel>
+								<Functie>doet men om in leven te blijven</Functie>
+							</Functie_of_doel>
+							<Handeling_of_werking>
+								<Activiteit_of_handeling>is het nuttigen van voedsel</Activiteit_of_handeling>
+							</Handeling_of_werking>
+						</Kenmerken>
+					</Semagram>
+					<voorbeeldBody>
+						<Voorbeeld pid="515901">
+							<Tekst>Ik wil graag op volleybal, maar dat kost 175 euro voor één seizoen, dan kan ik drie weken niet eten.</Tekst>
+							<BronID>66309</BronID>
+							<Datering>2003</Datering>
+							<URL>http://www.parool.nl/artikelen/HOM/1052197935013.html</URL>
+						</Voorbeeld>
+					</voorbeeldBody>
+					<combinatiesBody>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met verzwegen object</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>iemand te eten geven; te eten en te drinken krijgen</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516779">
+											<Tekst>In de luchtmacht stalen sommige militairen het voedsel uit de refter om hun familie te eten te geven.</Tekst>
+											<Bron>De Standaard</Bron>
+											<BronID>9299</BronID>
+											<Datering>1996</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516780">
+											<Tekst>Te eten en te drinken kreeg hij en zij waren met hem begaan.</Tekst>
+											<Auteur>Lieve de Boeck (ed.)</Auteur>
+											<Bron>Hongarije</Bron>
+											<BronID>567</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met voorzetselgroep</WerkwoordRol>
+								<VoorzetselBody>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>eten van</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516395">
+												<Tekst>Hij at van de linzensoep.</Tekst>
+												<Auteur>Siebelink, Jan</Auteur>
+												<Bron>Engelen van het duister</Bron>
+												<BronID>106</BronID>
+												<Datering>2001</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="515844">
+												<Tekst>Eva 'zag dat de boom goed was om van te eten.' Ze plukte de vrucht.</Tekst>
+												<BronID>57992</BronID>
+												<Datering>2000</Datering>
+												<URL>http://www.nrc.nl/W2/Columns/Vrijdag/000512.html</URL>
+											</Voorbeeld>
+											<Voorbeeld pid="516396">
+												<Tekst>Een week lang zullen ze eten van 1 kilo bonen, 2 kilo tarwemeel, 1,5 kilo pasta, 1 liter olie, gist, suiker en zout.</Tekst>
+												<Bron>Dagblad van het Noorden</Bron>
+												<BronID>12826</BronID>
+												<Datering>2003</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>met smaak eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516874">
+												<Tekst>Tegen half acht is hij beneden in de mess en ontbijt. De officieren eten met smaak en redeneren druk.</Tekst>
+												<Auteur>Siebelink, Jan</Auteur>
+												<Bron>Weerloos</Bron>
+												<BronID>252</BronID>
+												<Datering>1984</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+								</VoorzetselBody>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met bijwoord</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[genoeg, minder, onvoldoende, voldoende, veel, weinig] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515944">
+											<Tekst>'Heb je genoeg gegeten?' 'Ja,' zegt Talm. 'Dank je wel.' Hij staat op van tafel en gaat op de bank zitten.</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>Lisa's adem</Bron>
+											<BronID>69613</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515986">
+											<Tekst>Wie dus echt wil afvallen zal meer moeten doen. In de meeste gevallen zal dat neerkomen op (veel) minder eten en meer bewegen.</Tekst>
+											<BronID>7722</BronID>
+											<URL>http://www.szs.nl/</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515945">
+											<Tekst>Wij hebben vandaag alledrie voldoende gegeten en gedronken.</Tekst>
+											<Auteur>Schouwenaars, Clem</Auteur>
+											<Bron>Gras</Bron>
+											<BronID>286</BronID>
+											<Datering>1982</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515946">
+											<Tekst>Ik vroeg of ze genoeg te eten en te drinken bij zich had.</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>Lisa's adem</Bron>
+											<BronID>69613</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[gevarieerd, gezellig, gezond, goed, graag, heerlijk, lekker, ongezond, slecht, smakelijk, verkeerd] eten; van lekker eten houden; van lekker eten en drinken houden</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516103">
+											<Tekst>Eet gevarieerd: niet één product bevat alle voedingsstoffen die we nodig hebben, dus eet meerdere afwisselende producten.</Tekst>
+											<BronID>72123</BronID>
+											<URL>http://www.gezondheidsnet.nl/</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516102">
+											<Tekst>Leef gezond. Dus eet gezond, slaap voldoende, doe regelmatig aan lichaamsbeweging zodat je sterk bent en niet vatbaar voor infecties.</Tekst>
+											<BronID>70394</BronID>
+											<URL>http://www.buteyko.nl/</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515984">
+											<Tekst>U kunt hier goed eten voor een redelijke prijs.</Tekst>
+											<BronID>72119</BronID>
+											<URL>http://antonius-binnenweg.verpleeghuis.net/</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515983">
+											<Tekst>Tegenwoordig gaan de mensen drie keer per jaar op vakantie, ze drinken graag, ze eten graag, kopen dure kleren.</Tekst>
+											<BronID>3161</BronID>
+											<URL>http://www.veto.student.kuleuven.ac.be/veto2226/josep.html</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515985">
+											<Tekst>We zouden gezellig lekker buiten eten, dus we hadden de tafel gedekt en we hebben daar 's avonds heerlijk gegeten, wijntje erbij gedronken, het was hartstikke gezellig.</Tekst>
+											<BronID>7946</BronID>
+											<Datering>1996</Datering>
+											<URL>http://www.iisg.nl/~staatsarchief/boek/Stadfrm.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515981">
+											<Tekst>Ze eten lekker die avond. De kinderen zijn eerder klaar en gaan op bevel van hun moeder naar hun kamer.</Tekst>
+											<Auteur>Leigh, Julia</Auteur>
+											<Bron>Het tijgerspoor</Bron>
+											<BronID>186</BronID>
+											<Datering>2002</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516105">
+											<Tekst>Veel kinderen eten ongezond. Gemiddeld eten ze dagelijks 30 tot 50 procent minder groenten en fruit dan eigenlijk zou moeten.</Tekst>
+											<Bron>De Telegraaf</Bron>
+											<BronID>12527</BronID>
+											<Datering>2003</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516104">
+											<Tekst>Ik at slecht en slapen ging niet veel beter.</Tekst>
+											<Auteur>Baete, Marcella</Auteur>
+											<Bron>De bondgenoot</Bron>
+											<BronID>125</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515982">
+											<Tekst>'Zoals u wenst, meneer Guggenheimer. Heeft u lekker gegeten?' 'Ja ja.'</Tekst>
+											<Auteur>Brusselmans, Herman</Auteur>
+											<Bron>Uitgeverij Guggenheimer</Bron>
+											<BronID>135</BronID>
+											<Datering>1999</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516019">
+											<Tekst>Onze Pa kon altijd zo smakelijk eten, ook in de tijd toen wij alleen nog maar haring hadden.</Tekst>
+											<Auteur>Schouwenaars, Clem</Auteur>
+											<Bron>Danny</Bron>
+											<BronID>376</BronID>
+											<Datering>1978</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516774">
+											<Tekst>Men heeft nooit kunnen bewijzen dat acne ontstaat door verkeerd eten.</Tekst>
+											<BronID>7797</BronID>
+											<URL>http://www.bodyboetiek.nl/index.html</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met adjectief</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>te vet eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515891">
+											<Tekst>&quot;We eten te vet en bewegen te weinig&quot;, weet Ross, die naar eigen zeggen ook te vaak haar lunchboterhammen achter het bureau opeet.</Tekst>
+											<Bron>Nederlands Dagblad</Bron>
+											<BronID>13279</BronID>
+											<Datering>2003</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[alleen, rustig, samen, zwijgend] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516084">
+											<Tekst>Mini had ons opgedragen ergens anders te gaan zitten, want monniken aten alleen of in elkaars gezelschap.</Tekst>
+											<Auteur>Veen, Adriaan van der</Auteur>
+											<Bron>In liefdesnaam</Bron>
+											<BronID>256</BronID>
+											<Datering>1982</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516085">
+											<Tekst>Hij at rustig – zijn gulzigheid bleek ver weg –, spuwde niets uit en huilde zelfs niet om meer toen zijn kom leeg was.</Tekst>
+											<Auteur>Brijs, Stefan</Auteur>
+											<Bron>Arend</Bron>
+											<BronID>128</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516086">
+											<Tekst>Door elke avond samen te eten kun je elkaar beter leren kennen.</Tekst>
+											<BronID>7435</BronID>
+											<URL>http://www.yfc.nl/</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516087">
+											<Tekst>Ze aten zwijgend hun avondmaal.</Tekst>
+											<Auteur>Evans, Nicholas</Auteur>
+											<Bron>De wolvenlus</Bron>
+											<BronID>175</BronID>
+											<Datering>2002</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>voornaamwoord</TrefwoordType>
+							<VoornaamwoordCombi>
+								<VoornaamwoordRol>met infinitief met te</VoornaamwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[genoeg, iets, niets, onvoldoende, voldoende] te eten hebben</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515976">
+											<Tekst>Ik vroeg of ze genoeg te eten en te drinken bij zich had.</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>Lisa's adem</Bron>
+											<BronID>69613</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515977">
+											<Tekst>Maar ik besefte dat er niets te dreigen viel en dat ik nergens anders iets te eten kon krijgen.</Tekst>
+											<Auteur>Haakman, Anton</Auteur>
+											<Bron>Het paradijs</Bron>
+											<BronID>69614</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515978">
+											<Tekst>Het knaagde in mijn buik. Ik had niets te eten.</Tekst>
+											<Auteur>Peeters, Elvis</Auteur>
+											<Bron>Calvados</Bron>
+											<BronID>524</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515979">
+											<Tekst>Er was onvoldoende te eten, mensen stierven van de honger.</Tekst>
+											<Bron>NRC</Bron>
+											<BronID>9063</BronID>
+											<Datering>1995</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515980">
+											<Tekst>Natuurlijk is er ook voldoende te eten en te drinken.</Tekst>
+											<BronID>8285</BronID>
+											<URL>http://www.muscom.nl/museum/index.htm</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</VoornaamwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met ander, nevengeschikt werkwoord</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>eten en [drinken, praten, slapen]; eten, drinken en slapen</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516211">
+											<Tekst>Ze hadden daar uren zitten eten en drinken.</Tekst>
+											<Auteur>Pol, Barber van de</Auteur>
+											<Bron>Kriblijn</Bron>
+											<BronID>98</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516237">
+											<Tekst>Van sommige dingen gaan we meer boeren. Als we haastig eten. Of als we eten en praten tegelijk.</Tekst>
+											<Bron>Gazet van Antwerpen</Bron>
+											<BronID>75030</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516231">
+											<Tekst>Het is een heerlijk ventje dat niet anders doet dan eten en slapen.</Tekst>
+											<BronID>47044</BronID>
+											<Datering>2003</Datering>
+											<URL>http://www.zappybaby.be/forum_all/index.cfm/fuseaction/thread/CFB/1/TID/287363/StartRow/526.cfm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516217">
+											<Tekst>Tanja moet goed blijven eten en drinken.</Tekst>
+											<BronID>71421</BronID>
+											<URL>http://dierenkliniek-de-toren.nl/Dagboek_van_een_dierenarts/januari_2001/januari_2001.html</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516259">
+											<Tekst>Trainen, trainen en af en toe een wedstrijd spelen. Tel daarbij eten, drinken en slapen en je hebt het dagelijks patroon van een topvolleybalster.</Tekst>
+											<Bron>Meppeler Courant</Bron>
+											<BronID>33917</BronID>
+											<Datering>1995</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+					</combinatiesBody>
+					<verbindingenBody>
+						<Verbindingen pid="516383">
+							<Vorm>daar kan je niet van eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>daar kan je niet van leven</Definitie>
+									<Definitieaanvulling>
+										<Verwijzing>
+											<link>
+												<lemma>brood</lemma>
+												<dtype>ver</dtype>
+												<desc>daar koop ik geen brood mee</desc>
+												<pid>505652</pid>
+											</link>
+										</Verwijzing>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516382">
+										<Tekst>Er is altijd veel geschreven geworden over mijn werk. En zo krijg je dan een grote naam, zoals ze dat zeggen. Maar daar kun je niet van eten.</Tekst>
+										<Auteur>Schouwenaars, Clem</Auteur>
+										<Bron>Liliane, of De spiegelingen van leugen en liefde</Bron>
+										<BronID>287</BronID>
+										<Datering>1983</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516392">
+							<Vorm>dan heb je (al) gegeten en gedronken</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>dan heb je er al meer dan genoeg van</Definitie>
+									<BijzonderhedenGebruik>
+										<Taalvarieteit>(vooral) in Nederland</Taalvarieteit>
+									</BijzonderhedenGebruik>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516394">
+										<Tekst>Bij het betreden van de zaak valt de bedompte rioollucht op. Dan heb je al gegeten en gedronken. Frietje zonder enig karakter. Niet krokant, wel smakeloos.</Tekst>
+										<URL>http://www.ad.nl/ad/nl/1401/tests/integration/nmc/frameset/varia/friettest_2013.dhtml?plaatsnaam=Nijkerk</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="516393">
+										<Tekst>Het moet heerlijk zijn. Maar zeg zo'n woord nu eens zachtjes: zuiglam... Dan heb je gegeten en gedronken. Ik eet geen konijn. Nooit. Want ik stop mijn Pim ook niet in de pan, hoewel er volkeren zijn die in de rij staan voor stoofpoes.</Tekst>
+										<BronID>62735</BronID>
+										<Datering>1998</Datering>
+										<URL>http://www.xs4all.nl/~jeroenvu/gwv/voskuil.htm</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516380">
+							<Vorm>er goed van eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>een goede baan hebben, er goed aan verdienen en niet hoeven te bezuinigen op voedsel en drank</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516381">
+										<Tekst>Jan Rot is niet gelukkig, maar hij eet er goed van. Voorstelling: Hard zingend in het donker, door Jan Rot.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9064</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516384">
+							<Vorm>eten als een [bootwerker, dijker, paard]</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>zeer veel eten</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516386">
+										<Tekst>Ava kan eten als een bootwerker. Ze kiest vooraf een kreeftensoep met room, als hoofdgerecht de Steak aux poivre met extra saus en Franse aardappeltjes die ze in hun geheel in haar mond stopt. Toe neemt ze een ijspallet met exotische vruchten, gesmolten marshmallows en slagroom. 'Ik heb er honger van gekregen, meneer Hofman,' verontschuldigt ze zich.</Tekst>
+										<Auteur>Buter, Daphne</Auteur>
+										<Bron>Alle vogels van de wereld</Bron>
+										<BronID>424</BronID>
+										<Datering>2000</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516385">
+										<Tekst>Hij/zij eet als een dijker en groeit flink.</Tekst>
+										<BronID>55863</BronID>
+										<Datering>2002</Datering>
+										<URL>http://forum.dierenparadijs.be/index.php?showtopic=15696</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="516387">
+										<Tekst>Een sumo-worstelaar doet niets anders dan trainen, eten als een paard, drinken als een walvis.</Tekst>
+										<BronID>5847</BronID>
+										<URL>http://www.bop.vgc.be/tijdschriften/wablieft/wab359/Wa59spo1.txt</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516388">
+							<Vorm>eten als een varken</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>eten zonder tafelmanieren; niet netjes eten</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516389">
+										<Tekst>'En hij heeft geen tafelmanieren. Heb je hem weleens zien eten? Hij eet als een varken.'</Tekst>
+										<Auteur>Grunberg, Arnon</Auteur>
+										<Bron>Fantoompijn</Bron>
+										<BronID>85</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516390">
+							<Vorm>eten als een vogeltje</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>weinig eten; zuinigjes eten met kleine beetjes</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516391">
+										<Tekst>Mijn Mathilde at als een vogeltje omdat ze niet veel nodig had, maar dat begrepen de mensen niet.</Tekst>
+										<Auteur>Jagt, Marek van der</Auteur>
+										<Bron>Gstaad 95-98</Bron>
+										<BronID>88</BronID>
+										<Datering>2002</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516783">
+							<Vorm>eten voor twee</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>veel eten; ook: meer eten tijdens de zwangerschap</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516784">
+										<Tekst>'Eten voor twee' is niet nodig, maar veel afvallen tijdens de zwangerschap of de borstvoeding is niet verstandig.</Tekst>
+										<BronID>72184</BronID>
+										<URL>http://www.nvog.nl/</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="515902">
+							<Vorm>je [kan, kunt] er van de vloer eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>het is er erg schoon</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="515903">
+										<Tekst>Hanna zorgde voor haar koeien alsof het baby's waren en in de streek zei men dat haar stal zo schoon was dat je er van de vloer kon eten.</Tekst>
+										<Auteur>Fredriksson, Marianne</Auteur>
+										<Bron>Anna, Hanna en Johanna</Bron>
+										<BronID>179</BronID>
+										<Datering>2000</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516194">
+							<Vorm>uit iemands hand eten; uit de hand eten (van)</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>zeer mak zijn; zeer volgzaam zijn</Definitie>
+									<Definitieaanvulling>
+										<SemantischeCollocator>
+											<Aanloopzin>Gezegd van ...</Aanloopzin>
+											<Restrictie>mensen en dieren</Restrictie>
+										</SemantischeCollocator>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516206">
+										<Tekst>'Een heks' flitste het door me heen. Als je ziet hoe ze m'n vader heeft ingepakt... Die eet uit haar hand.</Tekst>
+										<Auteur>Deelder, Jules</Auteur>
+										<Bron>Sneeuwwitje en de zeven dwergen</Bron>
+										<BronID>389</BronID>
+										<Datering>2000</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516209">
+										<Tekst>Bij de post vind ik een exemplaar van het nieuwe boek van Fleur Bourgonje. Onderstroom. Wat een heerlijk excuus om mijn werk te staken. Ik ben al aan het lezen. Een vrouw, een man. 'De gazellen eten uit zijn hand', staat er. Soort Hooglied.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9064</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516863">
+										<Tekst>De omroep at nog uit de hand van de officiële voorlichting en die weerspiegelde voornamelijk de verwarring van het militaire opperbevel.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9063</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="515849">
+							<Vorm>uit zijn neus eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>in zijn neus peuteren en het snot opeten</Definitie>
+								</definitieBody>
+								<SynoniemBody>
+									<Synoniem>
+										<link>
+											<lemma>uit zijn neus vreten</lemma>
+											<dtype>art</dtype>
+											<pid>515853</pid>
+										</link>
+									</Synoniem>
+								</SynoniemBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="515856">
+										<Tekst>Volgens Professor Dr. Friedrich Bischinger zijn mensen die uit hun neus eten gezond, gelukkiger en waarschijnlijk in meer harmonie met hun lichamen.</Tekst>
+										<URL>http://www.neuspeuter.nl/neuspeuteren-is-gezond/</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+							<Info>
+								<Betekenisletter>b</Betekenisletter>
+								<definitieBody>
+									<Definitie>zijn tijd verdoen met luieren</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="515852">
+										<Tekst>Nooit verzonden sollicitatiebrief. Geachte mevrouw, meneer, Met belangstelling heb ik kennis genomen van uw advertentie in een of andere krant van een of andere dag, waarin u vraagt om een medewerker huppeldepup voor 32 of 36 of 38 uur per week of wellicht betreft het een deeltijdfunctie, maar het zal me eerlijk gezegd verder ook een rotworst wezen hoeveel uur ik bij uw bedrijf uit mijn neus zou kunnen gaan eten.</Tekst>
+										<BronID>62004</BronID>
+										<Datering>2001</Datering>
+										<URL>http://www.defabel.nl/40072e01.htm</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516121">
+							<Vorm>van iemand of iets eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>ervan bestaan; ervan leven</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516122">
+										<Tekst>Want niet alleen de arbeiders eten van De Werf, maar praktisch iedereen in deze streek heeft er mee te maken.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>46529</BronID>
+										<Datering>1994</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516123">
+							<Vorm>van twee [wallen, walletjes] eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>twee verschillende partijen steunen en daar zijn voordeel mee doen</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516125">
+										<Tekst>De BSP wil evenwel geen verkiezingen, omdat de huidige situatie haar heel aardig uitkomt: ze eet van twee wallen. Enerzijds kan ze Berov permanent onder druk houden, werken aan de geleidelijke terugkeer van communistische kaders in de economie en het bestuur, en hervormingsvoorstellen afzwakken, anderzijds draagt ze voor impopulaire maatregelen geen formele verantwoordelijkheid.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>42177</BronID>
+										<Datering>1993</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516127">
+										<Tekst>&quot;Je kan niet van twee walletjes eten,&quot; vindt hij. &quot;Je wil topsporter worden of niet, je wil een olympische titel of niet. Daar betaal je dan een prijs voor. Wat die is? Alles opgeven, ook je privéleven.&quot;</Tekst>
+										<Bron>De Standaard</Bron>
+										<BronID>9292</BronID>
+										<Datering>1996</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516866">
+							<Vorm>zich door de rijstebrijberg heen eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>doorzetten en veel moeilijkheden overwinnen</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516870">
+										<Tekst>Ik streelde haar borsten [...]. 'Vind je ze mooi? Ze zijn helemaal voor jou.' Haar ten antwoord dook ik er met gulzige mond middenin alsof ik mij door de rijstebrijberg heen moest eten om mijzelf toegang te verschaffen tot het Land van Kokanje waar zoete, zwarte wijn alle dagen op je dronken lippen regent.</Tekst>
+										<Auteur>Pfeijffer, Ilja Leonard</Auteur>
+										<Bron>Rupert: een bekentenis</Bron>
+										<BronID>97</BronID>
+										<Datering>2002</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+					</verbindingenBody>
+					<Woordfamilie>
+						<Afleidingen>eetster; eter; eterij</Afleidingen>
+						<SamenstellingenMetTrefwoordAlsRechterlid>dooreten; emotie-eten; ineten; troosteten; uiteten; verdereten; vingereten; voorteten</SamenstellingenMetTrefwoordAlsRechterlid>
+						<SamenstellingenMetTrefwoordAlsLinkerlid>eetaanval; eetbak; eetbeperking; eetbord; eetbui; eetcultuur; eetdoos; eetgedrag; eetgeluid; eetgerei; eetgerief; eetketel; eetkom; eetgewoonte; eetlepel; eetles; eetlezen; eetlust; eetmaal; eetplaats; eetplezier; eetprobleem; eetservies; eetstoel; eetstokje; eetstoornis; eettafel; eettempo; eettherapie; eettraditie; eetverslaving; eetzak; eetziekte; eetzucht; etensbak; etensblik</SamenstellingenMetTrefwoordAlsLinkerlid>
+					</Woordfamilie>
+				</betekenisInfo>
+				<Subbetekenis pid="516323">
+					<betekenisInfo>
+						<Betekenisnummer>2.1</Betekenisnummer>
+						<Lemma>
+							<Lemmavorm>eten</Lemmavorm>
+							<Lemmatype>woord</Lemmatype>
+						</Lemma>
+						<Woordsoort>
+							<Type>werkwoord</Type>
+							<Werkwoord>
+								<Functie>zelfstandig werkwoord</Functie>
+								<SyntactischeSubklasse>onovergankelijk en noodzakelijk wederkerend</SyntactischeSubklasse>
+								<Vervoeging>onregelmatig/sterk</Vervoeging>
+								<HulpwerkwoordVTBody>
+									<HulpwerkwoordVoltooideTijden>hebben</HulpwerkwoordVoltooideTijden>
+								</HulpwerkwoordVTBody>
+							</Werkwoord>
+						</Woordsoort>
+						<SpellingEnFlexie>
+							<WerkwoordVormen>
+								<Infinitief>
+									<Woordvorm>eten</Woordvorm>
+									<Afbreking>eten</Afbreking>
+								</Infinitief>
+								<Eerste_persoon_o.t.t.>
+									<Woordvorm>eet</Woordvorm>
+									<Afbreking>eet</Afbreking>
+								</Eerste_persoon_o.t.t.>
+								<Tweede_persoon_o.t.t>
+									<Woordvorm>eet</Woordvorm>
+									<Afbreking>eet</Afbreking>
+								</Tweede_persoon_o.t.t>
+								<Derde_persoon_o.t.t>
+									<Woordvorm>eet</Woordvorm>
+									<Afbreking>eet</Afbreking>
+								</Derde_persoon_o.t.t>
+								<Meervoud_o.t.t.>
+									<Woordvorm>eten</Woordvorm>
+									<Afbreking>eten</Afbreking>
+								</Meervoud_o.t.t.>
+								<Enkelvoud_o.v.t>
+									<Woordvorm>at</Woordvorm>
+									<Afbreking>at</Afbreking>
+								</Enkelvoud_o.v.t>
+								<Meervoud_o.v.t.>
+									<Woordvorm>aten</Woordvorm>
+									<Afbreking>aten</Afbreking>
+								</Meervoud_o.v.t.>
+								<Tegenwoordig_deelwoord>
+									<Woordvorm>etend</Woordvorm>
+									<Afbreking>etend</Afbreking>
+								</Tegenwoordig_deelwoord>
+								<Voltooid_deelwoord>
+									<Woordvorm>gegeten</Woordvorm>
+									<Afbreking>ge.ge.ten</Afbreking>
+								</Voltooid_deelwoord>
+							</WerkwoordVormen>
+						</SpellingEnFlexie>
+						<Uitspraak>
+							<AantalLettergrepenBody>
+								<AantalLettergrepen>2</AantalLettergrepen>
+							</AantalLettergrepenBody>
+							<HoofdklemtoonBody>
+								<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+							</HoofdklemtoonBody>
+						</Uitspraak>
+						<Woordvorming>
+							<WoordvormingType>ongeleed</WoordvormingType>
+						</Woordvorming>
+						<definitieBody>
+							<Definitie>zich door te [i]eten[/i] in een bepaalde toestand brengen; te veel eten</Definitie>
+							<Minidefinitie>zich door te [i]eten[/i] in een bepaalde toestand brengen</Minidefinitie>
+						</definitieBody>
+						<combinatiesBody>
+							<Combinaties>
+								<TrefwoordType>werkwoord</TrefwoordType>
+								<WerkwoordCombi>
+									<WerkwoordRol>met adjectief</WerkwoordRol>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>zich [dik, dood, ongans, rond, vol] eten; zich [misselijk, vet, ziek] eten aan iets</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516857">
+												<Tekst>Ook al zien de satés er nog zo smakelijk uit, hij vergeet niet dat hij aan de maaltijd in Brastagi gezegd heeft dat hij niet van het beetje dat de bevolking toebedeeld krijgt zich dik gaat zitten eten.</Tekst>
+												<Auteur>Wolkers, Jan</Auteur>
+												<Bron>De kus</Bron>
+												<BronID>261</BronID>
+												<Datering>1980</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516329">
+												<Tekst>Hij voorzag Alda de godganse dag van lekkere tussendoortjes omdat hij het had opgegeven om zich tegen haar honger te verzetten: als zij zich dood wilde eten dan moest ze dat maar doen.</Tekst>
+												<Auteur>Buter, Daphne</Auteur>
+												<Bron>Alle vogels van de wereld</Bron>
+												<BronID>424</BronID>
+												<Datering>2000</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516367">
+												<Tekst>Overdag werkte hij zich kapot op een bouwterrein, 's avonds gaf hij zich over aan zijn passie, namelijk zich ongans eten aan wijngaardslakken in de levenmiddelenafdeling van het KaDeWe, het Kaufhaus des Westen.</Tekst>
+												<Auteur>Kaminer, Wladimir</Auteur>
+												<Bron>Russendisco</Bron>
+												<BronID>183</BronID>
+												<Datering>2001</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516324">
+												<Tekst>Van half mei t/m juli vangen de vissers 'vette' haringen. Die hebben zich lekker rond kunnen eten omdat er in deze maanden volop plankton is.</Tekst>
+												<BronID>7543</BronID>
+												<URL>http://www.hollandsepot.dordt.nl/producten/producten.htm</URL>
+											</Voorbeeld>
+											<Voorbeeld pid="516325">
+												<Tekst>Mentale aandoeningen maar ook verkeerde leefgewoonten zoals zich vol eten voor het slapen gaan of een teveel aan alcohol.</Tekst>
+												<BronID>61401</BronID>
+												<Datering>2004</Datering>
+												<URL>http://www.herbaru.nl/artikelen/slapeloosheid.html</URL>
+											</Voorbeeld>
+											<Voorbeeld pid="516326">
+												<Tekst>De hockeyers van Bloemendaal kunnen zich deze week misselijk eten aan gebak.</Tekst>
+												<Bron>NRC</Bron>
+												<BronID>9061</BronID>
+												<Datering>1995</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516327">
+												<Tekst>Ook de leerlingen die op bezoek gingen bij Mars om meer aan de weet te komen over bedrijfsbeveiliging liepen tegen de grenzen van hun onderwerp aan. Ze mochten zich desnoods ziek eten aan marsrepen, maar uit veiligheidsoverwegingen kon er helaas niet gefilmd worden binnen het bedrijf.</Tekst>
+												<Bron>NRC</Bron>
+												<BronID>9061</BronID>
+												<Datering>1995</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516328">
+												<Tekst>De kwaliteit van de Parmaham begint bij de varkens, die zich vet mogen eten aan gerst, maïs en fruit.</Tekst>
+												<BronID>71749</BronID>
+												<URL>http://www.delicatessenhuis.nl/</URL>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+								</WerkwoordCombi>
+							</Combinaties>
+						</combinatiesBody>
+						<Woordfamilie>
+							<SamenstellingenMetTrefwoordAlsRechterlid>zich doodeten; zich overeten</SamenstellingenMetTrefwoordAlsRechterlid>
+						</Woordfamilie>
+					</betekenisInfo>
+				</Subbetekenis>
+			</Kernbetekenis>
+			<Kernbetekenis pid="515833">
+				<betekenisInfo>
+					<Betekenisnummer>3.0</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>eten</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>werkwoord</Type>
+						<Werkwoord>
+							<Functie>zelfstandig werkwoord</Functie>
+							<SyntactischeSubklasse>onovergankelijk</SyntactischeSubklasse>
+							<Vervoeging>onregelmatig/sterk</Vervoeging>
+							<HulpwerkwoordVTBody>
+								<HulpwerkwoordVoltooideTijden>hebben</HulpwerkwoordVoltooideTijden>
+							</HulpwerkwoordVTBody>
+						</Werkwoord>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<WerkwoordVormen>
+							<Infinitief>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Infinitief>
+							<Eerste_persoon_o.t.t.>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Eerste_persoon_o.t.t.>
+							<Tweede_persoon_o.t.t>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Tweede_persoon_o.t.t>
+							<Derde_persoon_o.t.t>
+								<Woordvorm>eet</Woordvorm>
+								<Afbreking>eet</Afbreking>
+							</Derde_persoon_o.t.t>
+							<Meervoud_o.t.t.>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Meervoud_o.t.t.>
+							<Enkelvoud_o.v.t>
+								<Woordvorm>at</Woordvorm>
+								<Afbreking>at</Afbreking>
+							</Enkelvoud_o.v.t>
+							<Meervoud_o.v.t.>
+								<Woordvorm>aten</Woordvorm>
+								<Afbreking>aten</Afbreking>
+							</Meervoud_o.v.t.>
+							<Tegenwoordig_deelwoord>
+								<Woordvorm>etend</Woordvorm>
+								<Afbreking>etend</Afbreking>
+							</Tegenwoordig_deelwoord>
+							<Voltooid_deelwoord>
+								<Woordvorm>gegeten</Woordvorm>
+								<Afbreking>ge.ge.ten</Afbreking>
+							</Voltooid_deelwoord>
+						</WerkwoordVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>2</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<HoofdklemtoonBody>
+							<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+						</HoofdklemtoonBody>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>ongeleed</WoordvormingType>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>een maaltijd gebruiken</Definitie>
+					</definitieBody>
+					<Woordrelaties>
+						<Hyperoniem>
+							<link>
+								<lemma>gebruiken</lemma>
+								<dtype>art</dtype>
+								<pid>55099</pid>
+							</link>
+						</Hyperoniem>
+					</Woordrelaties>
+					<Betekenisbetrekking>
+						<AardBody>
+							<Algemeen>metonymie</Algemeen>
+						</AardBody>
+						<BetrokkenBetekenissen>2.0 : 3.0</BetrokkenBetekenissen>
+					</Betekenisbetrekking>
+					<Semagram>
+						<Semagramaanhef>Eten</Semagramaanhef>
+						<Categorieen>
+							<Categorie>is een handeling</Categorie>
+							<Categorie>is een activiteit</Categorie>
+						</Categorieen>
+						<Kenmerken>
+							<Handeling_of_werking>
+								<Activiteit_of_handeling>is het gebruiken van een maaltijd</Activiteit_of_handeling>
+							</Handeling_of_werking>
+						</Kenmerken>
+					</Semagram>
+					<voorbeeldBody>
+						<Voorbeeld pid="515840">
+							<Tekst>We gaan terug eten in het hotel waar we ook gisteren aten en weer zijn we er alleen.</Tekst>
+							<BronID>47142</BronID>
+							<Datering>2000</Datering>
+							<URL>http://users.telenet.be/tomtorfs/egypte/egypte.html</URL>
+						</Voorbeeld>
+					</voorbeeldBody>
+					<combinatiesBody>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met bijwoord</WerkwoordRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[buitenshuis, er, ergens, thuis, uit] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516010">
+											<Tekst>Algemene trends zijn aandacht voor gezondheid en milieu, prijsbewustzijn, gemak en buitenshuis eten.</Tekst>
+											<BronID>72910</BronID>
+											<Datering>2001</Datering>
+											<URL>http://www.rlg.nl/alginfoframe.html</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515904">
+											<Tekst>Wie er wil eten moet in dit sober ingerichte restaurant ver vooruit reserveren.</Tekst>
+											<Bron>News.nl</Bron>
+											<BronID>9503</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515905">
+											<Tekst>Eerst gaan we ergens eten, lekker wijntje erbij, beetje sjiek.</Tekst>
+											<Bron>NRC</Bron>
+											<BronID>40049</BronID>
+											<Datering>1993</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516008">
+											<Tekst>Wat is er toch tegen thuis eten?</Tekst>
+											<Auteur>Straaten, Peter van</Auteur>
+											<Bron>Niet doen Agnes</Bron>
+											<BronID>447</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516016">
+											<Tekst>Hij zegt: 'Liefje, ik eet vanavond uit,' zij zegt: 'Met iemand die ik ken?'</Tekst>
+											<Auteur>Hemmerechts, Kristien</Auteur>
+											<Bron>Alle verhalen</Bron>
+											<BronID>497</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[eerst, laat, vroeg] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516091">
+											<Tekst>Cecilia voorkwam een nieuwe uitbarsting van Lodewijk door met luide stem vast te stellen dat iedereen honger had. 'We gaan eerst eten,' zei ze. 'Lodewijk en ik gaan eten halen bij de chinees.'</Tekst>
+											<Auteur>Keuls, Yvonne</Auteur>
+											<Bron>Annie Berber en het verdriet van een tedere crimineel</Bron>
+											<BronID>205</BronID>
+											<Datering>1985</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516092">
+											<Tekst>Waarom denk je dat wij hier thuis altijd zo laat eten?</Tekst>
+											<Auteur>Coupland, Douglas</Auteur>
+											<Bron>Alle families zijn psychotisch</Bron>
+											<BronID>174</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516093">
+											<Tekst>Dit is vakantie, we hebben afgesproken vanavond vroeg te eten en dan naar het honkbal te gaan kijken.</Tekst>
+											<Auteur>Smeets, Mart</Auteur>
+											<Bron>Murfreesboro blues</Bron>
+											<BronID>445</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>iemand smakelijk eten wensen</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516033">
+											<Tekst>Met een buiginkje, een knikje en een vriendelijke lachje, serveerde de ober de Drentse Heerlijkheid uit. Hij wenste ons smakelijk eten. Het was heerlijk, stiekem veegde ik met mijn wijsvinger de restjes van het bord.</Tekst>
+											<BronID>58701</BronID>
+											<URL>http://www.examedia.nl/columnx/modules/news/article.php?storyid=714</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</WerkwoordCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>werkwoord</TrefwoordType>
+							<WerkwoordCombi>
+								<WerkwoordRol>met voorzetselgroep</WerkwoordRol>
+								<VoorzetselBody>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>[aan tafel, van zijn schoot] eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516158">
+												<Tekst>We eten van onze schoot, niet aan de tafel: zo is het gezelliger, vindt Diana.</Tekst>
+												<Auteur>Meinkema, Hannes</Auteur>
+												<Bron>Het binnenste ei</Bron>
+												<BronID>243</BronID>
+												<Datering>1981</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>[in de keuken, in de stad, in de tuin, in een restaurant] eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516109">
+												<Tekst>Zijn ouders aten in de keuken en liepen op hun tenen door het huis.</Tekst>
+												<Auteur>Rijk de Gooijer &amp; Eelke de Jong</Auteur>
+												<Bron>De natte gemeente van Koos Tak</Bron>
+												<BronID>231</BronID>
+												<Datering>1984</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516110">
+												<Tekst>Ze voelde echter minder eenzaamheid, ging veel uit en vond het een prettige afleiding om voor de balletaccessoires te zorgen. Ze zag veel vrienden, at in de stad. Ging naar theater en borduurde een nieuw tafelkleed.</Tekst>
+												<Auteur>Hekken, Renee Van</Auteur>
+												<Bron>Leven op het lemmet</Bron>
+												<BronID>271</BronID>
+												<Datering>1981</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516111">
+												<Tekst>We aten in een restaurant met een speeltuin, deden ons daarna te goed aan ijsjes op het plein boven de zee.</Tekst>
+												<Auteur>Scholten, Jaap</Auteur>
+												<Bron>Morgenster</Bron>
+												<BronID>105</BronID>
+												<Datering>2000</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>[op het balkon, op het terras] eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516189">
+												<Tekst>Ze aten op het terras achter het huis, onder een grote witte parasol.</Tekst>
+												<Auteur>Jong, Oek de</Auteur>
+												<Bron>Hokwerda's kind</Bron>
+												<BronID>89</BronID>
+												<Datering>2002</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516190">
+												<Tekst>We eten op het balkon, ofschoon de wind al wat kouder is en het voedsel snel doet afkoelen.</Tekst>
+												<Auteur>Heijden, A.F.Th. van der</Auteur>
+												<Bron>Engelenplaque</Bron>
+												<BronID>6</BronID>
+												<Datering>1973-2003</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>met iemand eten; met iemand gaan eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516113">
+												<Tekst>Dan komt de rechter thuis en eet met zijn vrouw en kinderen.</Tekst>
+												<Auteur>Biesheuvel, J.M.A.</Auteur>
+												<Bron>De steen der wijzen</Bron>
+												<BronID>222</BronID>
+												<Datering>1983</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516114">
+												<Tekst>De accountant ging eten met zijn klant zelf.</Tekst>
+												<BronID>2091</BronID>
+												<Datering>2001</Datering>
+												<URL>http://www.ddv.be/artikel/20010420.htm</URL>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>bij iemand eten</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516120">
+												<Tekst>Ze eten bij een vriendje en daarna hebben ze iets op school.</Tekst>
+												<Auteur>Enquist, Anna</Auteur>
+												<Bron>Het meesterstuk</Bron>
+												<BronID>77</BronID>
+												<Datering>1999</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+								</VoorzetselBody>
+							</WerkwoordCombi>
+						</Combinaties>
+					</combinatiesBody>
+					<verbindingenBody>
+						<Verbindingen pid="516855">
+							<Vorm>buiten de deur eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>buitenshuis, in een restaurant eten</Definitie>
+								</definitieBody>
+								<SynoniemBody>
+									<Synoniem>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>uit eten; uit eten gaan</desc>
+											<pid>516012</pid>
+										</link>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>gaan eten</desc>
+											<pid>516013</pid>
+										</link>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>uit eten; uit eten gaan</desc>
+											<pid>516012</pid>
+										</link>
+									</Synoniem>
+								</SynoniemBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516856">
+										<Tekst>Johan blijft steeds vaker en langer weg; hij is in het atelier, hij werkt. Hij eet buiten de deur omdat hij zich thuis geen raad weet. Het huiselijk leven desintegreert.</Tekst>
+										<Auteur>Enquist, Anna</Auteur>
+										<Bron>Het meesterstuk</Bron>
+										<BronID>77</BronID>
+										<Datering>1999</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516029">
+							<Vorm>eet smakelijk!; smakelijk eten!</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>wens bij het begin van een maaltijd</Definitie>
+								</definitieBody>
+								<SynoniemBody>
+									<Synoniem>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>eet ze!</desc>
+											<pid>516034</pid>
+										</link>
+									</Synoniem>
+									<BijzonderhedenGebruik>
+										<Taalvarieteit>(vooral) in Nederland</Taalvarieteit>
+										<Stijl>informeel</Stijl>
+										<Medium>(vooral) gesproken taal</Medium>
+									</BijzonderhedenGebruik>
+								</SynoniemBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516030">
+										<Tekst>Er is keuze uit vers gesneden vleessoorten, kaasbeleg en verschillende soorten zoet. We eten zelfs met mes en vork en ook het servet mag natuurlijk niet ontbreken. Smakelijk eten!</Tekst>
+										<BronID>70502</BronID>
+										<URL>http://www.dse.nl/barrier/barrier.html</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="516032">
+										<Tekst>'Wil je al een boterhammetje?' vroeg mijn moeder hem. 'En wat graag,' zei hij. Mijn moeder opende de twee broodtrommeltjes. Mijn vader nam er een, zette het op tafel neer. Mijn moeder deed hetzelfde en daarna vouwden ze beiden hun handen en bad mijn vader luidop: 'O, Vader die al 't leven voedt [...], Amen.' 'Nou, eet smakelijk,' zei mijn moeder.</Tekst>
+										<Auteur>Hart, Maarten 't</Auteur>
+										<Bron>Het woeden der gehele wereld</Bron>
+										<BronID>69615</BronID>
+										<Datering>1993</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516034">
+							<Vorm>eet ze!</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>wens bij het begin van een maaltijd</Definitie>
+									<BijzonderhedenGebruik>
+										<Taalvarieteit>(vooral) in Nederland</Taalvarieteit>
+										<Stijl>informeel</Stijl>
+										<Medium>(vooral) gesproken taal</Medium>
+									</BijzonderhedenGebruik>
+								</definitieBody>
+								<SynoniemBody>
+									<Synoniem>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>eet smakelijk!; smakelijk eten!</desc>
+											<pid>516029</pid>
+										</link>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>eet smakelijk!; smakelijk eten!</desc>
+											<pid>516029</pid>
+										</link>
+									</Synoniem>
+								</SynoniemBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516035">
+										<Tekst>Ze voelde zich vaak een soort zedeninspecteur die iedere incorrecte omgang met meubels, servies, bestek en de gerechten zelf registreerde en het niet kon opbrengen sympathie te voelen voor prakkers, hakkers, schoffelaars en slurpers, voor mensen die de maaltijd met 'Eet ze' begonnen en eindigden met 'Ik zit goed vol'.</Tekst>
+										<Auteur>Brederode, Désanne van</Auteur>
+										<Bron>Mensen met een hobby</Bron>
+										<BronID>71</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516013">
+							<Vorm>gaan eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>aan de maaltijd beginnen</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516015">
+										<Tekst>Ze vraagt aan mama of ze gaan eten. Nee, zegt mama, nog niet, straks gaan we eten.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9063</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+							<Info>
+								<Betekenisletter>b</Betekenisletter>
+								<definitieBody>
+									<Definitie>buitenshuis, in een restaurant eten</Definitie>
+								</definitieBody>
+								<SynoniemBody>
+									<Synoniem>
+										<link>
+											<lemma>buiten de deur eten</lemma>
+											<dtype>art</dtype>
+											<pid>516854</pid>
+										</link>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>uit eten; uit eten gaan</desc>
+											<pid>516012</pid>
+										</link>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>uit eten; uit eten gaan</desc>
+											<pid>516012</pid>
+										</link>
+									</Synoniem>
+								</SynoniemBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516014">
+										<Tekst>Die vent heeft mij uitgenodigd om met hem mee te gaan eten.</Tekst>
+										<Auteur>Schouwenaars, Clem</Auteur>
+										<Bron>Liliane, of De spiegelingen van leugen en liefde</Bron>
+										<BronID>287</BronID>
+										<Datering>1983</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516397">
+							<Vorm>iemand te eten [hebben, vragen]</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>iemand als gast bij de maaltijd hebben of vragen</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516399">
+										<Tekst>Twee dagen lang had Hetty niet op de naam van Sophia Loren kunnen komen en nu had ze Sietse te eten.</Tekst>
+										<Auteur>Romijn Meijer, Henk</Auteur>
+										<Bron>Oprechter trouw</Bron>
+										<BronID>100</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="516398">
+										<Tekst>Berry en zijn vrouw Marianne hebben ons te eten gevraagd en we moeten om 12.00 uur al komen.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9061</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516012">
+							<Vorm>uit eten; uit eten gaan</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>buitenshuis, in een restaurant eten</Definitie>
+								</definitieBody>
+								<SynoniemBody>
+									<Synoniem>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>gaan eten</desc>
+											<pid>516013</pid>
+										</link>
+										<link>
+											<lemma>eten</lemma>
+											<dtype>ver</dtype>
+											<desc>buiten de deur eten</desc>
+											<pid>516855</pid>
+										</link>
+									</Synoniem>
+								</SynoniemBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516011">
+										<Tekst>Ze waren drie dagen geleden uit eten gegaan om haar zestigste verjaardag te vieren.</Tekst>
+										<Auteur>Broeck, Walter van den</Auteur>
+										<Bron>Verdwaalde post</Bron>
+										<BronID>131</BronID>
+										<Datering>1998</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516003">
+							<Vorm>warm eten</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>'s middags of 's avonds de hoofdmaaltijd gebruiken die hoofdzakelijk uit warme gerechten bestaat</Definitie>
+									<Definitieaanvulling>
+										<Opmerking>Tegenover de broodmaaltijd waarbij doorgaans weinig of geen warme gerechten gegeten worden.</Opmerking>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516004">
+										<Tekst>Het is één uur 's middags en we hebben net warm gegeten.</Tekst>
+										<BronID>72372</BronID>
+										<URL>http://www.xs4all.nl/~maaikem/self1.html</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+					</verbindingenBody>
+					<Woordfamilie>
+						<Afleidingen>eetster; eter</Afleidingen>
+						<SamenstellingenMetTrefwoordAlsRechterlid>avondeten; mee-eten; middageten; noeneten; uiteten</SamenstellingenMetTrefwoordAlsRechterlid>
+						<SamenstellingenMetTrefwoordAlsLinkerlid>eetafspraak; eetbar; eetbijeenkomst; eetcafé; eetclub; eetdag; eetfeest; eetfestijn; eetgelegenheid; eetgids; eetgroep; eethoek; eethuis; eetkamer; eetkraam; eetkring; eetlokaal; eetmarkt; eetmogelijkheid; eetmoment; eetpartij; eetpatroon; eetpauze; eetpiraat; eetplaats; eetruimte; eetstalletje; eettafel; eettent; eetvoorziening; eetzaal; etensbel; etenstijd; etensuur</SamenstellingenMetTrefwoordAlsLinkerlid>
+					</Woordfamilie>
+				</betekenisInfo>
+			</Kernbetekenis>
+		</BetekenisEnGebruik>
+	</Koepelartikel>
+	<Koepelartikel pid="515829">
+		<Koepelnummer>2</Koepelnummer>
+		<Lemma>
+			<Lemmavorm>eten</Lemmavorm>
+			<Lemmatype>woord</Lemmatype>
+		</Lemma>
+		<Woordsoort>
+			<Type>substantief</Type>
+			<Substantief>
+				<Naamtype>soortnaam</Naamtype>
+				<GeslachtBody>
+					<Geslacht>onzijdig</Geslacht>
+				</GeslachtBody>
+				<Lidwoord>
+					<AardLidwoord>het</AardLidwoord>
+				</Lidwoord>
+			</Substantief>
+		</Woordsoort>
+		<SpellingEnFlexie>
+			<SubstantiefVormen>
+				<Enkelvoud>
+					<Woordvorm>eten</Woordvorm>
+					<Afbreking>eten</Afbreking>
+				</Enkelvoud>
+			</SubstantiefVormen>
+		</SpellingEnFlexie>
+		<Uitspraak>
+			<AantalLettergrepenBody>
+				<AantalLettergrepen>2</AantalLettergrepen>
+			</AantalLettergrepenBody>
+			<HoofdklemtoonBody>
+				<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+			</HoofdklemtoonBody>
+		</Uitspraak>
+		<Woordvorming>
+			<WoordvormingType>afleiding</WoordvormingType>
+			<Afleiding>
+				<Basisvorm>eten</Basisvorm>
+				<WoordsoortVanDeBasis>werkwoord (infinitief)</WoordsoortVanDeBasis>
+				<Conversie>
+					<Conversiepartner>eten</Conversiepartner>
+					<Conversierichting>van werkwoord naar substantief</Conversierichting>
+				</Conversie>
+			</Afleiding>
+		</Woordvorming>
+		<KoepelBetekenisaanduiding>Als substantief</KoepelBetekenisaanduiding>
+		<BetekenisEnGebruik>
+			<Kernbetekenis pid="515830">
+				<betekenisInfo>
+					<Betekenisnummer>1.0</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>eten</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>substantief</Type>
+						<Substantief>
+							<Naamtype>soortnaam</Naamtype>
+							<GeslachtBody>
+								<Geslacht>onzijdig</Geslacht>
+							</GeslachtBody>
+							<Lidwoord>
+								<AardLidwoord>het</AardLidwoord>
+							</Lidwoord>
+							<Betekenisklasse>stofnaam</Betekenisklasse>
+							<Betekenisklasse>verzamelnaam</Betekenisklasse>
+						</Substantief>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<SubstantiefVormen>
+							<Enkelvoud>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Enkelvoud>
+						</SubstantiefVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>2</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<HoofdklemtoonBody>
+							<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+						</HoofdklemtoonBody>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>afleiding</WoordvormingType>
+						<Afleiding>
+							<Basisvorm>eten</Basisvorm>
+							<WoordsoortVanDeBasis>werkwoord (infinitief)</WoordsoortVanDeBasis>
+							<Conversie>
+								<Conversiepartner>eten</Conversiepartner>
+								<Conversierichting>van werkwoord naar substantief</Conversierichting>
+							</Conversie>
+						</Afleiding>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>dat wat iemand eet; voedsel; spijs; eetwaar</Definitie>
+						<Minidefinitie>dat wat iemand eet</Minidefinitie>
+					</definitieBody>
+					<Woordrelaties>
+						<SynoniemBody>
+							<Synoniem>
+								<link>
+									<lemma>eetwaar</lemma>
+									<dtype>art</dtype>
+									<pid>45309</pid>
+								</link>
+								<link>
+									<lemma>spijs</lemma>
+									<dtype>art</dtype>
+									<pid>145809</pid>
+								</link>
+								<link>
+									<lemma>voedsel</lemma>
+									<dtype>art</dtype>
+									<pid>173164</pid>
+								</link>
+							</Synoniem>
+						</SynoniemBody>
+					</Woordrelaties>
+					<Semagram>
+						<Semagramaanhef>Eten</Semagramaanhef>
+						<Categorieen>
+							<Categorie>is voedsel</Categorie>
+						</Categorieen>
+						<Kenmerken>
+							<ZintuiglijkeWaarneming>
+								<Smaak>is bij voorkeur lekker</Smaak>
+							</ZintuiglijkeWaarneming>
+							<Functie_of_doel>
+								<Functie>is voedsel voor het lichaam; is nodig om in leven te blijven</Functie>
+							</Functie_of_doel>
+							<Tijd>
+								<Frequentie>wordt meestal in drie hoofdmaaltijden genuttigd, met name het onbijt, de lunch en de avondmaaltijd; wordt ook wel tussen de hoofdmaaltijden door genuttigd</Frequentie>
+							</Tijd>
+							<Toestand>
+								<Consistentie>is vast of vloeibaar</Consistentie>
+								<Temperatuur>is koud of warm</Temperatuur>
+							</Toestand>
+							<Betrokken_personen_of_zaken>
+								<Gebruiker>wordt genuttigd door mensen en dieren</Gebruiker>
+							</Betrokken_personen_of_zaken>
+						</Kenmerken>
+					</Semagram>
+					<voorbeeldBody>
+						<Voorbeeld pid="515846">
+							<Tekst>De tijd dat autoriteiten moeite hadden met mensen die zonder geld of eten op zak door het land trokken, begon in de late Middeleeuwen.</Tekst>
+							<BronID>59405</BronID>
+							<URL>http://www.cultuurwijzer.nl/cultuurwijzer.nl/cultuurwijzer.nl/i000302.html</URL>
+						</Voorbeeld>
+						<Voorbeeld pid="515857">
+							<Tekst>&quot;Nee, ik heb niet gevraagd of er rund- of varkensvlees inzit&quot;, zegt een vrouw terwijl ze een Weisswurst weghapt. &quot;Ik ga er vanuit dat het eten op de Grüne Woche goed is.&quot;</Tekst>
+							<BronID>62700</BronID>
+							<Datering>2001</Datering>
+							<URL>http://home.wanadoo.nl/r.hankel/bse/various/2001/1089.html</URL>
+						</Voorbeeld>
+					</voorbeeldBody>
+					<combinatiesBody>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>als object bij een werkwoord</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>eten [brengen, bereiden, geven, halen, klaarmaken, kopen, krijgen, maken, vinden]</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516775">
+											<Tekst>Ze bracht eten, de krant, zorgde ervoor dat er warme koffie was in de thermoskan naast het bed.</Tekst>
+											<Auteur>Auwera, Fernand</Auteur>
+											<Bron>Vliegen in een spinnenweb</Bron>
+											<BronID>124</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515881">
+											<Tekst>Eten bereiden betekent bijvoorbeeld veel meer dan in een kookpot roeren.</Tekst>
+											<BronID>3079</BronID>
+											<URL>http://www.easy.be/immo/grotewerken/immo_keuken.asp</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516753">
+											<Tekst>Ze probeert dan ook altijd op tijd te zijn om de dieren eten te geven.</Tekst>
+											<Bron>Meppeler Courant</Bron>
+											<BronID>25292</BronID>
+											<Datering>1994</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516752">
+											<Tekst>Alleen tegen de avond schoot ze snel de keuken in om wat eten te halen.</Tekst>
+											<Auteur>Lieske, Thomas</Auteur>
+											<Bron>Franklin</Bron>
+											<BronID>92</BronID>
+											<Datering>2002</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515883">
+											<Tekst>We hebben eten voor jullie klaargemaakt.</Tekst>
+											<Auteur>Allas, Yasmine</Auteur>
+											<Bron>Idil, een meisje</Bron>
+											<BronID>69609</BronID>
+											<Datering>1998</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516757">
+											<Tekst>De elektriciteit en de telefoon werden vrijwel afgesloten in het laatste oorlogsjaar, vuilnis werd niet meer opgehaald, er was nauwelijks eten te krijgen en de doden werden niet meer begraven.</Tekst>
+											<Bron>NRC</Bron>
+											<BronID>9064</BronID>
+											<Datering>1995</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516754">
+											<Tekst>Ik heb zelfs geen tijd meer om eten te maken.</Tekst>
+											<Auteur>Deflo, Luc</Auteur>
+											<Bron>Naakte zielen</Bron>
+											<BronID>138</BronID>
+											<Datering>1999</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515900">
+											<Tekst>Ik kan amper eten kopen van wat ik verdien.</Tekst>
+											<BronID>5125</BronID>
+											<URL>http://www.sjamma.be/eerlijk.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516759">
+											<Tekst>Er is nergens in de stad eten te vinden. Waarom ziet die kat er dan zo voortreffelijk uit?</Tekst>
+											<Bron>NRC</Bron>
+											<BronID>9061</BronID>
+											<Datering>1995</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met adjectief ervoor</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[ander, biologisch, Chinees, dagelijks, duur, eigen, extra, gezond, goed, gratis, heerlijk, Indisch, lekker, ongezond, slecht, smakelijk, vegetarisch, vet, vettig, warm] eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516741">
+											<Tekst>Andere geuren, andere gewoonten, ander eten, ander licht, andere begroeiing, ander klimaat, andere mensen, andere muziek, andere kleding, ander schrift, andere humor, andere taal, andere huizen, ander gevoel.</Tekst>
+											<Auteur>Pauw, Josse De</Auteur>
+											<Bron>Werk</Bron>
+											<BronID>522</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516742">
+											<Tekst>Behalve thuis wil menigeen ook op het werk biologisch eten.</Tekst>
+											<BronID>57300</BronID>
+											<Datering>2001</Datering>
+											<URL>http://www.milieudefensie.nl/blad/2001/okt2001/kort.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515845">
+											<Tekst>Dus dan zie je toch ineens dat een jong kind in het weekeinde een pilsje bij het Chinese eten mag hebben.</Tekst>
+											<BronID>59082</BronID>
+											<Datering>2004</Datering>
+											<URL>http://www.trouw.nl/opvoedingenonderwijs/artikelen/1088658678101.html</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516743">
+											<Tekst>De kinderen uit de arme en grote gezinnen moeten al jong zelf voor hun dagelijks eten zorgen.</Tekst>
+											<Bron>Meppeler Courant</Bron>
+											<BronID>30327</BronID>
+											<Datering>1995</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516761">
+											<Tekst>Doordat in de supermarkten de uitpuilende rekken van gezonde en ongezonde producten naast elkaar staan, gaat de consument denken in termen van goed en slecht. Je bent goed als je gezond eten tot je neemt en slecht als je je bezondigt aan dikmakers.</Tekst>
+											<Bron>De Morgen</Bron>
+											<BronID>79360</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516744">
+											<Tekst>Vader maakt al jaren lekker eten voor de mensen en dat loont.</Tekst>
+											<Auteur>Pauw, Josse De</Auteur>
+											<Bron>Werk</Bron>
+											<BronID>522</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516745">
+											<Tekst>Tijdens kinderprogramma's mag helemaal geen reclame meer voor snoep en ander ongezond eten worden gemaakt.</Tekst>
+											<BronID>7937</BronID>
+											<Datering>2004</Datering>
+											<URL>http://www.planet.nl/planet/show/id=62967/contentid=466613/sc=3aa53d</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516746">
+											<Tekst>Eddie Kerkhofs wijt zijn succes aan &quot;smakelijk eten, goede service, aantrekkelijke sfeer en een beetje geluk bij vernieuwingen.&quot;</Tekst>
+											<Bron>De Standaard</Bron>
+											<BronID>9282</BronID>
+											<Datering>1996</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516747">
+											<Tekst>Vegetarisch eten maakt een vast onderdeel uit van ons aanbod.</Tekst>
+											<BronID>6350</BronID>
+											<URL>http://www.cafe-vrijheid.nl/groepen.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516777">
+											<Tekst>Niets is fijner voor een man om bij het eerste gevoel van honger zijn vrouw in de verte te zien aankomen met een pannetje warm eten.</Tekst>
+											<Auteur>Warmerdam, Alex van</Auteur>
+											<Bron>Welkom in het bos</Bron>
+											<BronID>397</BronID>
+											<Datering>2002</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met koppelwerkwoord</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>het eten is [klaar, koud, lekker]</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516773">
+											<Tekst>Toen het eten klaar was en we allemaal aan tafel zaten zei ik: 'Monika en ik willen jullie wat vertellen.'</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>De passievrucht</Bron>
+											<BronID>69612</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516771">
+											<Tekst>&quot;Eet nu door voordat je eten koud is&quot;.</Tekst>
+											<BronID>2562</BronID>
+											<Datering>2000</Datering>
+											<URL>http://home.tiscali.be/be077857/medische/cfs/verhalen/dagboek1.html</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516772">
+											<Tekst>Ze maakt geen woorden meer vuil aan beleefdheid die hier inderdaad overbodig is. 'Goedenacht', 'Slaap lekker', 'Was het eten lekker?'. Zinloze mededelingen die vanzelf spreken, zinloze vragen waarop geen antwoord mogelijk is.</Tekst>
+											<Auteur>Grunberg, Arnon</Auteur>
+											<Bron>De asielzoeker</Bron>
+											<BronID>84</BronID>
+											<Datering>2003</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met adjectivisch voltooid deelwoord</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>gekruid eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516760">
+											<Tekst>Vermijd grote maaltijden, vettig en gekruid eten en zit goed recht tijdens het eten zodat je je maag zoveel mogelijk ontlast.</Tekst>
+											<BronID>2440</BronID>
+											<URL>http://www.9maand.be/zwanger/</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>in voorzetselgroep</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>aan eten komen; iets door iemands eten mengen; in het eten; (geen) [trek, zin] hebben in eten; zonder eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516758">
+											<Tekst>Een witte tijger heeft de grootste moeite om aan eten te komen en zal uiteindelijk verhongeren.</Tekst>
+											<BronID>64035</BronID>
+											<URL>http://www.amersfoort-zoo.nl/stadderoudheid/wittetijgers.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516740">
+											<Tekst>De boer had gif door hun eten gemengd.</Tekst>
+											<Auteur>Wetering, Janwillem van de</Auteur>
+											<Bron>De doosjesvuller en andere vondsten</Bron>
+											<BronID>259</BronID>
+											<Datering>1984</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516732">
+											<Tekst>Zo is ook het snufje zout in het eten op zich niet schadelijk behalve wellicht voor de bloeddruk.</Tekst>
+											<BronID>70786</BronID>
+											<URL>http://www.nea-nederland.nl/</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516733">
+											<Tekst>Ze richt plotseling haar hoofd op en zegt dat ze geen zin in eten heeft.</Tekst>
+											<Auteur>Peskens, R.J.</Auteur>
+											<Bron>Twee vorstinnen en een vorst</Bron>
+											<BronID>251</BronID>
+											<Datering>1976</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516734">
+											<Tekst>Geen trek in eten en lusteloosheid is ook een veel voorkomend symptoom.</Tekst>
+											<BronID>71974</BronID>
+											<URL>http://home.wanadoo.nl/de.fret/gezondheid.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516735">
+											<Tekst>Ik vraag me af welke kruiden ze in het eten heeft gegooid.</Tekst>
+											<Auteur>Hemmerechts, Kristien</Auteur>
+											<Bron>Alle verhalen</Bron>
+											<BronID>497</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516736">
+											<Tekst>Zijn vader stuurde hem zonder eten naar bed.</Tekst>
+											<Auteur>Glastra van Loon, Karel</Auteur>
+											<Bron>Lisa's adem</Bron>
+											<BronID>69613</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met voorzetselgroep</SubstantiefRol>
+								<VoorzetselBody>
+									<CombinatieInfo>
+										<RealisatieBody>
+											<Realisatie>eten in huis [halen, hebben]</Realisatie>
+										</RealisatieBody>
+										<voorbeeldBody>
+											<Voorbeeld pid="516108">
+												<Tekst>Ik haalde eten in huis voor heel de week en dan kwam uw vader thuis met een kameraad, zij zongen 'de Parelvissers', dronken al het bier en aten al het eten van die week op. Dan was het heel de week haring.</Tekst>
+												<Auteur>Claus, Hugo</Auteur>
+												<Bron>Het verdriet van België</Bron>
+												<BronID>265</BronID>
+												<Datering>1983</Datering>
+											</Voorbeeld>
+											<Voorbeeld pid="516107">
+												<Tekst>Dank zij mij zouden zij weer wat eten in huis hebben.</Tekst>
+												<Auteur>Schouwenaars, Clem</Auteur>
+												<Bron>Danny</Bron>
+												<BronID>376</BronID>
+												<Datering>1978</Datering>
+											</Voorbeeld>
+										</voorbeeldBody>
+									</CombinatieInfo>
+								</VoorzetselBody>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met onbepaald voornaamwoord</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[geen, genoeg, voldoende, wat, zat] eten; eten [voldoende, zat]</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516762">
+											<Tekst>Hij had sinds de middag geen eten meer gekregen en hij besefte nu ineens dat hij al lang naar huis had moeten gaan.</Tekst>
+											<Auteur>Durnez, Gaston</Auteur>
+											<Bron>Kermis</Bron>
+											<BronID>361</BronID>
+											<Datering>1978</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516763">
+											<Tekst>De volgende ochtend was de metro drukker dan anders. Onder al die lagen kleren had ik het heel warm, dus probeerde ik aan andere dingen te denken [...]. Dat ik naar de kapper moest. Ik kon voor de lunch nog een afspraak maken. Of er nog genoeg eten voor vanavond in huis was, of dat we misschien iets moesten halen.</Tekst>
+											<Auteur>French, Nicci</Auteur>
+											<Bron>Bezeten van mij</Bron>
+											<BronID>180</BronID>
+											<Datering>2002</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516766">
+											<Tekst>Ik bracht wat eten mee en een pakje kleren.</Tekst>
+											<Auteur>Verrips, Ger</Auteur>
+											<Bron>Nathalie</Bron>
+											<BronID>257</BronID>
+											<Datering>1984</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516767">
+											<Tekst>Mama was razend. 'Ge krijgt toch eten genoeg! Meer dan alle kinderen uit de straat!' Louis stond op het punt uit te leggen dat hij een oud vrouwtje gezien had op straat dat bijna omviel van de honger en dat hij haar een paar boterhammen met moerbeienjam had gegeven.</Tekst>
+											<Auteur>Claus, Hugo</Auteur>
+											<Bron>Het verdriet van België</Bron>
+											<BronID>265</BronID>
+											<Datering>1983</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516768">
+											<Tekst>Er is eten zat, maar de gezondheid is zoek. Zijn boeren daarvoor verantwoordelijk? Of is het de industrie die steeds grootschaliger en steeds chemischer wordt?</Tekst>
+											<BronID>3206</BronID>
+											<Datering>1999</Datering>
+											<URL>http://www.wereldwijd.be/archief/ww296-08.htm</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met telwoord ervoor</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[meer, meer dan genoeg, minder, te veel, te weinig, veel, weinig] eten; eten [te veel, te weinig]</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516764">
+											<Tekst>Er kwamen steeds meer mensen, die steeds meer eten moesten hebben en die steeds meer ruimte in beslag namen.</Tekst>
+											<BronID>72506</BronID>
+											<URL>http://www.knjv.nl/10vragen.htm</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="516765">
+											<Tekst>Er bestaan medicijnen voor en daarnaast is afleiding ook een goed hulpmiddel, evenals minder eten geven, waardoor de melkproduktie wat wordt afgeremd.</Tekst>
+											<BronID>1672</BronID>
+											<URL>http://users.skynet.be/bobke.montoya/EHBO%20bij%20uw%20hond.htm</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>met ander, nevengeschikt substantief</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>eten en [drank, drinken, kleren, onderdak]</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="516749">
+											<Tekst>Met luide, opgewonden stemmen dreigden ze het hele huis in elkaar te slaan als er geen eten en drank op tafel kwam.</Tekst>
+											<Auteur>Cremer, Jan</Auteur>
+											<Bron>De Hunnen. Dl. 2: Bevrijding</Bron>
+											<BronID>229</BronID>
+											<Datering>1983</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516748">
+											<Tekst>Waar haalde ze het geld vandaan om hun alle twaalf eten en drinken te geven?</Tekst>
+											<Auteur>Hemmerechts, Kristien</Auteur>
+											<Bron>Alle verhalen</Bron>
+											<BronID>497</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516750">
+											<Tekst>'Er was altijd wel geld voor eten en kleren,' zei hij, maar de rest was duidelijk gelukkig zijn.</Tekst>
+											<Auteur>Vandendaele, Rudy</Auteur>
+											<Bron>Dwarskijker</Bron>
+											<BronID>52</BronID>
+											<Datering>1996-1998</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="516751">
+											<Tekst>De ziekte vindt haar voedingsbodem in de eenzaamheid en het isolement van migranten die afgesneden worden van hun gezin, in de dagelijkse strijd om eten en onderdak te vinden en in de angst die voortvloeit uit de lange en vaak gevaarlijke reis.</Tekst>
+											<Bron>Gazet van Antwerpen</Bron>
+											<BronID>14223</BronID>
+											<Datering>2003</Datering>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+					</combinatiesBody>
+					<verbindingenBody>
+						<Verbindingen pid="515896">
+							<Vorm>als eten en drinken</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>zo onmisbaar als eten en drinken</Definitie>
+									<Definitieaanvulling>
+										<Opmerking>In uitdrukkingen als [i]iets of iemand nodig hebben als eten en drinken[/i], [i]zo belangrijk, natuurlijk, essentieel, e.d. als eten en drinken[/i].</Opmerking>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="515897">
+										<Tekst>Altijd vreemd om te beseffen dat er mensen zijn die echt liever niet willen nadenken. Die daar een aversie tegen hebben, terwijl ik er bij wijze van spreken nooit genoeg van krijg. Het nodig heb als eten en drinken.</Tekst>
+										<Auteur>Hemmerechts, Kristien</Auteur>
+										<Bron>Een jaar als (g)een ander</Bron>
+										<BronID>141</BronID>
+										<Datering>2003</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="515898">
+										<Tekst>Seks is voor de mens evenwel even essentieel als eten en drinken.</Tekst>
+										<BronID>71030</BronID>
+										<URL>http://www.diskidee.nl/cursus/cursus65.html</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="515899">
+										<Tekst>Op die manier was Ivo haar even noodzakelijk als eten en drinken.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9063</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516883">
+							<Vorm>iemand het eten uit de mond kijken</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>begerig toekijken terwijl iemand anders iets eet</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516884">
+										<Tekst>Mensen die anderen het eten uit de mond kijken [...]. Heb jij daar ook zo'n hekel aan, andere mensen die elke hap die jij neemt zitten te volgen?</Tekst>
+										<URL>http://forum.fok.nl/topic/178815</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516737">
+							<Vorm>roet in het eten gooien</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>de zaak bederven; er een stokje voor steken</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516739">
+										<Tekst>Het zou toch eeuwig zonde zijn dat nadat je alles zo keurig hebt geregeld een of ander kleinigheidje roet in het eten gooit.</Tekst>
+										<BronID>72353</BronID>
+										<URL>http://www.transcedo.org/</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516881">
+							<Vorm>zich het eten uit de mond sparen</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>zeer veel sparen en zuinig leven</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516882">
+										<Tekst>Minder bemiddelde Kongolese jongeren sparen zich het eten uit de mond om zich eens in de zoveel maanden een satijnen droom aan te kunnen schaffen.</Tekst>
+										<Bron>De Standaard</Bron>
+										<BronID>9073</BronID>
+										<Datering>1996</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+					</verbindingenBody>
+					<Woordfamilie>
+						<Afleidingen>oereten</Afleidingen>
+						<SamenstellingenMetTrefwoordAlsRechterlid>afhaaleten; boereneten; diepvrieseten; feesteten; gen-eten; gezinseten; hoteleten; katteneten; kermiseten; kersteten; kindereten; lievelingseten; menseneten; nieuwjaarseten; portable-eten; restauranteten; vingereten; vliegtuigeten; vrouweneten; wintereten</SamenstellingenMetTrefwoordAlsRechterlid>
+						<SamenstellingenMetTrefwoordAlsLinkerlid>etensdamp; etensgeur; etenslucht; etensluchtje; etensrest; etenswalm; etenszak; etenszakje</SamenstellingenMetTrefwoordAlsLinkerlid>
+					</Woordfamilie>
+				</betekenisInfo>
+			</Kernbetekenis>
+			<Kernbetekenis pid="515886">
+				<betekenisInfo>
+					<Betekenisnummer>2.0</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>eten</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>substantief</Type>
+						<Substantief>
+							<Naamtype>soortnaam</Naamtype>
+							<GeslachtBody>
+								<Geslacht>onzijdig</Geslacht>
+							</GeslachtBody>
+							<Lidwoord>
+								<AardLidwoord>het</AardLidwoord>
+							</Lidwoord>
+							<Getal>geen meervoud</Getal>
+							<Betekenisklasse>abstractum</Betekenisklasse>
+						</Substantief>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<SubstantiefVormen>
+							<Enkelvoud>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Enkelvoud>
+						</SubstantiefVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>2</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<HoofdklemtoonBody>
+							<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+						</HoofdklemtoonBody>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>afleiding</WoordvormingType>
+						<Afleiding>
+							<Basisvorm>eten</Basisvorm>
+							<WoordsoortVanDeBasis>werkwoord (infinitief)</WoordsoortVanDeBasis>
+							<Conversie>
+								<Conversiepartner>eten</Conversiepartner>
+								<Conversierichting>van werkwoord naar substantief</Conversierichting>
+							</Conversie>
+						</Afleiding>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>handeling, activiteit van het eten; het eten</Definitie>
+						<Minidefinitie>handeling van het eten</Minidefinitie>
+					</definitieBody>
+					<Woordrelaties>
+						<Hyperoniem>
+							<link>
+								<lemma>activiteit</lemma>
+								<dtype>art</dtype>
+								<pid>3258</pid>
+							</link>
+							<link>
+								<lemma>gebeuren</lemma>
+								<dtype>art</dtype>
+								<pid>54882</pid>
+							</link>
+							<link>
+								<lemma>handeling</lemma>
+								<dtype>art</dtype>
+								<pid>63819</pid>
+							</link>
+						</Hyperoniem>
+					</Woordrelaties>
+					<Semagram>
+						<Semagramaanhef>Eten</Semagramaanhef>
+						<Categorieen>
+							<Categorie>is een activiteit</Categorie>
+							<Categorie>is een handeling</Categorie>
+							<Categorie>is een gebeuren</Categorie>
+						</Categorieen>
+					</Semagram>
+					<combinatiesBody>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>in voorzetselgroep</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[beginnen, doorgaan, klaar zijn, ophouden, stoppen, wachten] met eten; [moeite, problemen] hebben met eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515861">
+											<Tekst>We mochten gelijk beginnen met eten.</Tekst>
+											<Auteur>Keuls, Yvonne</Auteur>
+											<Bron>Het verrotte leven van Floortje Bloem</Bron>
+											<BronID>240</BronID>
+											<Datering>1982</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515863">
+											<Tekst>Iedereen gaat rustig door met eten en luistert naar het toestel.</Tekst>
+											<Auteur>Faccini, Ben</Auteur>
+											<Bron>De jongen die alles goed wou denken</Bron>
+											<BronID>176</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515862">
+											<Tekst>Wanda is klaar met eten. Ze likt haar vingers af en veegt ze af aan haar hemd.</Tekst>
+											<Auteur>Buter, Daphne</Auteur>
+											<Bron>Alle vogels van de wereld</Bron>
+											<BronID>424</BronID>
+											<Datering>2000</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515864">
+											<Tekst>Janet wierp een blik op Bryans tussendoortje. 'Bryan, ik snap niet hoe je dat spul door je keel kunt krijgen. Ze stoppen kattenvoer in die ravioli's.' 'Bedankt, mam.' Hij hield op met eten.</Tekst>
+											<Auteur>Coupland, Douglas</Auteur>
+											<Bron>Alle families zijn psychotisch</Bron>
+											<BronID>174</BronID>
+											<Datering>2001</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515865">
+											<Tekst>Als het kind wenst te stoppen met eten (lepel wegslaan, mond dichthouden, voedsel uitspuwen) moet er gestopt worden met voeden.</Tekst>
+											<BronID>3937</BronID>
+											<URL>http://www.gezondheid.be/index.cfm?fuseaction=artperrub=39</URL>
+										</Voorbeeld>
+										<Voorbeeld pid="515860">
+											<Tekst>We wachtten met eten tot vader thuis kwam.</Tekst>
+											<Auteur>Peskens, R.J.</Auteur>
+											<Bron>De leraar</Bron>
+											<BronID>69662</BronID>
+											<Datering>1975</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515842">
+											<Tekst>Steenbok-baby's hebben zelden problemen met eten.</Tekst>
+											<BronID>51121</BronID>
+											<URL>http://users.pandora.be/avicenna/steenbok.htm</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+					</combinatiesBody>
+					<Woordfamilie>
+						<SamenstellingenMetTrefwoordAlsRechterlid>niet-eten</SamenstellingenMetTrefwoordAlsRechterlid>
+					</Woordfamilie>
+				</betekenisInfo>
+			</Kernbetekenis>
+			<Kernbetekenis pid="515831">
+				<betekenisInfo>
+					<Betekenisnummer>3.0</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>eten</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>substantief</Type>
+						<Substantief>
+							<Naamtype>soortnaam</Naamtype>
+							<GeslachtBody>
+								<Geslacht>onzijdig</Geslacht>
+							</GeslachtBody>
+							<Lidwoord>
+								<AardLidwoord>het</AardLidwoord>
+							</Lidwoord>
+							<Betekenisklasse>abstractum</Betekenisklasse>
+						</Substantief>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<SubstantiefVormen>
+							<Enkelvoud>
+								<Woordvorm>eten</Woordvorm>
+								<Afbreking>eten</Afbreking>
+							</Enkelvoud>
+							<Verkleiningsvorm>
+								<Woordvorm>etentje</Woordvorm>
+								<Afbreking>eten.tje</Afbreking>
+							</Verkleiningsvorm>
+						</SubstantiefVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>2</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<HoofdklemtoonBody>
+							<Plaats_hoofdklemtoon>1ste lettergreep</Plaats_hoofdklemtoon>
+						</HoofdklemtoonBody>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>afleiding</WoordvormingType>
+						<Afleiding>
+							<Basisvorm>eten</Basisvorm>
+							<WoordsoortVanDeBasis>werkwoord (infinitief)</WoordsoortVanDeBasis>
+							<Conversie>
+								<Conversiepartner>eten</Conversiepartner>
+								<Conversierichting>van werkwoord naar substantief</Conversierichting>
+							</Conversie>
+						</Afleiding>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>de handeling of activiteit van het eten zoals die dagelijks op geregelde tijden 
+plaatsvindt; maaltijd</Definitie>
+						<Minidefinitie>maaltijd</Minidefinitie>
+					</definitieBody>
+					<Woordrelaties>
+						<Hyperoniem>
+							<link>
+								<lemma>activiteit</lemma>
+								<dtype>art</dtype>
+								<pid>3258</pid>
+							</link>
+							<link>
+								<lemma>handeling</lemma>
+								<dtype>art</dtype>
+								<pid>63819</pid>
+							</link>
+						</Hyperoniem>
+						<SynoniemBody>
+							<Synoniem>
+								<link>
+									<lemma>eetmaal</lemma>
+									<dtype>art</dtype>
+									<pid>45297</pid>
+								</link>
+								<link>
+									<lemma>eten</lemma>
+									<dtype>bet</dtype>
+									<desc>B.3.0 - maaltijd</desc>
+									<pid>515831</pid>
+								</link>
+								<link>
+									<lemma>maal</lemma>
+									<dtype>bet</dtype>
+									<desc>2.1 - voedsel</desc>
+									<pid>534661</pid>
+								</link>
+								<link>
+									<lemma>maaltijd</lemma>
+									<dtype>bet</dtype>
+									<desc>1.0 - maal als activiteit</desc>
+									<pid>93475</pid>
+								</link>
+							</Synoniem>
+						</SynoniemBody>
+					</Woordrelaties>
+					<Betekenisbetrekking>
+						<AardBody>
+							<Algemeen>metonymie</Algemeen>
+						</AardBody>
+						<BetrokkenBetekenissen>1.0 : 3.0</BetrokkenBetekenissen>
+					</Betekenisbetrekking>
+					<Semagram>
+						<Semagramaanhef>Het eten</Semagramaanhef>
+						<Categorieen>
+							<Categorie>is een handeling</Categorie>
+							<Categorie>is een activiteit</Categorie>
+						</Categorieen>
+					</Semagram>
+					<combinatiesBody>
+						<Combinaties>
+							<TrefwoordType>substantief</TrefwoordType>
+							<SubstantiefCombi>
+								<SubstantiefRol>in voorzetselgroep</SubstantiefRol>
+								<CombinatieInfo>
+									<RealisatieBody>
+										<Realisatie>[bij, na, onder, tijdens, voor] het eten</Realisatie>
+									</RealisatieBody>
+									<voorbeeldBody>
+										<Voorbeeld pid="515888">
+											<Tekst>Sylvie was in de keuken verdwenen. Toen ze terugkwam, zei ze: 'Paar minuutjes geduld nog. Wat drinken jullie bij het eten? Christ, blijf jij bij porto?'</Tekst>
+											<Auteur>Vekeman, Christophe</Auteur>
+											<Bron>Wees maar niet bang</Bron>
+											<BronID>550</BronID>
+											<Datering>2002</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515890">
+											<Tekst>Want in geen geval zou mijn vader naar de radio luisteren onder het eten.</Tekst>
+											<Auteur>Büch, Boudewijn</Auteur>
+											<Bron>De kleine blonde dood</Bron>
+											<BronID>218</BronID>
+											<Datering>1985</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515889">
+											<Tekst>Tijdens het eten wordt hier meestal weinig gepraat.</Tekst>
+											<Auteur>Schouwenaars, Clem</Auteur>
+											<Bron>Liliane, of De spiegelingen van leugen en liefde</Bron>
+											<BronID>287</BronID>
+											<Datering>1983</Datering>
+										</Voorbeeld>
+										<Voorbeeld pid="515887">
+											<Tekst>Afwisselend voor of na het eten mogen zij ook een half uur buiten op het plein spelen.</Tekst>
+											<BronID>8024</BronID>
+											<URL>http://www.tref.nl/nijkerk/emmaschool/</URL>
+										</Voorbeeld>
+									</voorbeeldBody>
+								</CombinatieInfo>
+							</SubstantiefCombi>
+						</Combinaties>
+					</combinatiesBody>
+					<verbindingenBody>
+						<Verbindingen pid="516769">
+							<Vorm>het eten is klaar</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>we kunnen aan tafel</Definitie>
+									<Definitieaanvulling>
+										<Opmerking>Als uitnodiging om te komen eten.</Opmerking>
+									</Definitieaanvulling>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516770">
+										<Tekst>Kinderen, zegt ze, we gaan eten. Aan tafel. Het eten is klaar.</Tekst>
+										<Auteur>Hemmerechts, Kristien</Auteur>
+										<Bron>Een jaar als (g)een ander</Bron>
+										<BronID>141</BronID>
+										<Datering>2003</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516885">
+							<Vorm>iemands eten (alle) eer aandoen</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>een bereide maaltijd waarderen door alles op te eten</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516886">
+										<Tekst>We hadden allen een gezonde eetlust en deden het eten alle eer aan. Het was ook voortreffelijk! We begonnen met een heerlijke hors d'oeuvre en eindigden met vanille-ijs.</Tekst>
+										<URL>http://archive.org/stream/dester619neth/dester619neth_djvu.txt</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+						<Verbindingen pid="516755">
+							<Vorm>voor het eten zorgen</Vorm>
+							<Info>
+								<Betekenisletter>a</Betekenisletter>
+								<definitieBody>
+									<Definitie>een maaltijd bereiden</Definitie>
+								</definitieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="516756">
+										<Tekst>Zij verft dan altijd haar lippen rood en heel de avond nog, na de visite, blijft zij er mooier uitzien dan anders, ook al trekt zij direct haar schort weer aan om voor het eten te zorgen van onze Pa en mij.</Tekst>
+										<Auteur>Schouwenaars, Clem</Auteur>
+										<Bron>Danny</Bron>
+										<BronID>376</BronID>
+										<Datering>1978</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</Info>
+						</Verbindingen>
+					</verbindingenBody>
+					<Woordfamilie>
+						<Afleidingen>etentje</Afleidingen>
+						<SamenstellingenMetTrefwoordAlsRechterlid>avondeten; middageten; noeneten</SamenstellingenMetTrefwoordAlsRechterlid>
+					</Woordfamilie>
+				</betekenisInfo>
+			</Kernbetekenis>
+		</BetekenisEnGebruik>
+	</Koepelartikel>
+	<Uitspraak>
+		<FonetischeSchrijfwijze>*eː . t ə n</FonetischeSchrijfwijze>
+	</Uitspraak>
+</artikel>

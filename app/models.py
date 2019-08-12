@@ -1,12 +1,7 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from server import app
+from app import db, app
 import datetime
 from sqlalchemy.sql import func
 import jwt
-
-
-db = SQLAlchemy(app)
 
 
 class User(db.Model):
