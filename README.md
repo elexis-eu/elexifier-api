@@ -2,6 +2,8 @@
 
 ## Installation, documentation ##
 
+#Local installation#
+
 Python 3 is needed. These instructions are for linux.<br/>
 Clone the project from the repository.<br/>
 Go inside the folder:
@@ -55,6 +57,31 @@ Warning: The backend is still buggy so changes will be made to it. If after some
 <code>python manage.py db migrate</code><br/>
 <code>python manage.py db upgrade</code><br/>
 <code>python create_user.py</code><br/>
+
+
+#Docker installation#
+
+You need docker and docker compose (https://docs.docker.com/compose/install/)
+
+If you want just the flask docker, write:
+
+<code>docker build -t flask .</code><br/>
+code>	docker run -d -p 5000:8080 --name="flask" -v $PWD:/app "flask"</code><br/>
+
+The app becomes available at localhost:5000.
+
+If nginx is neeeded, run:
+
+
+<code>docker-compose up -d nginx</code><br/>
+
+
+The app is fed through nginx at localhost:80.
+
+On docker, the user is generated automatically:
+
+User: user
+Pass: user
 
 If you still can't make this work, send me an email: matejmart@gmail.com
 
