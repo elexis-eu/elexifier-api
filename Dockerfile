@@ -1,26 +1,39 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.6-alpine3.7
-RUN apk --update add bash nano
+FROM ubuntu:18.04
 
-RUN adduser -D -u 1000 docker
-COPY ./ /home/docker/elexifier-api
-
-RUN apk add --update --no-cache g++ gcc libxslt-dev libffi-dev
-RUN apk add python3-dev py3-virtualenv autoconf automake g++ make build-base linux-headers pcre-dev openrc --no-cache
-
-RUN /usr/bin/python3.6
-
-COPY ./elexifier-api.service /etc/systemd/system/elexifier-api.service
-COPY ./elexifier-api.nginx /etc/nginx/sites-available/elexifier-api
-RUN ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+RUN apt-get update && \
+      apt-get -y install g++ gcc libxslt-dev apt-utils libffi-dev python3-dev virtualenv autoconf automake g++ make nginx supervisor
 
 
 
-RUN pip install -r /home/docker/elexifier-api/requirements.txt
+COPY ./ /var/www/elexifier-api
 
-RUN rc-service elexifier-api start
-RUN rc-status
 
-RUN rc-service nginx restart
+RUN virtualenv -p /usr/bin/python3 /var/www/elexifier-api/venv
+RUN /var/www/elexifier-api/venv/bin/pip install -r /var/www/elexifier-api/requirements.txt
+
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/manage.py db init
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/manage.py db migrate
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/manage.py db upgrade
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/create_server_user.py
+
+RUN ./elexifier-supervisor.conf /etc/supervisor/conf.d/elexifier-supervisor.conf
+
+RUN supervisorctl reread
+RUN service supervisor restart
+
+RUN ls /etc/nginx/
+
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./elexifier-api.nginx /etc/nginx/conf.d/virtual.conf
+
+
+Run nginx -t
+
+RUN /etc/init.d/nginx start
+
+
+EXPOSE 80
+
 
 
 

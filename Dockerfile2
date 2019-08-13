@@ -1,0 +1,35 @@
+FROM nginx:alpine
+
+
+RUN apk add --update --no-cache g++ gcc libxslt-dev libffi-dev
+RUN apk add python3 python3-dev py3-virtualenv autoconf automake g++ make build-base linux-headers pcre-dev supervisor --no-cache
+
+COPY ./ /var/www/elexifier-api
+
+RUN virtualenv -p /usr/bin/python3 /var/www/elexifier-api/venv
+RUN /var/www/elexifier-api/venv/bin/pip install -r /var/www/elexifier-api/requirements.txt
+
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/manage.py db init
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/manage.py db migrate
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/manage.py db upgrade
+RUN /var/www/elexifier-api/venv/bin/python /var/www/elexifier-api/create_server_user.py
+
+RUN ./elexifier-supervisor.conf /etc/supervisor/conf.d/elexifier-supervisor.conf
+
+RUN supervisorctl reread
+RUN /etc/init.d/supervisor restart
+
+RUN ls /etc/nginx/
+
+RUN rm -rf /usr/share/nginx/html/*
+
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./elexifier-api.nginx /etc/nginx/conf.d/virtual.conf
+
+
+Run nginx -t
+
+RUN /etc/init.d/nginx start
+
+
+EXPOSE 80
