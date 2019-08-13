@@ -20,6 +20,12 @@ Warning: If python 3 is not your default python and if you also have python 2 in
 
 <code>virtualenv -p /usr/bin/python3.5 venv</code><br/>
 
+OSX:
+
+```
+virtualenv -p /usr/local/bin/python3.5 venv
+```
+
 Activate virtual environment:
 
 <code>source venv/bin/activate</code><br/>
@@ -28,7 +34,7 @@ Install dependencies:
 
 <code>pip install -r requirements.txt</code><br/>
 
-If the command fails for OSX users because of `psycopg2` package, then run the following command to install the missing pacgake:<br/>
+If the command fails for OSX users because of `psycopg2` package, then run the following command to install the missing package (nd then run the install command for requirements.txt again):<br/>
 <code>env LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib" pip install psycopg2</code>
 
 Create the sqlite database and migrate the models into it: 
@@ -36,6 +42,16 @@ Create the sqlite database and migrate the models into it:
 <code>python manage.py db init</code><br/>
 <code>python manage.py db migrate</code><br/>
 <code>python manage.py db upgrade</code><br/>
+
+OSX:
+If you get: 
+```
+ImportError: Unable to find magic library
+```
+install and run db commands again:
+```
+brew link libmagic
+```
 
 Create a user so you can log in:
 
