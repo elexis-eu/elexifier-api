@@ -231,42 +231,41 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
     connection.close()
     return (True, 'Done')
 
+def extract_xml_head_content(xml_file):
+
+    tree = lxml.etree.parse(xml_file)
+    unique_texts = set()
+    for element in tree.iter():
+        unique_texts.add(element.text.replace("\t",""))
+        
+    ## morda je bolj smiselno mapiranje iz teksta v nekaj? Npr. .tag?
+    return unique_texts
+
+def clean_tag(xml_tag):
+    pattern = re.compile("\{http:\/\/")
+    if pattern.match(xml_tag):
+        m = re.search('\}.{1,10000}', xml_tag)
+        if m:
+            return m.group(0)[1:]
+    else:
+        return xml_tag
+
 def extract_xml_heads(xml_file):
 
-    ## TODO: requests around this
-    with open(xml_file, 'r') as file:
-        xml_file = file.read()
-
-    all_heads = set()
-    for el in xml_file.split("\n"):
-        if "<" in el:
-            el = el.replace("\t","")
-            current_head = []
-            append_trigger = False
-            for enx, j in enumerate(el):
-                if j == "<":
-                    if el[enx+1] != "/":                        
-                        append_trigger = True
-                        current_head.append(j)
-                    else:
-                        break
-                elif j == ">":
-                    current_head.append(j)
-                    break
-                else:
-                    current_head.append(j)
-            if len(current_head) > 0:
-                all_heads.add("".join(current_head))
-    print(len(all_heads))
-
-    ## TODO: requests which send this ..
+    tree = lxml.etree.parse(xml_file)
+    unique_tags = set()
+    for element in tree.iter():
+        unique_tags.add(clean_tag(element.tag))        
+    print(unique_tags)
                         
 if __name__ == "__main__":
 
     import glob
     for fil in glob.glob("./example_xml/*"):
+#        if fil != "./example_xml/Bridge_A_TEI-valid (1).xml":            
         try:
             results = extract_xml_heads(fil)
+            results2 = extract_xml_head_content(fil)
         except Exception as es:
+            print(es)
             pass
-#            print(es)            
