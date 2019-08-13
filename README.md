@@ -66,17 +66,17 @@ You need docker and docker compose (https://docs.docker.com/compose/install/)
 If you want just the flask docker, write:
 
 <code>docker build -t flask .</code><br/>
-code>	docker run -d -p 5000:8080 --name="flask" -v $PWD:/app "flask"</code><br/>
+<code>docker run -d -p 8080:8080 --name=flask flask</code><br/>
 
-The app becomes available at localhost:5000.
+The app becomes available at localhost:8080.
 
-If nginx is neeeded, run:
+If nginx is neeeded, or for development, run:
+
+<code>docker-compose build</code><br/>
+<code>docker-compose up</code><br/>
 
 
-<code>docker-compose up -d nginx</code><br/>
-
-
-The app is fed through nginx at localhost:80.
+The app is fed through nginx at localhost:8001.
 
 On docker, the user is generated automatically:
 

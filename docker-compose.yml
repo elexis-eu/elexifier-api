@@ -1,7 +1,10 @@
 version: '3.1'
 services:
     nginx:
-        image: nginx:1.13.7
+        build:
+            context: ./
+            dockerfile: Dockerfile-nginx
+        image: elexifier-nginx
         container_name: nginx
         depends_on:
             - flask
@@ -10,19 +13,25 @@ services:
         networks:
             - my-network
         ports:
-            - 80:80
+            - 8001:8001
     flask:
         build:
             context: ./
             dockerfile: Dockerfile
-        image: flask:0.0.1
+        image:  elexifier-flask
         container_name: flask
+        volumes:
+            - ./app:/var/www/elexifier-api/app
         networks:
             my-network:
                 aliases:
                     - flask-app
         ports:
-            - 8080:5000
+            - 8080:8080
 
 networks:
     my-network:
+
+
+
+
