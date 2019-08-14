@@ -262,7 +262,7 @@ def login():
             return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
           
 @app.route('/api/login', methods=['GET', 'POST'])
-def login():
+def login2():
     username = flask.request.form['login']
     password = flask.request.form['password']
     bcrypt = Bcrypt()
