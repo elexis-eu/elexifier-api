@@ -4,7 +4,7 @@ import zipfile
 import lxml
 import lxml.etree
 import hashlib
-from sqlalchemy.ext.declarative import declarative_base  
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import base64
 import json
@@ -23,7 +23,7 @@ def user_loader(db, uid):
 def check_login(db, username, password, bcrypt):
     connection = db.connect()
     result = connection.execute("SELECT id, password_hash FROM users WHERE username='{0:s}'".format(username))
-    for r in result:  
+    for r in result:
         if bcrypt.check_password_hash(r['password_hash'], password):
             user = User.query.get(int(r['id']))
             connection.close()
@@ -99,22 +99,22 @@ def describe_transform(db, uid, xfid):
 
 def new_transform(db, uid, uuid, xfname, dsid, xpath):
     base = declarative_base()
-    Session = sessionmaker(db)  
+    Session = sessionmaker(db)
     session = Session()
     base.metadata.create_all(db)
     print('new transform')
 
-    # Create 
+    # Create
     #print(dzcontent.stream.read())
     transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath)
-    session.add(transformer)  
+    session.add(transformer)
     session.commit()
     return transformer.id
 
 
 def update_transform(db, uid, xfid, xfspec):
     base = declarative_base()
-    Session = sessionmaker(db)  
+    Session = sessionmaker(db)
     session = Session()
     base.metadata.create_all(db)
     print('update transformer')
@@ -145,18 +145,18 @@ def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
 
 
 def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
-    
+
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_filename(dzfilepath)
 
     base = declarative_base()
-    Session = sessionmaker(db)  
+    Session = sessionmaker(db)
     session = Session()
     base.metadata.create_all(db)
-    
-    # Create 
+
+    # Create
     dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid)
-    session.add(dataset)  
+    session.add(dataset)
     session.commit()
     return True
 
@@ -172,23 +172,23 @@ def xmls(mimetype, data):
                 mt = m.id_buffer(xdata)
                 if mt == 'application/xml':
                     yield xdata
-    elif mimetype == 'application/xml':
+    elif mimetype == 'application/xml' or mimetype == 'text/xml':
         print ('processing single xml')
         yield data
     else:
         return None
 
-        
+
 def prepare_dataset(db, uid, dsid, xfid, xpath):
     connection = db.connect()
     result = connection.execute("SELECT upload_mimetype, file_path FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
     mimetype, data = result.fetchone()
 
     for xml in xmls(mimetype, data):
-        
+
         tree = lxml.etree.parse(xml)
         xpath = xpath.strip()
-        
+
         namespaces = tree.getroot().nsmap
         namespace=''
         namespace_prefix = False
@@ -209,7 +209,7 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
         counter = 0
 
         base = declarative_base()
-        Session = sessionmaker(db)  
+        Session = sessionmaker(db)
         session = Session()
         base.metadata.create_all(db)
 
@@ -217,12 +217,12 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
             entry_head = entry_str.split('\n',1)[0] #!!
             #print(entry_head)
-            
-            
-            
-            # Create 
+
+
+
+            # Create
             dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, contents=entry_str)
-            session.add(dataset)  
+            session.add(dataset)
         session.commit()
 
 
