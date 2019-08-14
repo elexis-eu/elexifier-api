@@ -24,6 +24,8 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from app.models import User, BlacklistToken
 from app import app
+from flask_cors import CORS, cross_origin
+
 
 
 
