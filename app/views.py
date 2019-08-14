@@ -50,7 +50,7 @@ def _j(r):
 def apply_caching(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
-  
+
 # -- users
 @app.route('/api/user/new', methods=['POST'])
 def user_add():
@@ -225,7 +225,7 @@ def xf_entity_transform(xfid,entityid):
     mapping = transformator.TMapping(spec)
     mapper = transformator.TMapper()
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns)
-    
+
     return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')})
 
 
@@ -269,12 +269,12 @@ def login():
                 'email': user.email
             }
             return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
-          
+
 @app.route('/api/login', methods=['GET', 'POST'])
 @cross_origin(headers=['Content-Type'])
 def login2():
-    username = flask.request.form['login']
-    password = flask.request.form['password']
+    username = flask.request.json['login']
+    password = flask.request.json['password']
     bcrypt = Bcrypt()
 
     user = dbfunc.check_login(engine, username, password, bcrypt)
@@ -289,12 +289,9 @@ def login2():
         auth_token = user.encode_auth_token(user.id)
         if auth_token:
             response = {
-                'message': 'Login succesful!',
                 'auth_token': auth_token.decode(),
-                'username': user.username,
-                'email': user.email
             }
-            return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
+            return response
 
 
 @app.route('/home')
