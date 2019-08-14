@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE diakertelmezo SYSTEM "diakertelmezo.dtd">
+
+<ertelmezo>
+	</jelentesek>
+</szocikk>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abajgat</cimszo>
+	<gyak>1</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<minosites>népi</minosites>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>(Állatot, esetleg személyt) kerget, hajszol.</meghatarozas>
+			<peldamondat>Ne abajgasd a kiscsibéket!</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Piszkál, zaklat, nyaggat valakit, valamit.</meghatarozas>
+			<peldamondat>Ha folyton abajgatsz, nem tudok dolgozni. Ne abajgasd azt az órát, mert elrontod!</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(régi) Ordítva kiabál.</meghatarozas>
+			<peldamondat>A vásár zajából csak akkor hallunk valamit, ha egy árus vagy kocsis hangosan abajgat.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abakusz</cimszo>
+	<gyak>1</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~t, ~a</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Ókori számolótábla vagy számolóasztal.</meghatarozas>
+			<peldamondat>Az abakuszon korongok vagy kövek képviselték a számjegyeket, ezek mozgatásával lehetett szorozni és osztani.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Az ókori görög építészetben:) Az oszlopfőnek a terhelést átvevő, négyzetes vagy kerek záróeleme.</meghatarozas>
+			<peldamondat>Az építőmunkások már az abakuszt faragták.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abál</cimszo>
+	<gyak>1</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Ízesített lében rövid ideig főz valamit.</meghatarozas>
+			<peldamondat>Szalonnát abál, aztán megpaprikázza.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abaposztó</cimszo>
+	<gyak>1</gyak>
+	<szofaj>fn</szofaj>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Durva, festetlen posztó.</meghatarozas>
+			<peldamondat>A székely viselet abaposztóból készül.  @Jelzőként:@ Abaposztó zekét hord.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abbahagy</cimszo>
+	<gyak>5</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Nem folytat tovább valamit.</meghatarozas>
+			<peldamondat>Családi okokból abbahagyta tanulmányait.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abbamarad</cimszo>
+	<gyak>3</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Nem folytatódik.</meghatarozas>
+			<peldamondat>A váratlan zápor miatt abbamaradt a szabadtéri előadás.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ábécé</cimszo>
+	<gyak>3</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~k, ~t, ~je</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Egy nyelv betűinek összessége.</meghatarozas>
+			<peldamondat>Leírja a görög ábécét.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Betűrend.</meghatarozas>
+			<peldamondat>Sorold szoros ábécébe a megadott szavakat!</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Az írás-olvasás ismerete.</meghatarozas>
+			<peldamondat>Már megtanulta az ábécét.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Valamire vonatkozó elemi ismeretek összessége.</meghatarozas>
+			<peldamondat>Elsajátította a számítógép kezelésének ábécéjét.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Élelmiszerbolt.</meghatarozas>
+			<peldamondat>Lemegyek az ábécébe tejért.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ablak</cimszo>
+	<gyak>5</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~ot, ~a</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Épületen, járművön a világosság és a levegő bebocsátására való (zárható) nyílás.</meghatarozas>
+			<peldamondat>Nyisd ki az ablakot, hadd jöjjön be egy kis friss levegő! Egy kis ablakon át leolvasható a mérőóra állása.  @átvitt@ A televízió ablak a világra, segítségével tudomást lehet szerezni a nagyvilág eseményeiről.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Számítógép képernyőjén) kerettel határolt téglalap alakú terület, melyben dokumentum vagy információ van vagy lehet.</meghatarozas>
+			<peldamondat>Nyiss egy új ablakot a szövegszerkesztőben, és másold át oda ezt az oldalt!</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ábra</cimszo>
+	<gyak>5</gyak>
+	<szofaj>fn</szofaj>
+	<rag><ekezetestilde/>k, <ekezetestilde/>t, <ekezetestilde/>ja</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Vázlatos szemléltető rajz, kép.</meghatarozas>
+			<peldamondat>A szöveget ábrákkal tették érthetőbbé.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(szleng) Helyzet.</meghatarozas>
+			<peldamondat>Mi az ábra?</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abrak</cimszo>
+	<gyak>3</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~ot, ~ja</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Szemes vagy más, nem szálas takarmány.</meghatarozas>
+			<peldamondat>Abrakot ad a lovának.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(tréfás) Ennivaló.</meghatarozas>
+			<peldamondat>Valami abrakot is kell venni.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abrakadabra</cimszo>
+	<gyak>1</gyak>
+	<szofaj>fn</szofaj>
+	<rag><ekezetestilde/>k, <ekezetestilde/>t, <ekezetestilde/>ja</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Keleti varázsszó.</meghatarozas>
+			<peldamondat>Abrakadabra! – mormolta a varázsló, és az oroszlán kisegérré változott.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Értelmetlen beszéd.</meghatarozas>
+			<peldamondat>Abrakadabrával még senki nem oldotta meg a problémáját.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ábránd</cimszo>
+	<gyak>4</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~ot, ~ja</rag>
+	<minosites>választékos</minosites>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>(Megvalósíthatatlan) elképzelés, vágy, tervezgetés.</meghatarozas>
+			<peldamondat>Sokszor nagy a különbség ábránd és valóság között.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ábrándoz|ik</cimszo>
+	<gyak>5</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>(Megvalósíthatatlan) dolgokat elképzel.</meghatarozas>
+			<peldamondat>Nem halad a munkával, folyton csak ábrándozik. Egy afrikai utazásról ábrándozik, vágyakozva gondol rá.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ábrázat</cimszo>
+	<gyak>4</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~ot, ~a</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Arckifejezés.</meghatarozas>
+			<peldamondat>Savanyú az ábrázata, mert becsapták.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ábrázol</cimszo>
+	<gyak>5</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Rajzzal, képpel szemléltet.</meghatarozas>
+			<peldamondat>A beteg hőmérsékletének alakulását grafikonnal ábrázolják a lázlapon.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Technikai eszközzel megjelenít.</meghatarozas>
+			<peldamondat>A fénykép egy távoli rokont ábrázol.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Művészi eszközökkel bemutat.</meghatarozas>
+			<peldamondat>A dráma Galilei életét ábrázolja.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abroncs</cimszo>
+	<gyak>3</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~ot, ~a</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Gyűrűszerű, szoros összetartó pánt.</meghatarozas>
+			<peldamondat>Abroncsot tesz a hordóra.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Gumiabroncs.</meghatarozas>
+			<peldamondat>Új abroncsokat vett az autójára.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>abrosz</cimszo>
+	<gyak>4</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~t, ~a</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Általában étkezéshez használt asztalterítő.</meghatarozas>
+			<peldamondat>Fehér abrosszal terítette meg az ünnepi asztalt.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(régi) Térkép.</meghatarozas>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>acél</cimszo>
+	<gyak>4</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~t, ~ja</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Edzett vasötvözet.</meghatarozas>
+			<peldamondat>A kés pengéje acélból van.  @Jelzőként:@ Acél mérőszalagot vett elő a zsebéből.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Rendkívül erős, szívós.</meghatarozas>
+			<peldamondat>Minden izma csupa acél.  @Jelzőként:@ Acél idegrendszere van.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>A kard pengéje.</meghatarozas>
+			<peldamondat>Szikrát hányt az acél, amint a vitézek összecsaptak.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>achtel</cimszo>
+	<gyak>1</gyak>
+	<szofaj>szn</szofaj>
+	<minosites>Őv bizalmas</minosites>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>A liter nyolcadrésze.</meghatarozas>
+			<peldamondat>Annyira ízlett neki a bor, hogy több achtelt megivott belőle.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ács</cimszo>
+	<gyak>4</gyak>
+	<szofaj>fn</szofaj>
+	<rag>~ok, ~ot, ~a</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Épületek fedélszerkezetét készítő és más famunkákat vállaló iparos.</meghatarozas>
+			<peldamondat>Ácsok dolgoznak a ház tetején.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>acsarkod|ik</cimszo>
+	<gyak>2</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Dühösen kiabál, veszekszik.</meghatarozas>
+			<peldamondat>A rossz szomszédok évek óta folyton acsarkodnak.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Kutya) fogát vicsorgatva hangot ad.</meghatarozas>
+			<peldamondat>A kutya dühösen acsarkodott rá a kerítés mögül.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ácsi</cimszo>
+	<gyak>2</gyak>
+	<szofaj>msz</szofaj>
+	<minosites>népi</minosites>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>(Rendszerint mulatás közben, muzsikáló cigányokhoz szólva:) Hagyd abba!</meghatarozas>
+			<peldamondat>Ácsi! Hallgassuk meg a pohárköszöntőt! „kiváncsian fordult a király hozzája: – Ácsi, kis lány, ácsi! Miért vagyok rossz bácsi?”<forras>(Móra F.: A didergő király)</forras></peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ácsingóz|ik</cimszo>
+	<gyak>1</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<minosites>bizalmas</minosites>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Nagyon szeretne valamit.</meghatarozas>
+			<peldamondat>Egy jó töltőtollra ácsingózik.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Vágyakozva, nézelődve ácsorog.</meghatarozas>
+			<peldamondat>Sokáig ácsingózott a kirakat előtt.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Ácsorog.</meghatarozas>
+			<peldamondat>Órákig ácsingózott az utcán, de a barátja nem jött.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ácsol</cimszo>
+	<gyak>3</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Ácsmunkát végez.</meghatarozas>
+			<peldamondat>A munkások egész nap ácsoltak.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Ácsmunkával faanyagból készít valamit.</meghatarozas>
+			<peldamondat>Állványzatot ácsol a ház mellé.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ácsorog</cimszo>
+	<gyak>4</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Tétlenül vagy várakozva hosszabb ideig áll.</meghatarozas>
+			<peldamondat>Ráérősen ácsorog a kapu előtt. Húsz percig ácsorgott a villamosmegállóban.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+
+<szocikk>
+	<cimszo>ad</cimszo>
+	<gyak>5</gyak>
+	<szofaj>ige</szofaj>
+	<rag>~ni</rag>
+	<jelentesek>
+		<jelentes>
+			<meghatarozas>Átnyújt, eljuttat, rendelkezésre bocsát valakinek valamit.</meghatarozas>
+			<peldamondat>Adjatok több teát a gyereknek!</peldamondat>
+			<szokapcsolat>
+				<meghatarozas><szokapcsolatdef>Kezet ad:</szokapcsolatdef> kezet nyújt. <peldamondat>Találkozáskor kezet adtak egymásnak.</peldamondat>
+					<jelenteskul>Adományoz. <peldamondat>Ő is ad valamennyit jótékony célra.</peldamondat></jelenteskul>
+					<jelenteskul>Biztosít. <peldamondat>Termet ad a műsorhoz.</peldamondat></jelenteskul>
+					<jelenteskul>Kapcsol. <peldamondat>Adom a hívott felet.</peldamondat></jelenteskul>
+					<jelenteskul>Pénzért árul. <peldamondat>Hogy adja a tojást?</peldamondat></jelenteskul>
+					<jelenteskul>Fizet. <peldamondat>Foglalót ad a házra.</peldamondat></jelenteskul>
+					<jelenteskul>Elnevez. <peldamondat>Nevet ad a gyereknek.</peldamondat></jelenteskul>
+				</meghatarozas>
+			</szokapcsolat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Ruhát) húz valakire, valamire.</meghatarozas>
+			<peldamondat>Pizsamát ad a gyerekre.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Hozzátesz valamit valamihez.</meghatarozas>
+			<peldamondat>Három tojást ad a piskótatésztához.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Biztosít valamit, lehetőséget teremt valakinek.</meghatarozas>
+			<peldamondat>Jogot ad a fellebbezésre. Helyet ad a padon egy idős úrnak. Munkát ad a friss diplomásnak. Időt ad a felkészülésre.</peldamondat>
+			<szokapcsolat>
+				<meghatarozas><szokapcsolatdef>Órát ad:</szokapcsolatdef> magántanítás során oktat.</meghatarozas>
+				<peldamondat>Órát ad német nyelvből.</peldamondat>
+			</szokapcsolat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Létrehoz, eredményez, okoz, előidéz valamit.</meghatarozas>
+			<peldamondat>A kísérlet jó eredményt adott. Ez a duda túl éles hangot ad. Jelt ad az indulásra.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Terméket, energiát) szolgáltat.</meghatarozas>
+			<peldamondat>Ez a tehén napi 10 liter tejet ad. A kandalló kellemes meleget ad.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Rendez valamit.</meghatarozas>
+			<peldamondat>A követség ma este fogadást ad.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Műsoron van, játsszák.</meghatarozas>
+			<peldamondat>Mit adnak ma az Operában?</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Televízió- vagy rádiócsatorna) közvetít valamit.</meghatarozas>
+			<peldamondat>Ezt a mérkőzést a tévé is adja.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>Taníttat, küld, enged valakit valaminek.</meghatarozas>
+			<peldamondat>Műszerésznek adta a fiát. Egy orvoshoz adja feleségül a lányát.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Kifejezésekben:) Kinyilvánít, közöl valamit.</meghatarozas>
+			<szokapcsolat>
+				<alszokapcsolat>
+					<meghatarozas><szokapcsolatdef>Írásba ad:</szokapcsolatdef> leír.</meghatarozas>
+					<peldamondat>Adja kérem írásba az ígéretét!</peldamondat>
+				</alszokapcsolat>
+				<alszokapcsolat>
+					<meghatarozas><szokapcsolatdef>Szavát adja:</szokapcsolatdef>
+						<jelenteskul>állítja, hogy igaz</jelenteskul>
+						<jelenteskul>megígéri.</jelenteskul>
+					</meghatarozas>
+				</alszokapcsolat>
+			</szokapcsolat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Kifejezésben:) Bizonyos cselekvést végez, teljesít. <cimszomodosulat>Választ ad:</cimszomodosulat> válaszol.</meghatarozas>
+			<peldamondat>Hétfőig kell választ adnom a munkaajánlatra.</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas>(Fenyegetésként:) <cimszomodosulat>Ad valakinek:</cimszomodosulat> megbünteti.</meghatarozas>
+			<peldamondat>Majd ad neked!</peldamondat>
+		</jelentes>
+		<jelentes>
+			<meghatarozas><cimszomodosulat>Ad valakire, valamire:</cimszomodosulat> fontosnak tartja.</meghatarozas>
+			<peldamondat>Az ő véleményére sokat adok. Túl sokat ad a külsejére.</peldamondat>
+		</jelentes>
+	</jelentesek>
+</szocikk>
+</ertelmezo>
