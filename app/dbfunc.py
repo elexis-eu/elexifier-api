@@ -9,8 +9,7 @@ from sqlalchemy.orm import sessionmaker
 import base64
 import json
 from app.models import *
-
-
+import re
 
 
 def user_loader(db, uid):
@@ -33,23 +32,21 @@ def delete_user(db, uid):
     connection.execute("delete from users where id={0:s}".format(str(uid)))
     return None
 
+
 def check_login(db, username, password, bcrypt):
-    connection = db.connect()
-    result = connection.execute("SELECT id, password_hash FROM users WHERE username='{0:s}'".format(username))
-    for r in result:
-        if bcrypt.check_password_hash(r['password_hash'], password):
-            user = User.query.get(int(r['id']))
-            connection.close()
+    Session = sessionmaker(db)
+    session = Session()
+    user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
+    session.commit()
+    if user is None:
+        print ('invalid user')
+        return None
+    else:
+        if bcrypt.check_password_hash(user.password_hash, password):
             if user.is_authenticated():
                 return user
-            return None
-    else:
-        print ('invalid user')
-        connection.close()
         return None
 
-
-# ---- datasets
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
@@ -241,3 +238,30 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
 
     connection.close()
     return (True, 'Done')
+
+def extract_xml_head_content(xml_file):
+
+    tree = lxml.etree.parse(xml_file)
+    unique_texts = set()
+    for element in tree.iter():
+        unique_texts.add(element.text.replace("\t",""))
+        
+    ## morda je bolj smiselno mapiranje iz teksta v nekaj? Npr. .tag?
+    return unique_texts
+
+def clean_tag(xml_tag):
+    pattern = re.compile("\{http:\/\/")
+    if pattern.match(xml_tag):
+        m = re.search('\}.{1,10000}', xml_tag)
+        if m:
+            return m.group(0)[1:]
+    else:
+        return xml_tag
+
+def extract_xml_heads(xml_file):
+
+    tree = lxml.etree.parse(xml_file)
+    unique_tags = set()
+    for element in tree.iter():
+        unique_tags.add(clean_tag(element.tag))        
+    return unique_tags

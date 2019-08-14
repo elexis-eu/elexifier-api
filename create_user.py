@@ -30,11 +30,14 @@ def main():
 
         print('Enter username: ')
         username = input()
+        print('Enter email: ')
+        email = input()
         password_hash = getpass()
         assert password_hash == getpass('Password (again):')
 
         user = User(
             username=username, 
+            email=email,
             password_hash=bcrypt.generate_password_hash(password_hash).decode('utf-8'),
             authenticated=True)
         db.session.add(user)

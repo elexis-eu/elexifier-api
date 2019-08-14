@@ -6,6 +6,7 @@
 
 import flask
 import flask.json
+from flask import jsonify, make_response
 import werkzeug.debug
 import pendulum
 import json
@@ -23,6 +24,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from app.models import User, BlacklistToken
 from app import app
+
 
 
 
@@ -219,6 +221,15 @@ def xf_entity_transform(xfid,entityid):
     
     return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')})
 
+
+@app.route('/api/xml_nodes/<int:dsid>', methods=['GET'])
+def ds_list_nodes():
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    datasets = dbfunc.extract_xml_heads(dsid)
+    return _j(datasets)
+
+
 # --- login, static content ---
 
 @app.route('/')
@@ -233,15 +244,20 @@ def login():
 
     user = dbfunc.check_login(engine, username, password, bcrypt)
     if user is None:
+        response = {
+            'message': 'Wrong password or user does not exist!'
+        }
         # proper login handling if more time......
-        return flask.redirect('/')
+        return make_response(jsonify(response)), 200
     else:
         #flask_login.login_user(user, remember=True)
         auth_token = user.encode_auth_token(user.id)
-        print(auth_token)
         if auth_token:
             response = {
-                'auth_token': auth_token.decode()
+                'message': 'Login succesful!',
+                'auth_token': auth_token.decode(),
+                'username': user.username,
+                'email': user.email
             }
             return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
 

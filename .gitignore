@@ -4,3 +4,6 @@ venv/
 migrations
 app.db
 *.pyc
+
+app/media/*
+app/media/.gitkeep 
