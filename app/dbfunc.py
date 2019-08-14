@@ -7,21 +7,10 @@ import hashlib
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import base64
-<<<<<<< HEAD:app/dbfunc.py
 import json
 from app.models import *
-
-=======
 import re
->>>>>>> master:dbfunc.py
 
-
-
-def user_loader(db, uid):
-    return User.query.get(int(uid))
-    #uid = int(uid)
-    #cur = db.cursor()
-    #cur.execute("SELECT id FROM users WHERE ")
 
 
 def check_login(db, username, password, bcrypt):
@@ -255,16 +244,4 @@ def extract_xml_heads(xml_file):
     unique_tags = set()
     for element in tree.iter():
         unique_tags.add(clean_tag(element.tag))        
-    print(unique_tags)
-                        
-if __name__ == "__main__":
-
-    import glob
-    for fil in glob.glob("./example_xml/*"):
-#        if fil != "./example_xml/Bridge_A_TEI-valid (1).xml":            
-        try:
-            results = extract_xml_heads(fil)
-            results2 = extract_xml_head_content(fil)
-        except Exception as es:
-            print(es)
-            pass
+    return unique_tags

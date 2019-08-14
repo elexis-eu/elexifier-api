@@ -211,6 +211,15 @@ def xf_entity_transform(xfid,entityid):
     
     return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')})
 
+
+@app.route('/api/xml_nodes/<int:dsid>', methods=['GET'])
+def ds_list_nodes():
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    datasets = dbfunc.extract_xml_heads(dsid)
+    return _j(datasets)
+
+
 # --- login, static content ---
 
 @app.route('/')
