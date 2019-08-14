@@ -47,11 +47,21 @@ def _j(r):
 # -- users
 @app.route('/api/user/new', methods=['POST'])
 def user_add():
-    pass
+    bcrypt = Bcrypt()
+    username = flask.request.headers.get('username')
+    email = flask.request.headers.get('email')
+    password = flask.request.headers.get('password')
+    password = bcrypt.generate_password_hash(password).decode('utf-8')
+    if dbfunc.register_user(engine, username, email, password):
+        return flask.make_response('OK',200)
+    else:
+        return flask.make_response('Already exists', 200)
 
 @app.route('/api/user/<int:userid>/disable', methods=['DELETE'])
-def user_delete():
-    pass
+def user_delete(userid):
+    # Authenticated user only?
+    dbfunc.delete_user(engine, userid)
+    return flask.make_response('OK', 200)
 
 def verify_user(token):
     resp = User.decode_auth_token(token)
