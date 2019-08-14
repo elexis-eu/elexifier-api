@@ -233,10 +233,12 @@ def ds_list_nodes():
 # --- login, static content ---
 
 @app.route('/')
+@cross_origin(headers=['Content-Type'])
 def index():
     return flask.render_template('login.html')
 
 @app.route('/do_login', methods=['GET', 'POST'])
+@cross_origin(headers=['Content-Type'])
 def login():
     username = flask.request.form['login']
     password = flask.request.form['password']
@@ -262,6 +264,7 @@ def login():
             return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
           
 @app.route('/api/login', methods=['GET', 'POST'])
+@cross_origin(headers=['Content-Type'])
 def login2():
     username = flask.request.form['login']
     password = flask.request.form['password']
@@ -288,12 +291,14 @@ def login2():
 
 
 @app.route('/home')
+@cross_origin(headers=['Content-Type'])
 def return_token():
     response = flask.request.args['response']
     return flask.render_template('build_transform.html', response=_j(response))
 
 
 @app.route('/do_logout')
+@cross_origin(headers=['Content-Type'])
 def logout():
     # get auth token
     auth_header = flask.request.headers.get('Authorization')
