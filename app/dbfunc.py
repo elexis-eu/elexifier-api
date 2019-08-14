@@ -21,22 +21,19 @@ def user_loader(db, uid):
 
 
 def check_login(db, username, password, bcrypt):
-    connection = db.connect()
-    result = connection.execute("SELECT id, password_hash FROM users WHERE username='{0:s}'".format(username))
-    for r in result:
-        if bcrypt.check_password_hash(r['password_hash'], password):
-            user = User.query.get(int(r['id']))
-            connection.close()
+    Session = sessionmaker(db)
+    session = Session()
+    user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
+    session.commit()
+    if user is None:
+        print ('invalid user')
+        return None
+    else:
+        if bcrypt.check_password_hash(user.password_hash, password):
             if user.is_authenticated():
                 return user
-            return None
-    else:
-        print ('invalid user')
-        connection.close()
         return None
 
-
-# ---- datasets
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())

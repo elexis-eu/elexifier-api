@@ -10,8 +10,10 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique = True, nullable = False)
+    email = db.Column(db.String(120), unique = True, nullable = False)
     password_hash = db.Column(db.String(120), nullable = False)
     authenticated = db.Column(db.Boolean, default=False)
+    registered_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     def is_active(self):
         """True, as all users are active."""
@@ -82,14 +84,6 @@ class BlacklistToken(db.Model):
     def __repr__(self):
         return '<id: token: {}'.format(self.token)
 
-
-
-
-class App_config(db.Model):
-    
-    __tablename__ = 'app_config'
-
-    secret_key = db.Column(db.String, primary_key=True)
 
 
 

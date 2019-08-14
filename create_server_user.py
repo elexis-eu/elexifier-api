@@ -24,6 +24,7 @@ def main():
         
         user = User(
             username='user', 
+            email='user@user.net',
             password_hash=bcrypt.generate_password_hash('user').decode('utf-8'),
             authenticated=True)
         db.session.add(user)
