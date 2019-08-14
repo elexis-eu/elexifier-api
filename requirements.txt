@@ -10,3 +10,4 @@ filemagic==1.6
 flask-script==2.0.6
 pyjwt==1.4.2
 gunicorn
+flask-cors
