@@ -17,7 +17,7 @@ from functools import partial
 import json, collections
 from flask_bcrypt import Bcrypt
 from werkzeug.utils import secure_filename
-import app.dbfunc as dbfunc
+import app.controllers as controllers
 
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
@@ -25,8 +25,6 @@ import os
 from app.models import User, BlacklistToken
 from app import app
 from flask_cors import CORS, cross_origin
-
-
 
 
 
@@ -45,11 +43,13 @@ def _j(r):
     s.mimetype = 'application/json'
     return s
 
+
 # --- API ---
 @app.after_request
 def apply_caching(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
+
 
 # -- users
 @app.route('/api/user/new', methods=['POST'])
@@ -59,22 +59,27 @@ def user_add():
     email = flask.request.headers.get('email')
     password = flask.request.headers.get('password')
     password = bcrypt.generate_password_hash(password).decode('utf-8')
-    if dbfunc.register_user(engine, username, email, password):
+    if controllers.register_user(engine, username, email, password):
         return flask.make_response('OK',200)
     else:
         return flask.make_response('Already exists', 200)
 
+
 @app.route('/api/user/<int:userid>/disable', methods=['DELETE'])
 def user_delete(userid):
     # Authenticated user only?
-    dbfunc.delete_user(engine, userid)
+    controllers.delete_user(engine, userid)
     return flask.make_response('OK', 200)
+
 
 def verify_user(token):
     resp = User.decode_auth_token(token)
     if isinstance(resp, str):
-        #TODO
-        flask.render_template('login.html')
+        response = {
+            'message': 'User not loged in!'
+        }
+        # proper login handling if more time......
+        return make_response(jsonify(response)), 200
     else:
         return resp
 
@@ -84,44 +89,47 @@ def verify_user(token):
 def ds_list_datasets():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    datasets = dbfunc.list_datasets(engine, id)
+    datasets = controllers.list_datasets(engine, id)
     return _j(datasets)
+
 
 @app.route('/api/dataset/<int:dsid>', methods=['GET'])
 def ds_dataset_info(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    datasets = dbfunc.list_datasets(engine, id, dsid)
+    datasets = controllers.list_datasets(engine, id, dsid)
     return _j(datasets)
 
+
 @app.route('/api/dataset/<int:dsid>', methods=['DELETE'])
-#@flask_login.login_required
 def ds_delete_dataset():
     pass
 
+
 @app.route('/api/dataset/<int:dsid>/preview', methods=['GET'])
-#@flask_login.login_required
 def ds_dataset_preview():
     pass
 
+
 @app.route('/api/dataset/<int:dsid>/entries', methods=['GET'])
-#@flask_login.login_required
 def ds_list_entries(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = dbfunc.list_dataset_entries(engine, id, dsid)
+    headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
+    rv = controllers.list_dataset_entries(engine, id, dsid, headwords)
     return _j(rv)
 
+
 @app.route('/api/dataset/<int:dsid>/<int:entryid>', methods=['GET'])
-#@flask_login.login_required
 def ds_fetch_dataset_entry(dsid, entryid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = dbfunc.get_entry(engine, id, dsid, entryid)
+    headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
+    rv = controllers.get_entry(engine, id, dsid, entryid, headwords)
     return _j(rv)
 
+
 @app.route('/api/dataset/upload', methods=['POST'])
-#@flask_login.login_required
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
@@ -132,12 +140,12 @@ def ds_upload_new_dataset():
     dzfilepath = os.path.join(APP_MEDIA, secure_filename(dzcontent.filename))
     dzuuid = flask.request.form.get('dzuuid', None)
     dzcontent.save(os.path.join(APP_MEDIA, secure_filename(dzcontent.filename)))
-    result = dbfunc.add_dataset(engine, id, dztotalfilesize, dzfilename, dzfilepath, dzuuid)
+    result = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, dzfilepath, dzuuid)
     if result:
         return flask.make_response('OK',200)
 
+
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
-#@flask_login.login_required
 def ds_rename_dataset():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
@@ -145,15 +153,14 @@ def ds_rename_dataset():
 
 # -- transforms
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
-#@flask_login.login_required
 def xf_list_transforms(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = dbfunc.list_transforms(engine, id, dsid)
+    rv = controllers.list_transforms(engine, id, dsid)
     return _j(rv)
 
+
 @app.route('/api/transform/new', methods=['POST'])
-#@flask_login.login_required
 def xf_new_transform():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
@@ -165,27 +172,27 @@ def xf_new_transform():
 
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         return flask.make_response(('Invalid API call'), 422)
-    xfid = dbfunc.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec)
-    isok, retmsg = dbfunc.prepare_dataset(engine, id, dsid, xfid, entry_spec)
+    xfid = controllers.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec)
+    isok, retmsg = controllers.prepare_dataset(engine, id, dsid, xfid, entry_spec)
     if not isok:
         return flask.make_response(retmsg, 422)
     return _j({'xfid': xfid})
 
+
 @app.route('/api/transform/<int:xfid>', methods=['GET'])
-#@flask_login.login_required
 def xf_get_transform_spec(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = dbfunc.describe_transform(engine, id, xfid)
+    rv = controllers.describe_transform(engine, id, xfid)
     return _j(rv)
 
+
 @app.route('/api/transform/<int:xfid>', methods=['DELETE'])
-#@flask_login.login_required
 def xf_delete_transform():
     pass
 
+
 @app.route('/api/transform/<int:xfid>', methods=['POST'])
-#@flask_login.login_required
 def xf_update_transform(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
@@ -193,17 +200,17 @@ def xf_update_transform(xfid):
     print('Update transform')
     if xfspec is None:
         return flask.make_response(('Invalid API call'), 422)
-    rv = dbfunc.update_transform(engine, id, xfid, xfspec)
+    rv = controllers.update_transform(engine, id, xfid, xfspec)
     return _j({'updated': rv})
 
+
 @app.route('/api/transform/<int:xfid>/apply/<int:entityid>', methods=['GET'])
-#@flask_login.login_required
 def xf_entity_transform(xfid,entityid):
     print('entity transform')
     token = flask.request.args.get('Authorization')
     id = verify_user(token)
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
-    entity, spec = dbfunc.get_entity_and_spec(engine, id, xfid, entityid)
+    entity, spec = controllers.get_entity_and_spec(engine, id, xfid, entityid)
 
     print(spec)
 
@@ -230,11 +237,11 @@ def xf_entity_transform(xfid,entityid):
 
 
 @app.route('/api/xml_nodes/<int:dsid>', methods=['GET'])
-def ds_list_nodes():
+def ds_list_nodes(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    datasets = dbfunc.extract_xml_heads(dsid)
-    return _j(datasets)
+    nodes = controllers.extract_xml_heads(engine, dsid)
+    return _j({'nodes': nodes})
 
 
 # --- login, static content ---
@@ -244,6 +251,7 @@ def ds_list_nodes():
 def index():
     return flask.render_template('login.html')
 
+
 @app.route('/do_login', methods=['GET', 'POST'])
 @cross_origin(headers=['Content-Type'])
 def login():
@@ -251,7 +259,7 @@ def login():
     password = flask.request.form['password']
     bcrypt = Bcrypt()
 
-    user = dbfunc.check_login(engine, username, password, bcrypt)
+    user = controllers.check_login(engine, username, password, bcrypt)
     if user is None:
         response = {
             'message': 'Wrong password or user does not exist!'
@@ -270,6 +278,7 @@ def login():
             }
             return flask.redirect(flask.url_for('.return_token', response=json.dumps(response)))
 
+
 @app.route('/api/login', methods=['GET', 'POST'])
 @cross_origin(headers=['Content-Type'])
 def login2():
@@ -277,7 +286,7 @@ def login2():
     password = flask.request.json['password']
     bcrypt = Bcrypt()
 
-    user = dbfunc.check_login(engine, username, password, bcrypt)
+    user = controllers.check_login(engine, username, password, bcrypt)
     if user is None:
         response = {
             'message': 'Wrong password or user does not exist!'

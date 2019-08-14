@@ -12,11 +12,6 @@ from app.models import *
 import re
 
 
-def user_loader(db, uid):
-    return User.query.get(int(uid))
-    #uid = int(uid)
-    #cur = db.cursor()
-    #cur.execute("SELECT id FROM users WHERE ")
 
 def register_user(db, username, email, password_hash):
     connection = db.connect()
@@ -26,6 +21,7 @@ def register_user(db, username, email, password_hash):
     uid = [x for x in connection.execute("SELECT MAX(id) FROM users")][0][0] + 1
     connection.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email))
     return True
+
 
 def delete_user(db, uid):
     connection = db.connect()
@@ -57,6 +53,7 @@ def extract_keys(cur, single=False):
     else:
         return rv[0] if len(rv) > 0 else None
 
+
 def list_datasets(db, uid, dsid=None):
     connection = db.connect()
     if dsid is None:
@@ -67,16 +64,20 @@ def list_datasets(db, uid, dsid=None):
     connection.close()
     return datasets
 
-def list_dataset_entries(db, uid, dsid):
+
+def list_dataset_entries(db, uid, dsid, headwords):
     connection = db.connect()
-    result = connection.execute("SELECT dse.id, dse.entry_name FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.uid='{1:s}'".format(str(dsid), str(uid)))
+    result = connection.execute("SELECT dse.id, dse.entry_head FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.uid='{1:s}'".format(str(dsid), str(uid)))
     d = extract_keys(result)#, ('id', 'entry_name'))
+    print(d)
+    #headwords = lxm.etree.fromstring(entry_head)
     connection.close()
     return d
 
-def get_entry(db, uid, dsid, entryid):
+
+def get_entry(db, uid, dsid, entryid, headwords):
     connection = db.connect()
-    result = connection.execute("SELECT id, entry_name, contents FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.id='{1:s}' AND ds.uid='{2:s}'".format(str(dsid), str(entryid), str(uid)))
+    result = connection.execute("SELECT id, entry_head, contents FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.id='{1:s}' AND ds.uid='{2:s}'".format(str(dsid), str(entryid), str(uid)))
     d = extract_keys(result)#, ('id', 'entry_name', 'contents'))
     connection.close()
     return d
@@ -90,6 +91,7 @@ def list_transforms(db, uid, dsid):
     connection.close()
     print('list transformers')
     return transforms
+
 
 def describe_transform(db, uid, xfid):
     connection = db.connect()
@@ -106,6 +108,7 @@ def describe_transform(db, uid, xfid):
     result = connection.execute("SELECT id, dsid, COALESCE(entry_name, entry_head) as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
     return {'transform': transform, 'entities': entities}
+
 
 def new_transform(db, uid, uuid, xfname, dsid, xpath):
     base = declarative_base()
@@ -134,6 +137,7 @@ def update_transform(db, uid, xfid, xfspec):
     transformer.transform = xfspec
     session.commit()
     return 1
+
 
 def get_entity_and_spec(db, uid, xfid, entityid):
     connection = db.connect()
@@ -189,6 +193,16 @@ def xmls(mimetype, data):
         return None
 
 
+def clean_tag(xml_tag):
+    pattern = re.compile("\{http:\/\/")
+    if pattern.match(xml_tag):
+        m = re.search('\}.{1,10000}', xml_tag)
+        if m:
+            return m.group(0)[1:]
+    else:
+        return xml_tag
+
+
 def prepare_dataset(db, uid, dsid, xfid, xpath):
     connection = db.connect()
     result = connection.execute("SELECT upload_mimetype, file_path FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
@@ -225,10 +239,8 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
 
         for entry in nodes:
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
-            entry_head = entry_str.split('\n',1)[0] #!!
-            #print(entry_head)
-
-
+            entry_head = clean_tag(entry_str.split('\n',1)[0])
+            print(entry_head)
 
             # Create
             dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, contents=entry_str)
@@ -239,7 +251,13 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
     connection.close()
     return (True, 'Done')
 
-def extract_xml_head_content(xml_file):
+
+def extract_xml_head_content(db, dsid):
+    Session = sessionmaker(db)
+    session = Session()
+    dataset = session.query(Datasets).filter(Datasets.id == dsid).first()
+    xml_file = dataset.file_path
+    session.commit()
 
     tree = lxml.etree.parse(xml_file)
     unique_texts = set()
@@ -247,21 +265,19 @@ def extract_xml_head_content(xml_file):
         unique_texts.add(element.text.replace("\t",""))
         
     ## morda je bolj smiselno mapiranje iz teksta v nekaj? Npr. .tag?
-    return unique_texts
+    return list(unique_texts)
 
-def clean_tag(xml_tag):
-    pattern = re.compile("\{http:\/\/")
-    if pattern.match(xml_tag):
-        m = re.search('\}.{1,10000}', xml_tag)
-        if m:
-            return m.group(0)[1:]
-    else:
-        return xml_tag
 
-def extract_xml_heads(xml_file):
+def extract_xml_heads(db, dsid):
+
+    Session = sessionmaker(db)
+    session = Session()
+    dataset = session.query(Datasets).filter(Datasets.id == dsid).first()
+    xml_file = dataset.file_path
+    session.commit()
 
     tree = lxml.etree.parse(xml_file)
     unique_tags = set()
     for element in tree.iter():
         unique_tags.add(clean_tag(element.tag))        
-    return unique_tags
+    return list(unique_tags)
