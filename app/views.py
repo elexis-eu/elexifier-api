@@ -46,6 +46,11 @@ def _j(r):
     return s
 
 # --- API ---
+@app.after_request
+def apply_caching(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
+  
 # -- users
 @app.route('/api/user/new', methods=['POST'])
 def user_add():
