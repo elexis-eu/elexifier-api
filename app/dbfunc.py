@@ -24,7 +24,7 @@ def register_user(db, username, email, password_hash):
     if len([x for x in result]) > 0:
         return False
     uid = [x for x in connection.execute("SELECT MAX(id) FROM users")][0][0] + 1
-    connection.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 0, '{3:s}')".format(str(uid), username, password_hash, email))
+    connection.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email))
     return True
 
 def delete_user(db, uid):
