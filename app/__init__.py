@@ -10,7 +10,7 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['127.0.0.1:4200'])
 
 #Configuration of application, see configuration.py, choose one and uncomment.
 #app.config.from_object('configuration.ProductionConfig')
