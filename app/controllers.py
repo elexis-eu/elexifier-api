@@ -67,9 +67,10 @@ def list_datasets(db, uid, dsid=None):
 
 def list_dataset_entries(db, uid, dsid, headwords):
     connection = db.connect()
+    print('list dataset entries')
     result = connection.execute("SELECT dse.id, dse.entry_head FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.uid='{1:s}'".format(str(dsid), str(uid)))
     d = extract_keys(result)#, ('id', 'entry_name'))
-    print(d)
+    #print(d)
     #headwords = lxm.etree.fromstring(entry_head)
     connection.close()
     return d
@@ -77,6 +78,7 @@ def list_dataset_entries(db, uid, dsid, headwords):
 
 def get_entry(db, uid, dsid, entryid, headwords):
     connection = db.connect()
+    print('get entry')
     result = connection.execute("SELECT id, entry_head, contents FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.id='{1:s}' AND ds.uid='{2:s}'".format(str(dsid), str(entryid), str(uid)))
     d = extract_keys(result)#, ('id', 'entry_name', 'contents'))
     connection.close()
@@ -105,8 +107,9 @@ def describe_transform(db, uid, xfid):
             pass
 
     print("Transform: ", transform)
-    result = connection.execute("SELECT id, dsid, COALESCE(entry_name, entry_head) as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
+    result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
+    print(entities)
     return {'transform': transform, 'entities': entities}
 
 
@@ -133,7 +136,6 @@ def update_transform(db, uid, xfid, xfspec):
     print('update transformer')
 
     transformer = session.query(Transformer).get(xfid)
-    print(xfspec['slots'])
     transformer.transform = xfspec
     session.commit()
     return 1
@@ -143,8 +145,10 @@ def get_entity_and_spec(db, uid, xfid, entityid):
     connection = db.connect()
     result = connection.execute("SELECT tf.transform, dse.contents FROM transformers tf INNER JOIN datasets ds ON tf.dsid=ds.id INNER JOIN datasets_single_entry dse ON ds.id=dse.dsid WHERE tf.id='{0:s}' AND ds.uid='{1:s}' AND dse.id='{2:s}'".format(str(xfid), str(uid), str(entityid)))
     spec, entry = result.fetchone()
-    print(spec)
-    spec = json.loads(spec)
+    try:
+        spec = json.loads(spec)
+    except:
+        pass
     print("Tale spec: ", spec)
     connection.close()
     return entry, spec

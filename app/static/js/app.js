@@ -547,8 +547,8 @@ const vm = new Vue({
 	display_internal_transform: true,
 	dropzoneOptions: {
             url: '/api/dataset/upload',
-            maxFilesize: 9999,
-	    chunkSize: 2000000,
+            maxFilesize: 999,
+	    chunkSize: 200000,
 	    chunking: true,
 	    forceChunking: true,
 	}	

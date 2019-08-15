@@ -25,8 +25,13 @@ import os
 from app.models import User, BlacklistToken
 from app import app
 from flask_cors import CORS, cross_origin
+from celery import Celery
+import random
+import string
 
 
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 APP_MEDIA = os.path.join(APP_ROOT, 'media')
@@ -129,20 +134,51 @@ def ds_fetch_dataset_entry(dsid, entryid):
     return _j(rv)
 
 
+def generate_filename(filename,stringLength=20):
+    extension = filename.split('.')[-1]
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
+
+
 @app.route('/api/dataset/upload', methods=['POST'])
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
+
+
     dictname = flask.request.files.get('dictname', None)
     dzcontent = flask.request.files.get('file', None)
-    dzfilename = flask.request.files.get('file', None).filename  # !!
+    dzfilename = dzcontent.filename  # !!
     dztotalfilesize = flask.request.form.get('dztotalfilesize', None)
-    dzfilepath = os.path.join(APP_MEDIA, secure_filename(dzcontent.filename))
+    dzfilepath = os.path.join(APP_MEDIA, secure_filename(dzfilename))
     dzuuid = flask.request.form.get('dzuuid', None)
-    dzcontent.save(os.path.join(APP_MEDIA, secure_filename(dzcontent.filename)))
-    result = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, dzfilepath, dzuuid)
-    if result:
-        return flask.make_response('OK',200)
+    dzcontent = flask.request.files.get('file', None)
+    current_chunk = int(flask.request.form.get('dzchunkindex'))
+
+    if os.path.exists(dzfilepath) and current_chunk == 0:
+        print('File already exists')
+        return make_response(jsonify({'message':'File already exists'})), 400
+
+    try:
+        with open(dzfilepath, 'ab') as f:
+            f.seek(int(flask.request.form.get('dzchunkbyteoffset', None)))
+            f.write(dzcontent.stream.read())
+    except OSError:
+        print('Could not write to file')
+        return make_response(jsonify({"message": "Not sure why, but we couldn't write the file to disk"})), 500
+
+    total_chunks = int(flask.request.form.get('dztotalchunkcount', None))
+
+    if current_chunk + 1 == total_chunks:
+        if os.path.getsize(dzfilepath) != int(dztotalfilesize):
+            print('Size mismatch', )
+            return make_response(jsonify({"message":'Size mismatch'})), 500
+        else:
+            new_random_name = generate_filename(dzfilename)
+            new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
+            os.rename(dzfilepath, new_path)
+            result = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
+    return flask.make_response('OK',200)
 
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])

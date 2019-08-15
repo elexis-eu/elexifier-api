@@ -11,3 +11,4 @@ flask-script==2.0.6
 pyjwt==1.4.2
 gunicorn
 flask-cors
+celery==4.2.1
