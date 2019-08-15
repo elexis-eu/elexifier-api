@@ -45,10 +45,10 @@ def _j(r):
 
 
 # --- API ---
-@app.after_request
-def apply_caching(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    return response
+# @app.after_request
+# def apply_caching(response):
+#     response.headers["Access-Control-Allow-Origin"] = "*"
+#     return response
 
 
 # -- users
@@ -208,7 +208,16 @@ def xf_update_transform(xfid):
 def xf_entity_transform(xfid,entityid):
     print('entity transform')
     token = flask.request.args.get('Authorization')
-    id = verify_user(token)
+    token_header = flask.request.headers.get('Authorization')
+
+    # Old application is in this case sending Authorization token through query params.
+    # Keep this conditional until we drop the support for the old app.
+
+    if token_header is None:
+        id = verify_user(token)
+    else:
+        id = verify_user(token_header)
+
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
     entity, spec = controllers.get_entity_and_spec(engine, id, xfid, entityid)
 
