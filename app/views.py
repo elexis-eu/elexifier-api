@@ -287,6 +287,33 @@ def ds_list_nodes(dsid):
     id = verify_user(token)
     nodes = controllers.extract_xml_heads(engine, dsid)
     return _j({'nodes': nodes})
+    
+    
+@app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
+def ds_download(xfid, dsid):
+    print('transformed dataset download')
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    xf, ds_path = dbfunc.get_ds_and_xf(engine, id, xfid, dsid)
+    xf = json.loads(xf)
+
+    orig_xml = open(ds_path, 'rb').read()
+    parserLookup = lxml.etree.ElementDefaultClassLookup(element = transformator.TMyElement)
+    myParser = lxml.etree.XMLParser()
+    myParser.set_element_class_lookup(parserLookup)
+    entity_xml = lxml.etree.fromstring(orig_xml, parser = myParser)
+    mapping = transformator.TMapping(xf)
+    mapper = transformator.TMapper()
+    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=False)
+    target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
+    
+    orig_fname = ds_path.split('/')[-1].split('.')
+    target_fname = orig_fname[0]+'_TEI.'+orig_fname[1]
+    target_path = os.path.join(APP_MEDIA, target_fname)
+    
+    with open(target_path, 'w') as out:
+        out.write(target_xml)
+    return flask.send_file(target_path, attachment_filename=target_fname)
 
 
 # --- login, static content ---

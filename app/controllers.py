@@ -283,5 +283,12 @@ def extract_xml_heads(db, dsid):
     tree = lxml.etree.parse(xml_file)
     unique_tags = set()
     for element in tree.iter():
-        unique_tags.add(clean_tag(element.tag))        
+        unique_tags.add(clean_tag(element.tag))
     return list(unique_tags)
+    
+def get_ds_and_xf(db, uid, xfid, dsid):
+    connection = db.connect()
+    result = connection.execute("SELECT tf.transform, ds.file_path FROM transformers tf INNER JOIN datasets ds ON tf.dsid=ds.id WHERE tf.id='{0:s}' AND ds.uid='{1:s}' AND ds.id='{1:s}'".format(str(xfid), str(uid), str(dsid)))
+    xf, ds_path = result.fetchone()
+    connection.close()
+    return(xf, ds_path)
