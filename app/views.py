@@ -67,7 +67,7 @@ def user_add():
     user = controllers.register_user(engine, username, email, password)
     if user != None:
         auth_token = user.encode_auth_token(user.id)
-        response = { 
+        response = {
                     'message' : 'Registration was successful',
                     'username' : username,
                     'email' : email,
@@ -187,7 +187,7 @@ def ds_upload_new_dataset():
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
             os.rename(dzfilepath, new_path)
             result = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
-    return flask.make_response('OK',200)
+    return flask.make_response({ 'status': 'OK' },200)
 
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
@@ -296,8 +296,8 @@ def ds_list_nodes(dsid):
     id = verify_user(token)
     nodes = controllers.extract_xml_heads(engine, dsid)
     return _j({'nodes': nodes})
-    
-    
+
+
 @app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
 def ds_download(xfid, dsid):
     print('transformed dataset download')
@@ -315,11 +315,11 @@ def ds_download(xfid, dsid):
     mapper = transformator.TMapper()
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=False)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
-    
+
     orig_fname = ds_path.split('/')[-1].split('.')
     target_fname = orig_fname[0]+'_TEI.'+orig_fname[1]
     target_path = os.path.join(APP_MEDIA, target_fname)
-    
+
     with open(target_path, 'w') as out:
         out.write(target_xml)
     return flask.send_file(target_path, attachment_filename=target_fname)
