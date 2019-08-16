@@ -98,6 +98,18 @@ def verify_user(token):
         return resp
 
 
+@app.route('/api/logged-in', methods=['GET'])
+def user_data():
+    token = flask.request.headers.get('Authorization')
+    id = User.decode_auth_token(token.split(" ")[1])
+    user = controllers.user_data(engine, id)
+    if user != None:
+        response = {
+                'username' : user.username,
+                'email' : user.email,
+                }
+        return flask.make_response(jsonify(response),200)
+
 # -- datasets
 @app.route('/api/dataset/list', methods=['GET'])
 def ds_list_datasets():
@@ -439,6 +451,5 @@ def logout():
 
 if __name__ == "__main__":
     app.run()
-
 
 

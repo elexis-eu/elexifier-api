@@ -46,6 +46,13 @@ def check_login(db, username, password, bcrypt):
                 return user
         return None
 
+def user_data(db, uid):
+    Session = sessionmaker(db)
+    session = Session()
+    user = session.query(User).filter((User.id == str(uid).strip())).first()
+    session.commit()
+    return user
+
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
