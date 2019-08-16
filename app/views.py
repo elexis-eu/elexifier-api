@@ -380,8 +380,10 @@ def login2():
         if auth_token:
             response = {
                 'auth_token': auth_token.decode(),
+                'username': user.username,
+                'email': user.email,
             }
-            return response
+            return flask.make_response(jsonify(response), 200)
 
 
 @app.route('/home')
