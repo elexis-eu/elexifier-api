@@ -14,14 +14,17 @@ import re
 
 
 def register_user(db, username, email, password_hash):
-    connection = db.connect()
-    result = connection.execute("SELECT* FROM users WHERE username=='{0:s}'".format(username))
-    if len([x for x in result]) > 0:
-        return False
-    uid = [x for x in connection.execute("SELECT MAX(id) FROM users")][0][0] + 1
-    connection.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email))
-    return True
-
+    Session = sessionmaker(db)
+    session = Session()
+    result = session.execute("SELECT * FROM users WHERE username=='{0:s}'".format(username))
+    if len([x for x in result]) == 0:
+        uid = [x for x in session.execute("SELECT MAX(id) FROM users")][0][0] + 1
+        session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email))
+        user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
+        session.commit()
+        return user
+    else:
+        return None
 
 def delete_user(db, uid):
     connection = db.connect()

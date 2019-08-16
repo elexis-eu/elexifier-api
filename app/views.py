@@ -60,14 +60,23 @@ def _j(r):
 @app.route('/api/user/new', methods=['POST'])
 def user_add():
     bcrypt = Bcrypt()
-    username = flask.request.headers.get('username')
-    email = flask.request.headers.get('email')
-    password = flask.request.headers.get('password')
+    username = flask.request.json['username']
+    email = flask.request.json['email']
+    password = flask.request.json['password']
     password = bcrypt.generate_password_hash(password).decode('utf-8')
-    if controllers.register_user(engine, username, email, password):
-        return flask.make_response('OK',200)
+    user = controllers.register_user(engine, username, email, password)
+    if user != None:
+        auth_token = user.encode_auth_token(user.id)
+        response = { 
+                    'message' : 'Registration was successful',
+                    'username' : username,
+                    'email' : email,
+                    'auth_token': auth_token.decode(),
+                    }
+        return flask.make_response(jsonify(response),200)
     else:
-        return flask.make_response('Already exists', 200)
+        response = { 'message' : 'Username already exists'}
+        return flask.make_response(jsonify(response), 200)
 
 
 @app.route('/api/user/<int:userid>/disable', methods=['DELETE'])
