@@ -75,8 +75,7 @@ def user_add():
                     }
         return flask.make_response(jsonify(response),200)
     else:
-        response = { 'message' : 'Username already exists'}
-        return flask.make_response(jsonify(response), 200)
+        raise InvalidUsage('User already exists', status_code=409)
 
 
 @app.route('/api/user/<int:userid>/disable', methods=['DELETE'])
@@ -133,12 +132,14 @@ def ds_dataset_info(dsid):
 
 
 @app.route('/api/dataset/<int:dsid>', methods=['DELETE'])
-def ds_delete_dataset():
+def ds_delete_dataset(dsid):
+    raise InvalidUsage('Not implemented', status_code=501)
     pass
 
 
 @app.route('/api/dataset/<int:dsid>/preview', methods=['GET'])
-def ds_dataset_preview():
+def ds_dataset_preview(dsid):
+    raise InvalidUsage('Not implemented', status_code=501)
     pass
 
 
@@ -208,9 +209,10 @@ def ds_upload_new_dataset():
 
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
-def ds_rename_dataset():
+def ds_rename_dataset(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
+    raise InvalidUsage('Not implemented', status_code=501)
     pass
 
 # -- transforms
@@ -250,7 +252,8 @@ def xf_get_transform_spec(xfid):
 
 
 @app.route('/api/transform/<int:xfid>', methods=['DELETE'])
-def xf_delete_transform():
+def xf_delete_transform(xfid):
+    raise InvalidUsage('Not implemented', status_code=501)
     pass
 
 
@@ -452,6 +455,28 @@ def logout():
         }
         return make_response(jsonify(responseObject)), 403
     return flask.render_template('login.html')
+
+# --- error handling ---
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
+@app.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
 
 
 if __name__ == "__main__":
