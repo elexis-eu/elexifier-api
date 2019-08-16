@@ -100,7 +100,7 @@ def verify_user(token):
 @app.route('/api/user/logged-in', methods=['GET'])
 def user_data():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token.split(" ")[1])
+    id = User.decode_auth_token(token.split("Bearer ")[1])
     user = controllers.user_data(engine, id)
     if user != None:
         response = {
