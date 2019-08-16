@@ -98,7 +98,7 @@ def verify_user(token):
         return resp
 
 
-@app.route('/api/logged-in', methods=['GET'])
+@app.route('/api/user/logged-in', methods=['GET'])
 def user_data():
     token = flask.request.headers.get('Authorization')
     id = User.decode_auth_token(token.split(" ")[1])
@@ -109,6 +109,11 @@ def user_data():
                 'email' : user.email,
                 }
         return flask.make_response(jsonify(response),200)
+    else:
+        response = {
+                    'message': 'Provide a valid auth token.'
+                    }
+        return flask.make_response(jsonify(response), 409)
 
 # -- datasets
 @app.route('/api/dataset/list', methods=['GET'])
