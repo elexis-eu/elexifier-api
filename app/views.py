@@ -6,7 +6,7 @@
 
 import flask
 import flask.json
-from flask import jsonify, make_response
+from flask import jsonify, make_response, after_this_request
 import werkzeug.debug
 import pendulum
 import json
@@ -323,8 +323,16 @@ def ds_download(xfid, dsid):
     print('transformed dataset download')
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    xf, ds_path = dbfunc.get_ds_and_xf(engine, id, xfid, dsid)
-    xf = json.loads(xf)
+    xf, ds_path,file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
+
+    if xf is None:
+        return _j({'spec': None, 'entity_xml': None, 'output': None})
+
+    for t in ('entry', 'sense'):
+
+        if t in xf and 'type' in xf[t] and xf[t]['type'] == 'dummy':
+            xf[t] = xf[t]['selector']
+
 
     orig_xml = open(ds_path, 'rb').read()
     parserLookup = lxml.etree.ElementDefaultClassLookup(element = transformator.TMyElement)
@@ -336,13 +344,19 @@ def ds_download(xfid, dsid):
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=False)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
-    orig_fname = ds_path.split('/')[-1].split('.')
-    target_fname = orig_fname[0]+'_TEI.'+orig_fname[1]
+    orig_fname, file_type = file_name.split('.')
+    target_fname = orig_fname + '_TEI.' + file_type
     target_path = os.path.join(APP_MEDIA, target_fname)
 
     with open(target_path, 'w') as out:
         out.write(target_xml)
-    return flask.send_file(target_path, attachment_filename=target_fname)
+
+    @after_this_request
+    def remove_file(response):
+        os.remove(target_path)
+        return response
+
+    return flask.send_file(target_path, attachment_filename=target_path.split('/')[-1], as_attachment=True)
 
 
 # --- login, static content ---
