@@ -247,7 +247,8 @@ def xf_new_transform():
 def xf_get_transform_spec(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = controllers.describe_transform(engine, id, xfid)
+    headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
+    rv = controllers.describe_transform(engine, id, xfid, headwords)
     return _j(rv)
 
 
@@ -323,7 +324,11 @@ def ds_download(xfid, dsid):
     print('transformed dataset download')
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    xf, ds_path,file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
+
+    try:
+        xf, ds_path,file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
+    except:
+        raise InvalidUsage('Transformer does not exist. Click on the save transform button duh! Also, change this error message for production', status_code=409)
 
     if xf is None:
         return _j({'spec': None, 'entity_xml': None, 'output': None})

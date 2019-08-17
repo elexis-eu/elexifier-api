@@ -105,7 +105,7 @@ def list_transforms(db, uid, dsid):
     return transforms
 
 
-def describe_transform(db, uid, xfid):
+def describe_transform(db, uid, xfid, headwords):
     connection = db.connect()
     result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.transform FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.id='{1:s}'".format(str(uid), str(xfid)))
     transform = extract_keys(result)
@@ -116,10 +116,13 @@ def describe_transform(db, uid, xfid):
         except:
             pass
 
-    print("Transform: ", transform)
-    result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
+    if not headwords:
+        result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
+    else:
+        result = connection.execute("SELECT id, dsid, entry_text as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
-    print(entities)
+    connection.close()
+    
     return {'transform': transform, 'entities': entities}
 
 
@@ -252,12 +255,12 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
         base.metadata.create_all(db)
 
         for entry in nodes:
+            text = entry.text
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
             entry_head = clean_tag(entry_str.split('\n',1)[0])
-            print(entry_head)
 
             # Create
-            dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, contents=entry_str)
+            dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, entry_text=text, contents=entry_str)
             session.add(dataset)
         session.commit()
 

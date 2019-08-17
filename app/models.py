@@ -110,6 +110,7 @@ class Datasets_single_entry(db.Model):
     dsid = db.Column(db.Integer, db.ForeignKey('datasets.id'))
     entry_name = db.Column(db.String)
     entry_head = db.Column(db.String)
+    entry_text = db.Column(db.String)
     xfid = db.Column(db.String)
     contents = db.Column(db.String)
   
