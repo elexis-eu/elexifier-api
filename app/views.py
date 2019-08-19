@@ -75,7 +75,7 @@ def user_add():
                     }
         return flask.make_response(jsonify(response),200)
     else:
-        raise InvalidUsage('User already exists', status_code=409)
+        raise InvalidUsage('User already exists', status_code=409, enum="USER_EXISTS")
 
 
 @app.route('/api/user/<int:userid>/disable', methods=['DELETE'])
@@ -86,21 +86,24 @@ def user_delete(userid):
 
 
 def verify_user(token):
+    if not token:
+        raise InvalidUsage("No auth token provided.", status_code=401, enum="UNAUTHORIZED")
+    elif "Bearer " in token:
+        token = token.split("Bearer ")[1]
     resp = User.decode_auth_token(token)
     if isinstance(resp, str):
-        response = {
-            'message': 'User not loged in!'
-        }
-        # proper login handling if more time......
-        return make_response(jsonify(response)), 200
+        raise InvalidUsage(resp, status_code=401, enum="UNAUTHORIZED")
+    elif controllers.is_blacklisted(engine, token):
+        raise InvalidUsage('User logged out. Please log in again.', status_code=401, enum="UNAUTHORIZED")
     else:
         return resp
+
 
 
 @app.route('/api/user/logged-in', methods=['GET'])
 def user_data():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token.split("Bearer ")[1])
+    id = verify_user(token)
     user = controllers.user_data(engine, id)
     if user != None:
         response = {
@@ -109,10 +112,8 @@ def user_data():
                 }
         return flask.make_response(jsonify(response),200)
     else:
-        response = {
-                    'message': 'Provide a valid auth token.'
-                    }
-        return flask.make_response(jsonify(response), 409)
+        raise InvalidUsage('Provide a valid auth token.', status_code=409, enum="INVALID_AUTH_TOKEN")
+
 
 # -- datasets
 @app.route('/api/dataset/list', methods=['GET'])
@@ -184,7 +185,8 @@ def ds_upload_new_dataset():
 
     if os.path.exists(dzfilepath) and current_chunk == 0:
         print('File already exists')
-        return make_response(jsonify({'message':'File already exists'})), 400
+        raise InvalidUsage('File already exists.', status_code=400, enum="FILE_EXISTS")
+        #return make_response(jsonify({'message':'File already exists'})), 400
 
     try:
         with open(dzfilepath, 'ab') as f:
@@ -192,14 +194,16 @@ def ds_upload_new_dataset():
             f.write(dzcontent.stream.read())
     except OSError:
         print('Could not write to file')
-        return make_response(jsonify({"message": "Not sure why, but we couldn't write the file to disk"})), 500
+        raise InvalidUsage("Not sure why, but we couldn't write the file to disk.", status_code=500, enum="FILE_ERROR")
+        #return make_response(jsonify({"message": "Not sure why, but we couldn't write the file to disk"})), 500
 
     total_chunks = int(flask.request.form.get('dztotalchunkcount', None))
 
     if current_chunk + 1 == total_chunks:
         if os.path.getsize(dzfilepath) != int(dztotalfilesize):
             print('Size mismatch', )
-            return make_response(jsonify({"message":'Size mismatch'})), 500
+            raise InvalidUsage("Size mismatch.", status_code=500, enum="FILE_ERROR")
+            #return make_response(jsonify({"message":'Size mismatch'})), 500
         else:
             new_random_name = generate_filename(dzfilename)
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
@@ -235,11 +239,13 @@ def xf_new_transform():
     entry_spec = flask.request.json.get('entry_spec', None)
 
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
-        return flask.make_response(('Invalid API call'), 422)
+        raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
+        #return flask.make_response(('Invalid API call'), 422)
     xfid = controllers.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec)
     isok, retmsg = controllers.prepare_dataset(engine, id, dsid, xfid, entry_spec)
     if not isok:
-        return flask.make_response(retmsg, 422)
+        raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
+        #return flask.make_response(retmsg, 422)
     return _j({'xfid': xfid})
 
 
@@ -265,7 +271,8 @@ def xf_update_transform(xfid):
     xfspec = flask.request.json.get('xfspec', None)
     print('Update transform')
     if xfspec is None:
-        return flask.make_response(('Invalid API call'), 422)
+        raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
+        #return flask.make_response(('Invalid API call'), 422)
     rv = controllers.update_transform(engine, id, xfid, xfspec)
     return _j({'updated': rv})
 
@@ -405,14 +412,10 @@ def login2():
     username = flask.request.json['login']
     password = flask.request.json['password']
     bcrypt = Bcrypt()
-
     user = controllers.check_login(engine, username, password, bcrypt)
     if user is None:
-        response = {
-            'message': 'Wrong password or user does not exist!'
-        }
         # proper login handling if more time......
-        return make_response(jsonify(response)), 200
+        raise InvalidUsage("Wrong password or user does not exist!", status_code=403, enum="LOGIN_ERROR")
     else:
         #flask_login.login_user(user, remember=True)
         auth_token = user.encode_auth_token(user.id)
@@ -442,53 +445,33 @@ def logout():
     else:
         auth_token = ''
     if auth_token:
-        resp = User.decode_auth_token(auth_token)
-        if not isinstance(resp, str):
-            # mark the token as blacklisted
-            blacklist_token = BlacklistToken(token=auth_token)
-            try:
-                # insert the token
-                engine.session.add(blacklist_token)
-                engine.session.commit()
-                responseObject = {
-                    'status': 'success',
-                    'message': 'Successfully logged out.'
-                }
-                return make_response(jsonify(responseObject)), 200
-            except Exception as e:
-                responseObject = {
-                    'status': 'fail',
-                    'message': e
-                }
-                return make_response(jsonify(responseObject)), 200
-        else:
-            responseObject = {
-                'status': 'fail',
-                'message': resp
-            }
-            return make_response(jsonify(responseObject)), 401
+        verify_user(auth_token)
+        if "Bearer " in auth_token:
+            auth_token = auth_token.split("Bearer ")[1]
+        controllers.blacklist_token(engine, auth_token)    
     else:
-        responseObject = {
-            'status': 'fail',
-            'message': 'Provide a valid auth token.'
-        }
-        return make_response(jsonify(responseObject)), 403
+        raise InvalidUsage('Provide a valid auth token.', status_code=409, enum="INVALID_AUTH_TOKEN")
     return flask.render_template('login.html')
+
 
 # --- error handling ---
 class InvalidUsage(Exception):
     status_code = 400
+    enum = "ERROR"
 
-    def __init__(self, message, status_code=None, payload=None):
+    def __init__(self, message, status_code=None, enum=None):
         Exception.__init__(self)
         self.message = message
         if status_code is not None:
             self.status_code = status_code
-        self.payload = payload
+        if enum is not None:
+            self.enum = enum
 
     def to_dict(self):
-        rv = dict(self.payload or ())
+        rv = dict()
         rv['message'] = self.message
+        rv['status_code'] = self.status_code
+        rv['enum'] = self.enum
         return rv
 
 @app.errorhandler(InvalidUsage)

@@ -19,7 +19,7 @@ def register_user(db, username, email, password_hash):
     result = session.execute("SELECT * FROM users WHERE username=='{0:s}'".format(username))
     if len([x for x in result]) == 0:
         uid = [x for x in session.execute("SELECT MAX(id) FROM users")][0][0] + 1
-        session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email))
+        session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email.lower()))
         user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
         session.commit()
         return user
@@ -35,7 +35,7 @@ def delete_user(db, uid):
 def check_login(db, username, password, bcrypt):
     Session = sessionmaker(db)
     session = Session()
-    user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
+    user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username.lower()).strip())).first()
     session.commit()
     if user is None:
         print ('invalid user')
@@ -53,6 +53,18 @@ def user_data(db, uid):
     session.commit()
     return user
 
+def blacklist_token(db, auth_token):
+    Session = sessionmaker(db)
+    session = Session()
+    session.add(BlacklistToken(token=auth_token))
+    session.commit()
+    return None
+
+def is_blacklisted(db, auth_token):
+    Session = sessionmaker(db)
+    session = Session()
+    result = session.execute("SELECT * FROM blacklist_tokens WHERE token == '{0:s}'".format(auth_token))
+    return len([x for x in result]) != 0
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
