@@ -199,7 +199,7 @@ def ds_upload_new_dataset():
 
     total_chunks = int(flask.request.form.get('dztotalchunkcount', None))
 
-    if current_chunk + 1 == total_chunks:
+    if current_chunk == total_chunks:
         if os.path.getsize(dzfilepath) != int(dztotalfilesize):
             print('Size mismatch', )
             raise InvalidUsage("Size mismatch.", status_code=500, enum="FILE_ERROR")
@@ -448,7 +448,7 @@ def logout():
         verify_user(auth_token)
         if "Bearer " in auth_token:
             auth_token = auth_token.split("Bearer ")[1]
-        controllers.blacklist_token(engine, auth_token)    
+        controllers.blacklist_token(engine, auth_token)
     else:
         raise InvalidUsage('Provide a valid auth token.', status_code=409, enum="INVALID_AUTH_TOKEN")
     return flask.render_template('login.html')
