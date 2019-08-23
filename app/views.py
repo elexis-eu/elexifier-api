@@ -80,9 +80,12 @@ def user_add():
 
 @app.route('/api/user/<int:userid>/disable', methods=['DELETE'])
 def user_delete(userid):
-    # Authenticated user only?
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    if id != userid:
+        raise InvalidUsage("User ids don't match", status_code=401, enum="UNAUTHORIZED")
     controllers.delete_user(engine, userid)
-    return flask.make_response('OK', 200)
+    return flask.make_response(jsonify({ 'message': 'OK'}), 200)
 
 
 def verify_user(token):
@@ -260,8 +263,12 @@ def xf_get_transform_spec(xfid):
 
 @app.route('/api/transform/<int:xfid>', methods=['DELETE'])
 def xf_delete_transform(xfid):
-    raise InvalidUsage('Not implemented', status_code=501)
-    pass
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    if controllers.delete_transform(engine, id, xfid):
+        return _j({'deleted': xfid})
+    else:
+        raise InvalidUsage("You do not own this transform", status_code=401, enum="UNAUTHORIZED")
 
 
 @app.route('/api/transform/<int:xfid>', methods=['POST'])

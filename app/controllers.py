@@ -107,6 +107,19 @@ def get_entry(db, uid, dsid, entryid, headwords):
     return d
 
 # ---- transforms
+def delete_transform(db, uid, xfid):
+    """
+    select ts.id from datasets ds inner join transformers ts on (ds.id == ts.dsid) where ds.uid = 4 and ts.id=1;
+    """
+    connection = db.connect()
+    Session = sessionmaker(db)
+    session = Session()
+    result = session.execute("SELECT * FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.uid = {0:s} AND ts.id = {1:s}".format(str(uid), str(xfid)))
+    if len([x for x in result]) == 0:
+        return False
+    else:
+        connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))    
+    return True
 
 def list_transforms(db, uid, dsid):
     connection = db.connect()
