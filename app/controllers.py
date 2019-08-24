@@ -10,6 +10,7 @@ import base64
 import json
 from app.models import *
 import re
+import os
 
 
 
@@ -108,17 +109,14 @@ def get_entry(db, uid, dsid, entryid, headwords):
 
 # ---- transforms
 def delete_transform(db, uid, xfid):
-    """
-    select ts.id from datasets ds inner join transformers ts on (ds.id == ts.dsid) where ds.uid = 4 and ts.id=1;
-    """
-    connection = db.connect()
     Session = sessionmaker(db)
     session = Session()
     result = session.execute("SELECT * FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.uid = {0:s} AND ts.id = {1:s}".format(str(uid), str(xfid)))
     if len([x for x in result]) == 0:
         return False
     else:
-        connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))    
+        session.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))
+        session.commit()
     return True
 
 def list_transforms(db, uid, dsid):
@@ -216,6 +214,24 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     session.commit()
     return True
 
+
+def delete_dataset(db, uid, dsid):
+    connection = db.connect()
+    Session = sessionmaker(db)
+    session = Session()
+    result = session.execute("SELECT * FROM datasets WHERE uid = {0:s} AND id = {1:s}".format(str(uid), str(dsid)))
+    if len([x for x in result]) == 0:
+        return False
+    else:
+        result = session.execute("SELECT ts.id FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.id = {0:s} AND ds.uid = {1:s}".format(str(dsid), str(uid)))
+        for i in result:
+            session.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(i[0])))
+        result = session.execute("SELECT file_path FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
+        os.remove(str([x for x in result][0][0]))
+        print("File removed")
+        session.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
+        session.commit()
+        return True
 
 def xmls(mimetype, data):
     if mimetype == 'application/zip':

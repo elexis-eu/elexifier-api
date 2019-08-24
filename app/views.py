@@ -137,8 +137,12 @@ def ds_dataset_info(dsid):
 
 @app.route('/api/dataset/<int:dsid>', methods=['DELETE'])
 def ds_delete_dataset(dsid):
-    raise InvalidUsage('Not implemented', status_code=501)
-    pass
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    if controllers.delete_dataset(engine, id, dsid):
+        return _j({'deleted': dsid})
+    else:
+        raise InvalidUsage("You do not own this dataset", status_code=401, enum="UNAUTHORIZED")
 
 
 @app.route('/api/dataset/<int:dsid>/preview', methods=['GET'])
