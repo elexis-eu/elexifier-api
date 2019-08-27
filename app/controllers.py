@@ -77,12 +77,18 @@ def extract_keys(cur, single=False):
         return rv[0] if len(rv) > 0 else None
 
 
-def list_datasets(db, uid, dsid=None):
+def list_datasets(db, uid, dsid=None, order=None):
     connection = db.connect()
     if dsid is None:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}'".format(str(uid)))
+        if order is None or order == 'ASC':
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}'".format(str(uid)))
+        else:
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' ORDER BY uploaded_ts DESC".format(str(uid)))
     else:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
+        if order is None or order == 'ASC':
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
+        else:
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts DESC".format(str(uid), str(dsid)))
     datasets = extract_keys(result, dsid is not None)
     connection.close()
     return datasets
@@ -119,9 +125,12 @@ def delete_transform(db, uid, xfid):
         session.commit()
     return True
 
-def list_transforms(db, uid, dsid):
+def list_transforms(db, uid, dsid, order):
     connection = db.connect()
-    result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND ds.id='{1:s}'".format(str(uid), str(dsid)))
+    if order == 'DESC':
+        result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND ds.id='{1:s}' ORDER BY created_ts DESC".format(str(uid), str(dsid)))
+    else:
+        result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND ds.id='{1:s}'".format(str(uid), str(dsid)))
     transforms = extract_keys(result)
     connection.close()
     print('list transformers')
