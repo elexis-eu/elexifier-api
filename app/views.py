@@ -123,9 +123,9 @@ def user_data():
 def ds_list_datasets():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    order = None
-    if flask.request.data:
-        order = flask.request.json['order']
+    order = flask.request.args.get('order')
+    if isinstance(order, str):
+        order = order.upper()
     datasets = controllers.list_datasets(engine, id, order=order)
     return _j(datasets)
 
@@ -234,9 +234,9 @@ def ds_rename_dataset(dsid):
 def xf_list_transforms(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    order = None
-    if flask.request.data:
-        order = flask.request.json['order']
+    order = flask.request.args.get('order')
+    if isinstance(order, str):
+        order = order.upper()
     rv = controllers.list_transforms(engine, id, dsid, order)
     return _j(rv)
 
