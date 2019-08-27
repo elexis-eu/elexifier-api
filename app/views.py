@@ -142,10 +142,13 @@ def ds_dataset_info(dsid):
 def ds_delete_dataset(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    if controllers.delete_dataset(engine, id, dsid):
-        return _j({'deleted': dsid})
-    else:
+    resp = controllers.delete_dataset(engine, id, dsid)
+    if resp is None:
+        raise InvalidUsage("Dictionary does not exist.", status_code=404, enum="DICTIONARY_DOESNT_EXIST")
+    elif not resp:
         raise InvalidUsage("You do not own this dataset", status_code=401, enum="UNAUTHORIZED")
+    else:
+        return _j({'deleted': dsid})
 
 
 @app.route('/api/dataset/<int:dsid>/preview', methods=['GET'])
@@ -275,10 +278,13 @@ def xf_get_transform_spec(xfid):
 def xf_delete_transform(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    if controllers.delete_transform(engine, id, xfid):
-        return _j({'deleted': xfid})
+    resp = controllers.delete_transform(engine, id, xfid)
+    if resp is None:
+        raise InvalidUsage("Transformation does not exist.", status_code=404, enum="TRANSFORMATION_DOESNT_EXIST")
+    elif not resp:
+        raise InvalidUsage("You do not own this transformaiton", status_code=401, enum="UNAUTHORIZED")
     else:
-        raise InvalidUsage("You do not own this transform", status_code=401, enum="UNAUTHORIZED")
+        return _j({'deleted': xfid})
 
 
 @app.route('/api/transform/<int:xfid>', methods=['POST'])
