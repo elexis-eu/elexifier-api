@@ -140,21 +140,18 @@ def list_transforms(db, uid, dsid, order):
     return transforms
 
 
-def describe_transform(db, uid, xfid, headwords):
+def describe_transform(db, uid, xfid):
+    print('describe transform')
     connection = db.connect()
     result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.transform FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.id='{1:s}'".format(str(uid), str(xfid)))
     transform = extract_keys(result)
-    print('describe transform')
     for r in transform:
         try:
             r['transform'] = json.loads(r['transform'])
         except:
             pass
 
-    if not headwords:
-        result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
-    else:
-        result = connection.execute("SELECT id, dsid, entry_text as name, entry_name IS NOT NULL as is_short_name FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
+    result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
     connection.close()
     
@@ -276,7 +273,7 @@ def clean_tag(xml_tag):
         return xml_tag
 
 
-def prepare_dataset(db, uid, dsid, xfid, xpath):
+def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
     connection = db.connect()
     result = connection.execute("SELECT upload_mimetype, file_path FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
     mimetype, data = result.fetchone()
@@ -311,9 +308,13 @@ def prepare_dataset(db, uid, dsid, xfid, xpath):
         base.metadata.create_all(db)
 
         for entry in nodes:
-            text = entry.text
+            headword = entry.findall('.//{' + namespace + '}' + hw)
+            if headword:
+                text = headword[0].text
+            else:
+                text = ''
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
-            entry_head = clean_tag(entry_str.split('\n',1)[0])
+            entry_head = clean_tag(entry_str.split('\n',1)[0])[:10]
 
             # Create
             dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, entry_text=text, contents=entry_str)

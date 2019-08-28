@@ -253,12 +253,14 @@ def xf_new_transform():
     dsid = flask.request.json.get('dsid', None)
     xfname = flask.request.json.get('xfname', None)
     entry_spec = flask.request.json.get('entry_spec', None)
+    headword = flask.request.json.get('hw', None)
+    print(flask.request.json)
 
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
         #return flask.make_response(('Invalid API call'), 422)
     xfid = controllers.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec)
-    isok, retmsg = controllers.prepare_dataset(engine, id, dsid, xfid, entry_spec)
+    isok, retmsg = controllers.prepare_dataset(engine, id, dsid, xfid, entry_spec, headword)
     if not isok:
         raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
         #return flask.make_response(retmsg, 422)
@@ -269,8 +271,7 @@ def xf_new_transform():
 def xf_get_transform_spec(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
-    rv = controllers.describe_transform(engine, id, xfid, headwords)
+    rv = controllers.describe_transform(engine, id, xfid)
     return _j(rv)
 
 
