@@ -357,6 +357,8 @@ def ds_download(xfid, dsid):
     print('transformed dataset download')
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
+    
+    strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
 
     try:
         xf, ds_path,file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
@@ -381,7 +383,7 @@ def ds_download(xfid, dsid):
     entity_xml = lxml.etree.fromstring(orig_xml, parser = myParser)
     mapping = transformator.TMapping(xf)
     mapper = transformator.TMapper()
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=False)
+    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
     orig_fname, file_type = file_name.split('.')
