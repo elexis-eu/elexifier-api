@@ -323,10 +323,12 @@ def xf_entity_transform(xfid,entityid):
     if spec is None:
         return _j({'spec': None, 'entity_xml': None, 'output': None})
 
-    for t in ('entry', 'sense'):
+    # Why is this used for?
+    # Frontend has been modified to send dumy now directly in the root of the transformer.
+    # for t in ('entry', 'sense'):
 
-        if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
-            spec[t] = spec[t]['selector']
+    #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
+    #         spec[t] = spec[t]['selector']
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element = transformator.TMyElement)
     myParser = lxml.etree.XMLParser()
@@ -363,10 +365,12 @@ def ds_download(xfid, dsid):
     if xf is None:
         return _j({'spec': None, 'entity_xml': None, 'output': None})
 
-    for t in ('entry', 'sense'):
+    # Why is this used for?
+    # Frontend has been modified to send dumy now directly in the root of the transformer.
+    # for t in ('entry', 'sense'):
 
-        if t in xf and 'type' in xf[t] and xf[t]['type'] == 'dummy':
-            xf[t] = xf[t]['selector']
+    #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
+    #         spec[t] = spec[t]['selector']
 
 
     orig_xml = open(ds_path, 'rb').read()
