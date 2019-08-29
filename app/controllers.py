@@ -154,7 +154,7 @@ def describe_transform(db, uid, xfid):
     result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
     connection.close()
-    
+
     return {'transform': transform, 'entities': entities}
 
 
@@ -295,9 +295,9 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
                 namespace = ns
 
         if namespace_prefix:
-            nodes = tree.xpath('.//' + xpath, namespaces=namespace)
+            nodes = tree.xpath('//' + xpath, namespaces=namespace)
         else:
-            nodes = tree.findall('.//{' + namespace + '}' + xpath)
+            nodes = tree.xpath('//' + xpath)
 
         print('have nodes', len(nodes))
         counter = 0
@@ -308,7 +308,7 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
         base.metadata.create_all(db)
 
         for entry in nodes:
-            headword = entry.findall('.//{' + namespace + '}' + hw)
+            headword = entry.findall('.//' + hw)
             if headword:
                 text = headword[0].text
             else:
@@ -337,7 +337,7 @@ def extract_xml_head_content(db, dsid):
     unique_texts = set()
     for element in tree.iter():
         unique_texts.add(element.text.replace("\t",""))
-        
+
     ## morda je bolj smiselno mapiranje iz teksta v nekaj? Npr. .tag?
     return list(unique_texts)
 
@@ -355,7 +355,7 @@ def extract_xml_heads(db, dsid):
     for element in tree.iter():
         unique_tags.add(clean_tag(element.tag))
     return list(unique_tags)
-    
+
 def get_ds_and_xf(db, uid, xfid, dsid):
     Session = sessionmaker(db)
     session = Session()
