@@ -19,7 +19,11 @@ def register_user(db, username, email, password_hash):
     session = Session()
     result = session.execute("SELECT * FROM users WHERE username=='{0:s}'".format(username))
     if len([x for x in result]) == 0:
-        uid = [x for x in session.execute("SELECT MAX(id) FROM users")][0][0] + 1
+        uid = [x for x in session.execute("SELECT MAX(id) FROM users")][0][0]
+        if uid:
+             uid += 1
+        else:
+            uid = 0
         session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email.lower()))
         user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
         session.commit()
@@ -139,6 +143,14 @@ def list_transforms(db, uid, dsid, order):
     print('list transformers')
     return transforms
 
+def list_saved_transforms(db, uid):
+    connection = db.connect()
+    result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.saved".format(str(uid)))
+    transforms = extract_keys(result)
+    connection.close()
+    print('list saved transformers')
+    return transforms
+
 
 def describe_transform(db, uid, xfid):
     print('describe transform')
@@ -158,7 +170,7 @@ def describe_transform(db, uid, xfid):
     return {'transform': transform, 'entities': entities}
 
 
-def new_transform(db, uid, uuid, xfname, dsid, xpath):
+def new_transform(db, uid, uuid, xfname, dsid, xpath, saved):
     base = declarative_base()
     Session = sessionmaker(db)
     session = Session()
@@ -167,13 +179,13 @@ def new_transform(db, uid, uuid, xfname, dsid, xpath):
 
     # Create
     #print(dzcontent.stream.read())
-    transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath)
+    transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath, saved=saved)
     session.add(transformer)
     session.commit()
     return transformer.id
 
 
-def update_transform(db, uid, xfid, xfspec):
+def update_transform(db, uid, xfid, xfspec, name, saved):
     base = declarative_base()
     Session = sessionmaker(db)
     session = Session()
@@ -182,6 +194,9 @@ def update_transform(db, uid, xfid, xfspec):
 
     transformer = session.query(Transformer).get(xfid)
     transformer.transform = xfspec
+    transformer.saved = saved
+    if name:
+        transformer.name = name
     session.commit()
     return 1
 
