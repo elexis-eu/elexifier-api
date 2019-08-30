@@ -221,9 +221,9 @@ def ds_upload_new_dataset():
             new_random_name = generate_filename(dzfilename)
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
             os.rename(dzfilepath, new_path)
-            result = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
-    return flask.make_response({ 'status': 'OK' },200)
-
+            dsid = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
+            result = controllers.list_datasets(engine, id, dsid=dsid)
+    return _j(result)
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
 def ds_rename_dataset(dsid):
@@ -513,5 +513,4 @@ def handle_invalid_usage(error):
 
 if __name__ == "__main__":
     app.run()
-
 

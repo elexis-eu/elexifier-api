@@ -221,7 +221,7 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid)
     session.add(dataset)
     session.commit()
-    return True
+    return dataset.id
 
 
 def delete_dataset(db, uid, dsid):
