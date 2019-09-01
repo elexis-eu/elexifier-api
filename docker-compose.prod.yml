@@ -1,0 +1,38 @@
+version: '3.1'
+services:
+  flask:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: bash -c "python /var/www/elexifier-api/manage.py db init && 
+      python /var/www/elexifier-api/manage.py db migrate && 
+      python /var/www/elexifier-api/manage.py db upgrade && 
+      python /var/www/elexifier-api/create_server_user.py &&
+      gunicorn -b 0.0.0.0:8080 wsgi:app"
+    networks:
+      elexifier-network:
+          aliases:
+              - flask-app
+    ports:
+      - 5000:8080
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: elexifier
+      POSTGRES_PASSWORD: elexifierpass
+      POSTGRES_DB: postgresdb
+    networks:
+      elexifier-network:
+          aliases:
+              - db
+    ports:
+      - 5431:5432
+
+networks:
+    elexifier-network:
+
+
+

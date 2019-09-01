@@ -4,6 +4,11 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    command: bash -c "python /var/www/elexifier-api/manage.py db init && 
+      python /var/www/elexifier-api/manage.py db migrate && 
+      python /var/www/elexifier-api/manage.py db upgrade && 
+      python /var/www/elexifier-api/create_server_user.py &&
+      gunicorn -b 0.0.0.0:8080 wsgi:app"
     networks:
       elexifier-network:
           aliases:

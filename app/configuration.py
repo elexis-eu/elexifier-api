@@ -1,3 +1,4 @@
+
 class Config(object):
 	"""
 	Configuration base, for all environments.
@@ -9,13 +10,20 @@ class Config(object):
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 	CELERY_BROKER_URL = 'redis://localhost:6379/0'
 	CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+	ENV = 'production'
 
 
 class ProductionConfig(Config):
-	SQLALCHEMY_DATABASE_URI = 'postgres://user@localhost/foo'
+	SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{passwd}@{host}/{db}'.format(
+        user='elexifier',
+        passwd='elexifierpass',
+        host='db',
+        port='5431',
+        db='postgresdb')
 
 class DevelopmentConfig(Config):
 	DEBUG = True
+	ENV = 'development'
 
 
 

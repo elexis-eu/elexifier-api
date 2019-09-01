@@ -4,16 +4,12 @@ import sys
 
 from flask import current_app
 from app.models import User
-from app import db
+from app import db, app
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 import flask
 
-app = flask.Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
 
 def main():
     """Main entry point for script."""

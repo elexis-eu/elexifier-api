@@ -12,3 +12,4 @@ pyjwt==1.4.2
 gunicorn
 flask-cors
 celery==4.2.1
+psycopg2==2.8.3
