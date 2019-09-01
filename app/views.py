@@ -224,9 +224,9 @@ def ds_upload_new_dataset():
             new_random_name = generate_filename(dzfilename)
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
             os.rename(dzfilepath, new_path)
-            result = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
-    return flask.make_response({ 'status': 'OK' },200)
-
+            dsid = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
+            result = controllers.list_datasets(engine, id, dsid=dsid)
+    return _j(result)
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
 def ds_rename_dataset(dsid):
@@ -246,6 +246,13 @@ def xf_list_transforms(dsid):
     rv = controllers.list_transforms(engine, id, dsid, order)
     return _j(rv)
 
+@app.route('/api/transform/saved', methods=['GET'])
+def xf_list_saved_transforms():
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)   
+    rv = controllers.list_saved_transforms(engine, id)
+    return _j(rv)
+
 
 @app.route('/api/transform/new', methods=['POST'])
 def xf_new_transform():
@@ -257,12 +264,13 @@ def xf_new_transform():
     xfname = flask.request.json.get('xfname', None)
     entry_spec = flask.request.json.get('entry_spec', None)
     headword = flask.request.json.get('hw', None)
+    saved = flask.request.json.get('saved', False)
     print(flask.request.json)
 
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
         #return flask.make_response(('Invalid API call'), 422)
-    xfid = controllers.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec)
+    xfid = controllers.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec, saved)
     isok, retmsg = controllers.prepare_dataset(engine, id, dsid, xfid, entry_spec, headword)
     if not isok:
         raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
@@ -296,11 +304,13 @@ def xf_update_transform(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     xfspec = flask.request.json.get('xfspec', None)
+    saved = flask.request.json.get('saved', False)
+    name = flask.request.json.get('name', None)
     print('Update transform')
     if xfspec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
         #return flask.make_response(('Invalid API call'), 422)
-    rv = controllers.update_transform(engine, id, xfid, xfspec)
+    rv = controllers.update_transform(engine, id, xfid, xfspec, name, saved)
     return _j({'updated': rv})
 
 
@@ -516,5 +526,4 @@ def handle_invalid_usage(error):
 
 if __name__ == "__main__":
     app.run()
-
 

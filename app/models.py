@@ -126,5 +126,5 @@ class Transformer(db.Model):
     created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     entity_spec = db.Column(db.String)
     transform = db.Column(db.JSON)
-   
+    saved = db.Column(db.Boolean, default=False)
 
