@@ -218,6 +218,8 @@ def ds_upload_new_dataset():
     if current_chunk == total_chunks:
         if os.path.getsize(dzfilepath) != int(dztotalfilesize):
             print('Size mismatch', )
+            print("1",os.path.getsize(dzfilepath))
+            print("2",int(dztotalfilesize))
             raise InvalidUsage("Size mismatch.", status_code=500, enum="FILE_ERROR")
             #return make_response(jsonify({"message":'Size mismatch'})), 500
         else:
@@ -226,7 +228,12 @@ def ds_upload_new_dataset():
             os.rename(dzfilepath, new_path)
             dsid = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
             result = controllers.list_datasets(engine, id, dsid=dsid)
-    return _j(result)
+        return _j(result)
+    else:
+        return _j({ 'status': 'OK',
+                    'filename': dzfilename,
+                    'current_chunk': current_chunk,
+                    'total_chunks': total_chunks })
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
 def ds_rename_dataset(dsid):
