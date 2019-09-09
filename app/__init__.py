@@ -13,8 +13,9 @@ app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 #Configuration of application, see configuration.py, choose one and uncomment.
-#app.config.from_object('app.configuration.ProductionConfig')
-app.config.from_object('app.configuration.DevelopmentConfig')
+#TODO: Read production/development from environment variable
+app.config.from_object('app.configuration.ProductionConfig')
+# app.config.from_object('app.configuration.DevelopmentConfig')
 #app.config.from_object('configuration.TestingConfig')
 
 
