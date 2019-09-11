@@ -12,11 +12,25 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-#Configuration of application, see configuration.py, choose one and uncomment.
-#TODO: Read production/development from environment variable
-app.config.from_object('app.configuration.ProductionConfig')
-# app.config.from_object('app.configuration.DevelopmentConfig')
-#app.config.from_object('configuration.TestingConfig')
+#run the following command to change environment.
+#export FLASK_ENV={production|development}
+
+if app.config['ENV'] == 'production' :
+	import sentry_sdk
+	from sentry_sdk.integrations.flask import FlaskIntegration
+
+	sentry_sdk.init(
+	    dsn="https://f64acc6a844543e3bde419789edbb54f@sentry.io/1724070",
+	    integrations=[FlaskIntegration()]
+	)
+
+	app.config.from_object('app.configuration.ProductionConfig')
+
+elif app.config['ENV'] == 'development':
+	app.config.from_object('app.configuration.DevelopmentConfig')
+
+else:
+	app.config.from_object('configuration.TestingConfig')
 
 
 db = SQLAlchemy(app) #flask-sqlalchemy
