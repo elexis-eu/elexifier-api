@@ -63,6 +63,10 @@ def _j(r):
 @app.route('/api/user/new', methods=['POST'])
 def user_add():
     bcrypt = Bcrypt()
+    for field in ['username', 'email', 'password']:
+        if field not in flask.request.json:
+            raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
+
     username = flask.request.json['username']
     email = flask.request.json['email']
     password = flask.request.json['password']
@@ -459,6 +463,10 @@ def login():
 @app.route('/api/login', methods=['GET', 'POST'])
 @cross_origin(headers=['Content-Type'])
 def login2():
+    for field in ['login', 'password']:
+        if field not in flask.request.json:
+            raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
+
     username = flask.request.json['login']
     password = flask.request.json['password']
     bcrypt = Bcrypt()
