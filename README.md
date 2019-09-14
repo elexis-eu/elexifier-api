@@ -101,6 +101,17 @@ Pass: user
 
 If you still can't make this work, send me an email: matejmart@gmail.com
 
+### Useful commands
+List all running docker containers
+```
+docker ps
+```
+
+Get API logs
+```
+docker logs -f elexifier_flask_1
+```
+
 
 
 
