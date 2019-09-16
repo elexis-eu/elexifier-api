@@ -2,6 +2,16 @@
 
 ## Installation, documentation ##
 
+## Getting started
+
+Run the following script from the root folder. 
+It will install all environment dependencies.
+```
+/bin/bash ./.scripts/install_environment.sh
+```
+
+If something goes wrong, check the local installation below.
+
 #Local installation#
 
 Python 3 is needed. These instructions are for linux.<br/>
