@@ -18,10 +18,12 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 if app.config['ENV'] == 'production' :
 	import sentry_sdk
 	from sentry_sdk.integrations.flask import FlaskIntegration
+	from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+	from sentry_sdk.integrations.celery import CeleryIntegration
 
 	sentry_sdk.init(
 	    dsn="https://f64acc6a844543e3bde419789edbb54f@sentry.io/1724070",
-	    integrations=[FlaskIntegration()]
+	    integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration()]
 	)
 
 	app.config.from_object('app.configuration.ProductionConfig')
