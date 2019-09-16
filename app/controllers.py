@@ -27,9 +27,9 @@ def register_user(db, username, email, password_hash, sketch_engine_uid):
             uid = 0
 
         if (password_hash is None) and (sketch_engine_uid is not None):
-            session.execute("INSERT INTO users (id, username, authenticated, email, sketch_engine_uid) VALUES ({0:s}, '{1:s}', 1, '{2:s}', '{3:d}')".format(str(uid), username, email.lower(), sketch_engine_uid))
+            session.execute("INSERT INTO users (id, username, authenticated, email, sketch_engine_uid) VALUES ({0:s}, '{1:s}', True, '{2:s}', '{3:d}')".format(str(uid), username, email.lower(), sketch_engine_uid))
         else:
-            session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', 1, '{3:s}')".format(str(uid), username, password_hash, email.lower()))
+            session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', True, '{3:s}')".format(str(uid), username, password_hash, email.lower()))
         user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
         session.commit()
         return user

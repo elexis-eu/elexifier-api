@@ -62,12 +62,13 @@ def _j(r):
 @app.route('/api/user/new', methods=['POST'])
 def user_add():
     bcrypt = Bcrypt()
-    for field in ['username', 'email', 'password']:
+    for field in ['email', 'password']:
         if field not in flask.request.json:
             raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
 
-    username = flask.request.json['username']
     email = flask.request.json['email']
+    # TODO: Remove username from EVERYWHERE
+    username = email
     password = flask.request.json['password']
     password = bcrypt.generate_password_hash(password).decode('utf-8')
     user = controllers.register_user(engine, username, email, password, None)
