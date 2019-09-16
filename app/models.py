@@ -11,9 +11,10 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique = True, nullable = False)
     email = db.Column(db.String(120), unique = True, nullable = False)
-    password_hash = db.Column(db.String(120), nullable = False)
+    password_hash = db.Column(db.String(120), nullable = True)
     authenticated = db.Column(db.Boolean, default=False)
     registered_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    sketch_engine_uid = db.Column(db.Integer)
 
     def is_active(self):
         """True, as all users are active."""
@@ -44,11 +45,21 @@ class User(db.Model):
             }
             return jwt.encode(
                 payload,
-                app.secret_key,
+                app.config.get('SECRET_KEY'),
                 algorithm='HS256'
             )
         except Exception as e:
             return e
+
+    @staticmethod
+    def decode_sketch_token(sketch_token):
+        try:
+            payload = jwt.decode(sketch_token, verify=False)
+            return payload['user']
+        except jwt.ExpiredSignatureError:
+            return 'Signature expired. Please log in again.'
+        except jwt.InvalidTokenError:
+            return 'Invalid token. Please log in again.'
 
     @staticmethod
     def decode_auth_token(auth_token):

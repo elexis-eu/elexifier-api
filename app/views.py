@@ -45,7 +45,6 @@ engine = create_engine(db_uri, encoding="utf8")
 orm = SQLAlchemy()
 orm.init_app(app)
 
-
 def _j(r):
     s = flask.make_response(flask.jsonify(r))
     s.mimetype = 'application/json'
@@ -71,7 +70,7 @@ def user_add():
     email = flask.request.json['email']
     password = flask.request.json['password']
     password = bcrypt.generate_password_hash(password).decode('utf-8')
-    user = controllers.register_user(engine, username, email, password)
+    user = controllers.register_user(engine, username, email, password, None)
     if user != None:
         auth_token = user.encode_auth_token(user.id)
         response = {
@@ -463,14 +462,20 @@ def login():
 @app.route('/api/login', methods=['GET', 'POST'])
 @cross_origin(headers=['Content-Type'])
 def login2():
-    for field in ['login', 'password']:
-        if field not in flask.request.json:
-            raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
+    if 'sketch_token' in flask.request.json:
+        sketch_token = flask.request.json['sketch_token']
+        user = controllers.login_or_register_sketch_user(engine, sketch_token)
+    else:
+        for field in ['login', 'password']:
+            if field not in flask.request.json:
+                raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
 
-    username = flask.request.json['login']
-    password = flask.request.json['password']
-    bcrypt = Bcrypt()
-    user = controllers.check_login(engine, username, password, bcrypt)
+        username = flask.request.json['login']
+        password = flask.request.json['password']
+
+        bcrypt = Bcrypt()
+        user = controllers.check_login(engine, username, password, bcrypt)
+
     if user is None:
         # proper login handling if more time......
         raise InvalidUsage("Wrong password or user does not exist!", status_code=403, enum="LOGIN_ERROR")
