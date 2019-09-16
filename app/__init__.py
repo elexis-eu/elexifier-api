@@ -10,6 +10,7 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_POOL_SIZE'] = 20
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 #run the following command to change environment.
