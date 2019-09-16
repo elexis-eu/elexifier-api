@@ -32,7 +32,6 @@ def register_user(db, username, email, password_hash, sketch_engine_uid):
             session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', True, '{3:s}')".format(str(uid), username, password_hash, email.lower()))
         user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
         session.commit()
-        session.close()
         return user
     else:
         return None
@@ -48,7 +47,6 @@ def check_login(db, username, password, bcrypt):
     session = Session()
     user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username.lower()).strip())).first()
     session.commit()
-    session.close()
     if user is None:
         print ('invalid user')
         return None
@@ -74,7 +72,6 @@ def user_data(db, uid):
     session = Session()
     user = session.query(User).filter((User.id == str(uid).strip())).first()
     session.commit()
-    session.close()
     return user
 
 def blacklist_token(db, auth_token):
@@ -82,7 +79,6 @@ def blacklist_token(db, auth_token):
     session = Session()
     session.add(BlacklistToken(token=auth_token))
     session.commit()
-    session.close()
     return None
 
 def is_blacklisted(db, auth_token):
@@ -150,7 +146,6 @@ def delete_transform(db, uid, xfid):
     else:
         session.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))
         session.commit()
-    session.close()
     return True
 
 def list_transforms(db, uid, dsid, order):
@@ -203,7 +198,6 @@ def new_transform(db, uid, uuid, xfname, dsid, xpath, saved):
     transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath, saved=saved)
     session.add(transformer)
     session.commit()
-    session.close()
     return transformer.id
 
 
@@ -220,7 +214,6 @@ def update_transform(db, uid, xfid, xfspec, name, saved):
     if name:
         transformer.name = name
     session.commit()
-    session.close()
     return 1
 
 
@@ -259,7 +252,6 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid)
     session.add(dataset)
     session.commit()
-    session.close()
     return dataset.id
 
 
@@ -282,7 +274,6 @@ def delete_dataset(db, uid, dsid):
         print("File removed")
         session.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
         session.commit()
-        session.close()
         return True
 
 def xmls(mimetype, data):
@@ -366,7 +357,6 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
             dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, entry_text=text, contents=entry_str)
             session.add(dataset)
         session.commit()
-        session.close()
 
 
     connection.close()
@@ -379,7 +369,6 @@ def extract_xml_head_content(db, dsid):
     dataset = session.query(Datasets).filter(Datasets.id == dsid).first()
     xml_file = dataset.file_path
     session.commit()
-    session.close()
 
     tree = lxml.etree.parse(xml_file)
     unique_texts = set()
@@ -397,7 +386,7 @@ def extract_xml_heads(db, dsid):
     dataset = session.query(Datasets).filter(Datasets.id == dsid).first()
     xml_file = dataset.file_path
     session.commit()
-    session.close()
+
     tree = lxml.etree.parse(xml_file)
     unique_tags = set()
     for element in tree.iter():
@@ -412,5 +401,5 @@ def get_ds_and_xf(db, uid, xfid, dsid):
     xf = transformer.transform
     ds_path = dataset.file_path
     name = dataset.name
-    session.close()
+
     return(xf, ds_path, name)
