@@ -331,6 +331,7 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
             nodes = tree.xpath('//' + xpath)
 
         print('have nodes', len(nodes))
+        counter = 0
 
         base = declarative_base()
         Session = sessionmaker(db)
@@ -342,11 +343,14 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
             if headword:
                 text = headword[0].text
             else:
-                text = entry.tag
-
-            entry_str = """<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type='text/xsl' href='preview.xsl'?>\n<!DOCTYPE Dictionary PUBLIC "-//KDictionaries//DTD MLDS 1.0//EN" "schema.dtd">\n<Dictionary sourceLanguage="fr" targetLanguage="unspecified">\n"""
-            entry_str += lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
-            entry_str += "\n</Dictionary>"
+                text = ''
+            entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
+            # TODO: Return when needed. Commented out due to server breaking after commit 61634f5
+            #     text = entry.tag
+            #
+            # entry_str = """<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type='text/xsl' href='preview.xsl'?>\n<!DOCTYPE Dictionary PUBLIC "-//KDictionaries//DTD MLDS 1.0//EN" "schema.dtd">\n<Dictionary sourceLanguage="fr" targetLanguage="unspecified">\n"""
+            # entry_str += lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
+            # entry_str += "\n</Dictionary>"
             entry_head = clean_tag(entry_str.split('\n',1)[0])[:10]
 
             # Create
