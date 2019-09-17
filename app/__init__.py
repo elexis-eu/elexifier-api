@@ -10,13 +10,15 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_POOL_SIZE'] = 20
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 #run the following command to change environment.
 #export FLASK_ENV={production|development}
 
+
 if app.config['ENV'] == 'production' :
+	app.config['SQLALCHEMY_POOL_SIZE'] = 20
+
 	import sentry_sdk
 	from sentry_sdk.integrations.flask import FlaskIntegration
 	from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
