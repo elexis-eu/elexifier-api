@@ -41,7 +41,7 @@ if app.config['ENV'] == 'development':
     db_uri = 'sqlite:///{}'.format(db_path)
 else:
     db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(db_uri, encoding="utf8")
+engine = create_engine(db_uri, encoding="utf8", pool_size=100, max_overflow=-1)
 orm = SQLAlchemy()
 orm.init_app(app)
 
