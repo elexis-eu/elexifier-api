@@ -23,7 +23,7 @@ from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
 import os
 from app.models import User, BlacklistToken
-from app import app
+from app import app, db
 from flask_cors import CORS, cross_origin
 from celery import Celery
 import random
@@ -41,7 +41,7 @@ if app.config['ENV'] == 'development':
     db_uri = 'sqlite:///{}'.format(db_path)
 else:
     db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(db_uri, encoding="utf8", pool_size=100, max_overflow=-1)
+engine = create_engine(db_uri, encoding="utf8")
 orm = SQLAlchemy()
 orm.init_app(app)
 
@@ -71,7 +71,7 @@ def user_add():
     username = email
     password = flask.request.json['password']
     password = bcrypt.generate_password_hash(password).decode('utf-8')
-    user = controllers.register_user(engine, username, email, password, None)
+    user = controllers.register_user(db, username, email, password, None)
     if user != None:
         auth_token = user.encode_auth_token(user.id)
         response = {
@@ -114,7 +114,7 @@ def verify_user(token):
 def user_data():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    user = controllers.user_data(engine, id)
+    user = controllers.user_data(db, id)
     if user != None:
         response = {
                 'username' : user.username,
@@ -230,7 +230,7 @@ def ds_upload_new_dataset():
             new_random_name = generate_filename(dzfilename)
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
             os.rename(dzfilepath, new_path)
-            dsid = controllers.add_dataset(engine, id, dztotalfilesize, dzfilename, new_path, dzuuid)
+            dsid = controllers.add_dataset(db, id, dztotalfilesize, dzfilename, new_path, dzuuid)
             result = controllers.list_datasets(engine, id, dsid=dsid)
         return _j(result)
     else:
@@ -281,8 +281,8 @@ def xf_new_transform():
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
         #return flask.make_response(('Invalid API call'), 422)
-    xfid = controllers.new_transform(engine, id, dsuuid, xfname, dsid, entry_spec, saved)
-    isok, retmsg = controllers.prepare_dataset(engine, id, dsid, xfid, entry_spec, headword)
+    xfid = controllers.new_transform(db, id, dsuuid, xfname, dsid, entry_spec, saved)
+    isok, retmsg = controllers.prepare_dataset(db, id, dsid, xfid, entry_spec, headword)
     if not isok:
         raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
         #return flask.make_response(retmsg, 422)
@@ -321,7 +321,7 @@ def xf_update_transform(xfid):
     if xfspec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
         #return flask.make_response(('Invalid API call'), 422)
-    rv = controllers.update_transform(engine, id, xfid, xfspec, name, saved)
+    rv = controllers.update_transform(db, id, xfid, xfspec, name, saved)
     return _j({'updated': rv})
 
 
@@ -372,7 +372,7 @@ def xf_entity_transform(xfid,entityid):
 def ds_list_nodes(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    nodes = controllers.extract_xml_heads(engine, dsid)
+    nodes = controllers.extract_xml_heads(db, dsid)
     return _j({'nodes': nodes})
 
 
@@ -385,7 +385,7 @@ def ds_download(xfid, dsid):
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
 
     try:
-        xf, ds_path,file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
+        xf, ds_path,file_name = controllers.get_ds_and_xf(db, id, xfid, dsid)
     except:
         raise InvalidUsage('Transformer does not exist. Click on the save transform button duh! Also, change this error message for production', status_code=409)
 
@@ -440,7 +440,7 @@ def login():
     password = flask.request.form['password']
     bcrypt = Bcrypt()
 
-    user = controllers.check_login(engine, username, password, bcrypt)
+    user = controllers.check_login(db, username, password, bcrypt)
     if user is None:
         response = {
             'message': 'Wrong password or user does not exist!'
@@ -465,7 +465,7 @@ def login():
 def login2():
     if 'sketch_token' in flask.request.json:
         sketch_token = flask.request.json['sketch_token']
-        user = controllers.login_or_register_sketch_user(engine, sketch_token)
+        user = controllers.login_or_register_sketch_user(db, sketch_token)
     else:
         for field in ['login', 'password']:
             if field not in flask.request.json:
@@ -475,7 +475,7 @@ def login2():
         password = flask.request.json['password']
 
         bcrypt = Bcrypt()
-        user = controllers.check_login(engine, username, password, bcrypt)
+        user = controllers.check_login(db, username, password, bcrypt)
 
     if user is None:
         # proper login handling if more time......
@@ -512,7 +512,7 @@ def logout():
         verify_user(auth_token)
         if "Bearer " in auth_token:
             auth_token = auth_token.split("Bearer ")[1]
-        controllers.blacklist_token(engine, auth_token)
+        controllers.blacklist_token(db, auth_token)
     else:
         raise InvalidUsage('Provide a valid auth token.', status_code=409, enum="INVALID_AUTH_TOKEN")
     return flask.render_template('login.html')

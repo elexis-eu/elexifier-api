@@ -4,8 +4,6 @@ import zipfile
 import lxml
 import lxml.etree
 import hashlib
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 import base64
 import json
 from app.models import *
@@ -15,38 +13,35 @@ import os
 
 
 def register_user(db, username, email, password_hash, sketch_engine_uid):
-    Session = sessionmaker(db)
-    session = Session()
-    result = session.execute("SELECT * FROM users WHERE username='{0:s}'".format(username))
-
-    if len([x for x in result]) == 0:
-        uid = [x for x in session.execute("SELECT MAX(id) FROM users")][0][0]
-        if uid:
-             uid += 1
-        else:
-            uid = 0
-
+    print('Register user')
+    
+    result = db.session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
+    
+    if result is None:
+        
         if (password_hash is None) and (sketch_engine_uid is not None):
-            session.execute("INSERT INTO users (id, username, authenticated, email, sketch_engine_uid) VALUES ({0:s}, '{1:s}', True, '{2:s}', '{3:d}')".format(str(uid), username, email.lower(), sketch_engine_uid))
+            user = User(username=username, authenticated=True, email=email.lower(), sketch_engine_uid=sketch_engine_uid)
         else:
-            session.execute("INSERT INTO users (id, username, password_hash, authenticated, email) VALUES ({0:s}, '{1:s}', '{2:s}', True, '{3:s}')".format(str(uid), username, password_hash, email.lower()))
-        user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username).strip())).first()
-        session.commit()
+            user = User(username=username, authenticated=True, email=email.lower(), password_hash=password_hash)
+        db.session.add(user)
+        db.session.commit()
         return user
     else:
+        db.session.commit()
         return None
 
 def delete_user(db, uid):
+    print('Delete user')
     connection = db.connect()
     connection.execute("delete from users where id={0:s}".format(str(uid)))
+    connection.close()
     return None
 
 
 def check_login(db, username, password, bcrypt):
-    Session = sessionmaker(db)
-    session = Session()
-    user = session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username.lower()).strip())).first()
-    session.commit()
+    print('Check login')
+    user = db.session.query(User).filter((User.username == str(username).strip()) | (User.email == str(username.lower()).strip())).first()
+    db.session.commit()
     if user is None:
         print ('invalid user')
         return None
@@ -57,10 +52,11 @@ def check_login(db, username, password, bcrypt):
         return None
 
 def login_or_register_sketch_user(db, sketch_token):
-    Session = sessionmaker(db)
-    session = Session()
+    print('login + sketch engine')
+    
     user_data = User.decode_sketch_token(sketch_token)
-    user = session.query(User).filter(User.sketch_engine_uid == str(user_data['id'])).first()
+    user = db.session.query(User).filter(User.sketch_engine_uid == str(user_data['id'])).first()
+    db.session.commit()
     if user is None:
         new_user = register_user(db, user_data['email'], user_data['email'], None, user_data['id'])
         return new_user
@@ -68,24 +64,26 @@ def login_or_register_sketch_user(db, sketch_token):
         return user
 
 def user_data(db, uid):
-    Session = sessionmaker(db)
-    session = Session()
-    user = session.query(User).filter((User.id == str(uid).strip())).first()
-    session.commit()
+    print('user data')
+    
+    user = db.session.query(User).filter((User.id == str(uid).strip())).first()
+    db.session.commit()
     return user
 
 def blacklist_token(db, auth_token):
-    Session = sessionmaker(db)
-    session = Session()
-    session.add(BlacklistToken(token=auth_token))
-    session.commit()
+    print('blacklist token')
+    
+    db.session.add(BlacklistToken(token=auth_token))
+    db.session.commit()
     return None
 
 def is_blacklisted(db, auth_token):
-    Session = sessionmaker(db)
-    session = Session()
-    result = session.execute("SELECT * FROM blacklist_tokens WHERE token = '{0:s}'".format(auth_token))
-    return len([x for x in result]) != 0
+    print('is blacklisted')
+    connection = db.connect()
+    result = connection.execute("SELECT * FROM blacklist_tokens WHERE token = '{0:s}'".format(auth_token))
+    is_blacklisted = len([x for x in result]) != 0
+    connection.close()
+    return is_blacklisted
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
@@ -98,6 +96,7 @@ def extract_keys(cur, single=False):
 
 
 def list_datasets(db, uid, dsid=None, order=None):
+    print('list datasets')
     connection = db.connect()
     if dsid is None:
         if order is None or order == 'ASC':
@@ -135,17 +134,19 @@ def get_entry(db, uid, dsid, entryid, headwords):
 
 # ---- transforms
 def delete_transform(db, uid, xfid):
-    Session = sessionmaker(db)
-    session = Session()
-    result = session.execute("SELECT * FROM transformers WHERE id = {0:s}".format(str(xfid)))
+    print('delete transform')
+    connection = db.connect()
+    result = connection.execute("SELECT * FROM transformers WHERE id = {0:s}".format(str(xfid)))
     if len([x for x in result]) == 0:
+        connection.close()
         return None
-    result = session.execute("SELECT * FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.uid = {0:s} AND ts.id = {1:s}".format(str(uid), str(xfid)))
+    result = connection.execute("SELECT * FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.uid = {0:s} AND ts.id = {1:s}".format(str(uid), str(xfid)))
     if len([x for x in result]) == 0:
+        connection.close()
         return False
     else:
-        session.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))
-        session.commit()
+        connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))
+        connection.close()
     return True
 
 def list_transforms(db, uid, dsid, order):
@@ -187,33 +188,27 @@ def describe_transform(db, uid, xfid):
 
 
 def new_transform(db, uid, uuid, xfname, dsid, xpath, saved):
-    base = declarative_base()
-    Session = sessionmaker(db)
-    session = Session()
-    base.metadata.create_all(db)
+    
     print('new transform')
 
     # Create
     #print(dzcontent.stream.read())
     transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath, saved=saved)
-    session.add(transformer)
-    session.commit()
+    db.session.add(transformer)
+    db.session.commit()
     return transformer.id
 
 
 def update_transform(db, uid, xfid, xfspec, name, saved):
-    base = declarative_base()
-    Session = sessionmaker(db)
-    session = Session()
-    base.metadata.create_all(db)
+    
     print('update transformer')
 
-    transformer = session.query(Transformer).get(xfid)
+    transformer = db.session.query(Transformer).get(xfid)
     transformer.transform = xfspec
     transformer.saved = saved
     if name:
         transformer.name = name
-    session.commit()
+    db.session.commit()
     return 1
 
 
@@ -239,41 +234,38 @@ def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
 
 
 def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
+    print('add dataset')
 
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_filename(dzfilepath)
 
-    base = declarative_base()
-    Session = sessionmaker(db)
-    session = Session()
-    base.metadata.create_all(db)
-
     # Create
     dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid)
-    session.add(dataset)
-    session.commit()
+    db.session.add(dataset)
+    db.session.commit()
     return dataset.id
 
 
 def delete_dataset(db, uid, dsid):
+    print('delete dataset')
     connection = db.connect()
-    Session = sessionmaker(db)
-    session = Session()
-    result = session.execute("SELECT * FROM datasets WHERE id = {0:s}".format(str(dsid)))
+    result = connection.execute("SELECT * FROM datasets WHERE id = {0:s}".format(str(dsid)))
     if len([x for x in result]) == 0:
+        connection.close()
         return None
-    result = session.execute("SELECT * FROM datasets WHERE uid = {0:s} AND id = {1:s}".format(str(uid), str(dsid)))
+    result = connection.execute("SELECT * FROM datasets WHERE uid = {0:s} AND id = {1:s}".format(str(uid), str(dsid)))
     if len([x for x in result]) == 0:
+        connection.close()
         return False
     else:
-        result = session.execute("SELECT ts.id FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.id = {0:s} AND ds.uid = {1:s}".format(str(dsid), str(uid)))
+        result = connection.execute("SELECT ts.id FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.id = {0:s} AND ds.uid = {1:s}".format(str(dsid), str(uid)))
         for i in result:
-            session.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(i[0])))
-        result = session.execute("SELECT file_path FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
+            connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(i[0])))
+        result = connection.execute("SELECT file_path FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
         os.remove(str([x for x in result][0][0]))
         print("File removed")
-        session.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
-        session.commit()
+        connection.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
+        connection.close()
         return True
 
 def xmls(mimetype, data):
@@ -305,9 +297,10 @@ def clean_tag(xml_tag):
 
 
 def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
-    connection = db.connect()
-    result = connection.execute("SELECT upload_mimetype, file_path FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
-    mimetype, data = result.fetchone()
+    print('prepare dataset')
+    dataset = db.session.query(Datasets).filter((Datasets.uid == uid) & (Datasets.id == dsid)).first()
+    mimetype, data = dataset.upload_mimetype, dataset.file_path
+
 
     for xml in xmls(mimetype, data):
 
@@ -333,11 +326,6 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
         print('have nodes', len(nodes))
         counter = 0
 
-        base = declarative_base()
-        Session = sessionmaker(db)
-        session = Session()
-        base.metadata.create_all(db)
-
         for entry in nodes:
             headword = entry.findall('.//' + hw)
             if headword:
@@ -355,20 +343,17 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
 
             # Create
             dataset = Datasets_single_entry(dsid=dsid, xfid=xfid, entry_head=entry_head, entry_text=text, contents=entry_str)
-            session.add(dataset)
-        session.commit()
-
-
-    connection.close()
+            db.session.add(dataset)
+    db.session.commit()
     return (True, 'Done')
 
 
 def extract_xml_head_content(db, dsid):
-    Session = sessionmaker(db)
-    session = Session()
-    dataset = session.query(Datasets).filter(Datasets.id == dsid).first()
+    print('extract xml head content')
+
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     xml_file = dataset.file_path
-    session.commit()
+    db.session.commit()
 
     tree = lxml.etree.parse(xml_file)
     unique_texts = set()
@@ -380,12 +365,11 @@ def extract_xml_head_content(db, dsid):
 
 
 def extract_xml_heads(db, dsid):
+    print('extract xml head')
 
-    Session = sessionmaker(db)
-    session = Session()
-    dataset = session.query(Datasets).filter(Datasets.id == dsid).first()
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     xml_file = dataset.file_path
-    session.commit()
+    db.session.commit()
 
     tree = lxml.etree.parse(xml_file)
     unique_tags = set()
@@ -394,10 +378,10 @@ def extract_xml_heads(db, dsid):
     return list(unique_tags)
 
 def get_ds_and_xf(db, uid, xfid, dsid):
-    Session = sessionmaker(db)
-    session = Session()
-    transformer, dataset = session.query(Transformer, Datasets).filter(Transformer.dsid == Datasets.id).filter(Transformer.id == xfid).first()
-    session.commit()
+    print('get ds and xf')
+
+    transformer, dataset = db.session.query(Transformer, Datasets).filter(Transformer.dsid == Datasets.id).filter(Transformer.id == xfid).first()
+    db.session.commit()
     xf = transformer.transform
     ds_path = dataset.file_path
     name = dataset.name
