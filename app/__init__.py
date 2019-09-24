@@ -17,8 +17,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 if app.config['ENV'] == 'production' :
-	app.config['SQLALCHEMY_POOL_SIZE'] = 20
-
+	
 	import sentry_sdk
 	from sentry_sdk.integrations.flask import FlaskIntegration
 	from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
