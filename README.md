@@ -30,25 +30,17 @@ Server is running on: http://0.0.0.0:8081
 ## Docker
 Check these [instructions](https://github.com/vidrepar/elexifier-api/issues/17).
 
-## Warning 
-The backend is still buggy so changes will be made to it. 
-If after some new commit the server starts crashing, 
-the easiest way to fix it is to just delete the database 
-(app.db file in the elexifier folder) and the generated migrations folder. 
-Then repeat these four steps:
+## Changing the database
+First change the models.py folder. After that, run:
 
-```
-python manage.py db init
-```
 ```
 python manage.py db migrate
 `````
 ```
 python manage.py db upgrade
 ```
-```
-python create_user.py
-````
+
+Sqlite3 does not support the DROP statement for deleting database columns, therefore use this hack when removing a column:  https://www.youtube.com/watch?v=CxCK1DkikgA
 
 
 

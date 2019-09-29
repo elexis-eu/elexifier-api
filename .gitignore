@@ -1,9 +1,7 @@
 .idea/
 __pycache__/
 venv/
-migrations
 app.db
 *.pyc
-
 app/media/*
 app/media/.gitkeep 
