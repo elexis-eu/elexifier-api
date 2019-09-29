@@ -2,7 +2,7 @@
 
 DIR="/var/www/elexifier-api/migrations"
 if [ ! -d "$DIR" ]; then
-  echo "Initializing database, migrating and creating user"
+  echo "Initializing database and migrating models"
   python /var/www/elexifier-api/manage.py db init &&
   python /var/www/elexifier-api/manage.py db migrate && 
   python /var/www/elexifier-api/manage.py db upgrade
