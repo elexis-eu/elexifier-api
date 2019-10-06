@@ -1,0 +1,35 @@
+# Reference: https://help.github.com/en/articles/configuring-a-workflow
+
+name: Elexifier API staging deployment
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy_staging:
+    name: deploy:staging
+    # https://help.github.com/en/articles/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    runs-on: ubuntu-16.04
+    # https://help.github.com/en/articles/workflow-syntax-for-github-actions#jobsjob_idsteps
+    steps:
+      - name: SSH to the Digital Ocean droplet
+        uses: maddox/actions/ssh@master
+        env:
+          PRIVATE_KEY: ${{ secrets.STAGING_SERVER_PRIVATE_KEY }}
+          HOST: ${{ secrets.STAGING_SERVER_HOST }}
+          USER: ${{ secrets.STAGING_SERVER_USER }}
+        with:
+          args: |
+            cd /var/www/elexifier-api
+            echo "Pulling the lastest code from develop"
+            git checkout develop
+            git fetch --all
+            git reset --hard
+            git pull
+            echo "Building docker container"
+            docker-compose -f docker-compose.test.yml -p elexifier build --no-cache
+            echo "Starting a docker container"
+            docker-compose -f docker-compose.test.yml -p elexifier up -d
+            docker ps -a

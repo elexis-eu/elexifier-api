@@ -11,7 +11,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   set +e
 
   # This will install the latest python, which is currently 3.7
-  brew install python@3
+  brew install python@3.7
 
   echo "Linking python to the new version"
   # Change to ~/.bash_profile if you're not using .zshrc
@@ -21,6 +21,23 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
   echo "Verifying python version"
   python --version
+else
+  set +e
+
+  echo "Installing python 3.7 for Linux"
+  sudo apt-get install build-essential checkinstall
+  sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev \
+    libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev
+
+  sudo apt update
+  sudo apt install software-properties-common
+
+  sudo add-apt-repository ppa:deadsnakes/ppa
+
+  sudo apt install python3.7
+
+  echo "Verifying python"
+  python3.7 --version
 fi
 
 echo "Installing virtualenv"
@@ -30,10 +47,10 @@ echo "Specifying the path to python 3 binary"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # OSX
-  virtualenv -p /usr/local/bin/python3.* venv
+  virtualenv -p /usr/local/bin/python3.7 venv
 else
   # Linux
-  virtualenv -p /usr/bin/python3.* venv
+  virtualenv -p /usr/bin/python3.7 venv
 fi
 
 echo "Activating virtual environment"
