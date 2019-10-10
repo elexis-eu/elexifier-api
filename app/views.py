@@ -221,9 +221,7 @@ def ds_upload_new_dataset():
 
     if current_chunk == total_chunks:
         if os.path.getsize(dzfilepath) != int(dztotalfilesize):
-            print('Size mismatch', )
-            print("1",os.path.getsize(dzfilepath))
-            print("2",int(dztotalfilesize))
+            print('Size mismatch' )
             raise InvalidUsage("Size mismatch.", status_code=500, enum="FILE_ERROR")
             #return make_response(jsonify({"message":'Size mismatch'})), 500
         else:
@@ -340,6 +338,9 @@ def xf_entity_transform(xfid,entityid):
         id = verify_user(token_header)
 
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
+    strip_header = flask.request.get('strip_header', default='false', type=str) == 'true'
+    strip_DictScrap = flask.request.get('strip_DictStrap', default='false', type=str) == 'true'
+
     entity, spec = controllers.get_entity_and_spec(engine, id, xfid, entityid)
 
     print(spec)
@@ -363,7 +364,8 @@ def xf_entity_transform(xfid,entityid):
 
     mapping = transformator.TMapping(spec)
     mapper = transformator.TMapper()
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns)
+    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns,
+                                        stripDictScrap=strip_DictScrap, stripHeader=strip_header)
 
     return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')})
 
@@ -383,6 +385,9 @@ def ds_download(xfid, dsid):
     id = verify_user(token)
     
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
+    strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
+    strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
+
 
     try:
         xf, ds_path,file_name = controllers.get_ds_and_xf(db, id, xfid, dsid)
@@ -407,7 +412,8 @@ def ds_download(xfid, dsid):
     entity_xml = lxml.etree.fromstring(orig_xml, parser = myParser)
     mapping = transformator.TMapping(xf)
     mapper = transformator.TMapper()
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns)
+    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns,
+                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
     orig_fname, file_type = file_name.split('.')

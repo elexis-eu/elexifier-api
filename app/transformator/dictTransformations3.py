@@ -1,8 +1,11 @@
 # coding=Windows-1250
 #import xml.etree, xml.etree.ElementTree
 from lxml import etree
-import copy, re, logging, traceback, zipfile, json, pathlib, sys, datetime, os, os.path, io
-from werkzeug.utils import secure_filename
+import copy, re, logging, traceback, zipfile, json, pathlib, eventlet, sys, datetime, os, os.path, io
+from eventlet import wsgi
+urllib_parse = eventlet.import_patched("urllib.parse")
+urllib_request = eventlet.import_patched("urllib.request")
+urllib_error = eventlet.import_patched("urllib.error")
 
 Verbose = False
 
@@ -1450,8 +1453,7 @@ class TMapper:
         parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
         self.parser = etree.XMLParser()
         self.parser.set_element_class_lookup(parserLookup)
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), secure_filename("TEILex0-ODD.rng"))
-        with open(path, "rt", encoding = "utf8") as f:
+        with open("app/transformator/TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
             relaxNgDoc = etree.parse(f)
         self.relaxNg = etree.RelaxNG(relaxNgDoc)
     def E(self, tag, attrib_ = {}, children = [], text = None, tail = None):
@@ -1493,6 +1495,27 @@ class TMapper:
         if False:
             print("StripForValidation removed the following attributes:")
             for attrName in sorted(stats.keys()): print("%5d %s" % (stats[attrName], attrName))
+    def StripDictScrap(self, root):
+        def IsScrap(elt): return type(elt) is TMyElement and (elt.tag == ELT_seg or elt.tag == ELT_dictScrap)
+        def Rec(elt):
+            if type(elt) is not TMyElement: return
+            isScrap = IsScrap(elt)
+            if isScrap: elt.text = ""
+            i = 0
+            while i < len(elt):
+                child = elt[i]
+                if isScrap: child.tail = ""
+                Rec(child)
+                if IsScrap(child) and len(child) == 0:
+                    if i == 0: 
+                        if elt.text is None: elt.text = child.tail
+                        else: elt.text += child.tail
+                    else: 
+                        if elt[i - 1].tail is None: elt[i - 1].tail = child.tail
+                        else: elt[i - 1].tail += child.tail
+                    del elt[i]
+                else: i += 1    
+        Rec(root)        
     def FixIds(self, root):
         idHash = {}; counter = 0
         def Rec1(e):
@@ -1533,7 +1556,11 @@ class TMapper:
         # existing IDs weren't unique (due to the duplication of nodes etc.),
         # we'll fix this now.
         Rec2(root)    
-    def Transform(self, mapping, fnOrFileList, treeList = [], makeAugmentedInputTrees = False, stripForValidation = False):
+    def Transform(self, mapping, fnOrFileList, treeList = [], makeAugmentedInputTrees = False, 
+            stripForValidation = False, stripDictScrap = False, stripHeader = False,
+            headerTitle = "Placeholder Title",
+            headerPublisher = "Placeholder Publisher",
+            headerBibl = "Placeholder Bibl"):
         """This method processes one or more XML trees and returns
         an (outTei, augTrees) pair, where outTei is the root <TEI> element 
         of the transformed output document, and augTrees is a list containing
@@ -1551,10 +1578,14 @@ class TMapper:
         'treeList' should contain 0 or more lxml Element objects representing
         the roots of the trees to be processed.  
 
-        The stripForValidation parameter can be set to True to require that
+        The 'stripForValidation' parameter can be set to True to require that
         all the attributes from namespaces other than TEI and XML be stripped
         from the output document ('outTei').  This can be useful if the output
         is going to be validated against the TEI-lex-0 RelagNG schema.
+        
+        The 'stripDictScrap' parameter can be set to True to strip all <dictScrap>
+        elements from the resulting output, and stripHeader can be set to True to
+        strip the <teiHeader> element from the resulting output.
         """
         outBody = self.E(ELT_body)
         augTrees = [] if makeAugmentedInputTrees else None
@@ -1562,6 +1593,7 @@ class TMapper:
             print("Processing %s." % fn)
             tree = etree.ElementTree(file = f, parser = self.parser)
             self.TransformTree(mapping, tree, outBody, augTrees)
+        print("stripHeader = %s, stripDictScrap = %s" % (stripHeader, stripDictScrap))    
         if type(fnOrFileList) is type(""): fnOrFileList = [fnOrFileList]    
         for fn in fnOrFileList:
             if type(fn) is not str:
@@ -1577,31 +1609,33 @@ class TMapper:
                 with open(fn, "rb") as f: ProcessFile(fn, f)
         for tree in treeList: 
             self.TransformTree(mapping, tree, outBody, augTrees)
+        if stripDictScrap: self.StripDictScrap(outBody)
         self.FixIds(outBody)    
         #            
-        outTei = self.E(ELT_tei, {}, [
-            self.E(ELT_teiHeader, {}, [
+        L = []
+        if not stripHeader:
+            L.append(self.E(ELT_teiHeader, {}, [
                 self.E(ELT_fileDesc, {}, [
                     self.E(ELT_titleStmt, {}, [
-                        self.E(ELT_title, {}, [], text = "This is a title.")
+                        self.E(ELT_title, {}, [], text = headerTitle)
                     ]),
                     self.E(ELT_publicationStmt, {}, [
-                        self.E(ELT_publisher, {}, [], text = "This is a publisher.")
+                        self.E(ELT_publisher, {}, [], text = headerPublisher)
                     ]),
                     self.E(ELT_sourceDesc, {}, [
-                        self.E(ELT_bibl, {}, [], text = "This is a bibl.")
+                        self.E(ELT_bibl, {}, [], text = headerBibl)
                     ]),
                 ]),
-            ]),
-            self.E(ELT_text, {}, [
+            ]))
+        L.append(self.E(ELT_text, {}, [
                 outBody
                 #self.E(ELT_body, {}, [
                 #    self.E("{%s}div" % NS_TEI, {}, [
                 #        self.E("{%s}p" % NS_TEI, {}, [], text = "Foo"),
                 #    ]),
                 #]),
-            ]),
-        ])
+            ]))
+        outTei = self.E(ELT_tei, {}, L)
         #print(outBody.nsmap)
         etree.cleanup_namespaces(outTei, top_nsmap = NS_MAP)
         #return outTei, augTrees
@@ -1702,12 +1736,22 @@ def MyWsgiHandler(env, start_response):
             if type(L) is type([]): s = L[0]
             else: s = str(L)
             return s
+        def TransferArg(name):
+            if name not in params: return
+            L = params[name]
+            if type(L) is type([]): s = L[0]
+            else: s = str(L)
+            callParams[name] = s
         #start_response("200 OK", [("Content-type", "application/json")])
         #textPlain = (GetArg("textPlain", "false") == "true")
         mappingStr = GetArg("mapping")
         inputStr = GetArg("input")
-        stripForValidation_ = (GetArg("stripForValidation") == "true")
-        #for name in params: print("param %s" % repr(name))
+        callParams = {}
+        callParams["stripForValidation"] = (GetArg("stripForValidation") == "true")
+        callParams["stripDictScrap"] = (GetArg("stripDictScrap") == "true")
+        callParams["stripHeader"] = (GetArg("stripHeader") == "true")
+        TransferArg("headerTitle"); TransferArg("headerPublisher"); TransferArg("headerBibl")
+        for name in params: print("param %s" % repr(name))
         #print("stripForValidation = %s" % GetArg("stripForValidation"))
         with open(os.path.join(outPath, "mapping.json"), "wt", encoding = "utf8") as f: f.write(mappingStr) #; f.write(str(env))
         with open(os.path.join(outPath, "input.xml"), "wt", encoding = "utf8") as f: f.write(inputStr)
@@ -1717,7 +1761,7 @@ def MyWsgiHandler(env, start_response):
         with io.BytesIO(inputStr.encode("utf8")) as f:
             inputXml = etree.ElementTree(file = f, parser = mapper.parser)
         mapping = TMapping(mappingJs)
-        outputXml, augTrees = mapper.Transform(mapping, [], [inputXml], stripForValidation = stripForValidation_)
+        outputXml, augTrees = mapper.Transform(mapping, [], [inputXml], **callParams)
         #
         outputBin = etree.tostring(outputXml, pretty_print = True, encoding = "utf8")
         with open(os.path.join(outPath, "output.xml"), "wb") as f: f.write(outputBin)
