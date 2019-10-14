@@ -338,8 +338,8 @@ def xf_entity_transform(xfid,entityid):
         id = verify_user(token_header)
 
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
-    strip_header = flask.request.get('strip_header', default='false', type=str) == 'true'
-    strip_DictScrap = flask.request.get('strip_DictStrap', default='false', type=str) == 'true'
+    strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
+    strip_DictScrap = flask.request.args.get('strip_DictStrap', default='false', type=str) == 'true'
 
     entity, spec = controllers.get_entity_and_spec(engine, id, xfid, entityid)
 
