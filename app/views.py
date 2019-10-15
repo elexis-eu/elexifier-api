@@ -339,7 +339,7 @@ def xf_entity_transform(xfid,entityid):
 
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
     strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
-    strip_DictScrap = flask.request.args.get('strip_DictStrap', default='false', type=str) == 'true'
+    strip_DictScrap = flask.request.args.get('strip_dict_scrap', default='false', type=str) == 'true'
 
     entity, spec = controllers.get_entity_and_spec(engine, id, xfid, entityid)
 
