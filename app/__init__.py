@@ -7,35 +7,44 @@ Licence: GPLv3
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-
+import dotenv, os
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-#run the following command to change environment.
-#export FLASK_ENV={production|development}
+# If there is no .env file in root directory, api will load with default configuration DEVELOPMENT.
+if os.path.exists(".env"):
+	print("Environment file .env found.")
+	dotenv.load_dotenv(dotenv_path='./.env', verbose=True)
+	app.config.from_object('app.configuration.ProductionConfig')
 
-
-if app.config['ENV'] == 'production' :
-	
 	import sentry_sdk
 	from sentry_sdk.integrations.flask import FlaskIntegration
 	from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 	from sentry_sdk.integrations.celery import CeleryIntegration
 
-	sentry_sdk.init(
-	    dsn="https://f64acc6a844543e3bde419789edbb54f@sentry.io/1724070",
-	    integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration()]
-	)
-
-	app.config.from_object('app.configuration.ProductionConfig')
-
-elif app.config['ENV'] == 'development':
-	app.config.from_object('app.configuration.DevelopmentConfig')
+	if os.environ['ENV'] == "staging":
+		sentry_sdk.init(
+			dsn=os.environ['SENTRY_DSN_STAGING'],
+			integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration()]
+		)
+	else:
+		sentry_sdk.init(
+			dsn=os.environ['SENTRY_DSN_PRODUCTION'],
+			integrations=[FlaskIntegration(), SqlalchemyIntegration(), CeleryIntegration()]
+		)
 
 else:
-	app.config.from_object('configuration.TestingConfig')
+	print("No .env file found, using default config: Development.")
 
+	# This is here, so that configuration.py doesn't crash.
+	os.environ['ENV'] = 'development'
+	os.environ['SQLALCHEMY_USER'] = ""
+	os.environ['SQLALCHEMY_PASSWD'] = ""
+	os.environ['SQLALCHEMY_HOST'] = ""
+	os.environ['SQLALCHEMY_PORT'] = ""
+	os.environ['SQLALCHEMY_DB'] = ""
+	app.config.from_object('app.configuration.DevelopmentConfig')
 
-db = SQLAlchemy(app) #flask-sqlalchemy
+db = SQLAlchemy(app)  # flask-sqlalchemy
 from app import views, models
