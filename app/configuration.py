@@ -8,17 +8,16 @@ In case of STAGING or PRODUCTION environment,
 manage api configuration via .env file.
 """
 class Config(object):
-    DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///./../app.db'
-    SECRET_KEY = "\x15['\xfc\xa6\x0fo^\xda\x83\xfe\x83Zz\xd1\xa8?Cs\xf4\xf3]\xf8\x94"
-    CSRF_ENABLED = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    DEBUG = os.environ['DEBUG']
+    SQLALCHEMY_DATABASE_URI = os.environ['SQLALCHEMY_DATABASE_URI']
+    SECRET_KEY = os.environ['SECRET_KEY']
+    CSRF_ENABLED = os.environ['CSRF_ENABLED']
+    SQLALCHEMY_TRACK_MODIFICATIONS = os.environ['SQLALCHEMY_TRACK_MODIFICATIONS']
+    CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
+    CELERY_RESULT_BACKEND = os.environ['CELERY_RESULT_BACKEND']
 
 
 class DevelopmentConfig(Config):
-    DEBUG = True
     ENV = 'development'
 
 
