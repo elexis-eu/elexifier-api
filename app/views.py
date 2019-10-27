@@ -376,6 +376,13 @@ def ds_list_nodes(dsid):
     id = verify_user(token)
     nodes = controllers.extract_xml_heads(db, dsid)
     return _j({'nodes': nodes})
+    
+@app.route('/api/xml_paths/<int:dsid>', methods=['GET'])
+def ds_list_nodes(dsid):
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    nodes = controllers.extract_xpaths(db, dsid)
+    return _j({'nodes': nodes})
 
 
 @app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])

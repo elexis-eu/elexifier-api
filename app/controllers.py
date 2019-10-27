@@ -376,6 +376,35 @@ def extract_xml_heads(db, dsid):
     for element in tree.iter():
         unique_tags.add(clean_tag(element.tag))
     return list(unique_tags)
+    
+def extract_xpaths(db, dsid):
+    print('extract_xpaths')
+    
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+    xml_file = dataset.file_path
+    db.session.commit()
+
+    tree = lxml.etree.parse(xml_file)
+    nodes = ['%s, %s' % (tree.getpath(e), e.text) for e in tree.iter()]
+    unique_nodes = []
+    for node in nodes:
+        node = node.strip().split(',')[0].lstrip('/oxford/')
+        node = ''.join([c for c in node if not c.isdigit()])
+        node = ''.join([c for c in node if c not in '[]'])
+        if node not in unique_nodes:
+            unique_nodes.append(node)
+    
+    all_paths = []      
+    for node in unique_nodes:
+        els = node.split('/')
+        print(node, len(els))
+        for i in range(len(els)):
+            path = '/'.join(els[i:len(els)])
+            if path not in all_paths:
+                all_paths.append(path)
+
+    return all_paths
+
 
 def get_ds_and_xf(db, uid, xfid, dsid):
     print('get ds and xf')
