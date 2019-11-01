@@ -378,7 +378,7 @@ def ds_list_nodes(dsid):
     return _j({'nodes': nodes})
     
 @app.route('/api/xml_paths/<int:dsid>', methods=['GET'])
-def ds_list_nodes(dsid):
+def ds_list_paths(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     nodes = controllers.extract_xpaths(db, dsid)
