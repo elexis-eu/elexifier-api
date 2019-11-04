@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     command: bash /var/www/elexifier-api/start.sh
     volumes:
-      - /var/elexifier_data/media:./app/media
+      - /var/elexifier_data/media:/var/www/elexifier-api/app/media
     networks:
       elexifier-network:
           aliases:
