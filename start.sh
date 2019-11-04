@@ -17,6 +17,7 @@ else
   fi
 fi
 
+mkdir /var/www/elexifier-api/app/media
 echo "Starting the gunicorn server"
 gunicorn -b 0.0.0.0:8080 wsgi:app
 

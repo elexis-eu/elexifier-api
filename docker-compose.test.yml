@@ -5,14 +5,14 @@ services:
       context: ./
       dockerfile: Dockerfile
     command: bash /var/www/elexifier-api/start.sh
+    volumes:
+      - /var/elexifier_data/media:./app/media
     networks:
       elexifier-network:
           aliases:
               - flask-app
     ports:
-      - 5000:8080
-    environment:
-      FLASK_ENV: development
+      - 8080:8080
 
 networks:
     elexifier-network:
