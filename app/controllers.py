@@ -404,13 +404,18 @@ def extract_xpaths(db, dsid):
     return all_paths
 
 
+
 def get_ds_and_xf(db, uid, xfid, dsid):
     print('get ds and xf')
+    connection = db.connect()
+    query = "SELECT ds.name, tf.transform, ds.file_path FROM transformers tf INNER JOIN datasets ds ON tf.dsid = ds.id WHERE tf.dsid = '{0:s}' AND tf.id = '{1:s}'".format(str(dsid), str(xfid))
+    result = connection.execute(query)
 
-    transformer, dataset = db.session.query(Transformer, Datasets).filter(Transformer.dsid == Datasets.id).filter(Transformer.id == xfid).first()
-    db.session.commit()
-    xf = transformer.transform
-    ds_path = dataset.file_path
-    name = dataset.name
+    name, transform, ds_file_path = result.fetchone()
+    connection.close()
+    try:
+        transform = json.loads(transform)
+    except:
+        pass
 
-    return(xf, ds_path, name)
+    return (transform, ds_file_path, name)

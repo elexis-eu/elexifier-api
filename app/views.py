@@ -399,7 +399,7 @@ def ds_list_nodes(dsid):
 
 
 @app.route('/api/xml_paths/<int:dsid>', methods=['GET'])
-def ds_list_nodes2(dsid):
+def ds_list_paths(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     nodes = controllers.extract_xpaths(db, dsid)
@@ -418,7 +418,7 @@ def ds_download(xfid, dsid):
 
 
     try:
-        xf, ds_path,file_name = controllers.get_ds_and_xf(db, id, xfid, dsid)
+        xf, ds_path,file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
     except:
         raise InvalidUsage('Transformer does not exist. Click on the save transform button duh! Also, change this error message for production', status_code=409)
 
