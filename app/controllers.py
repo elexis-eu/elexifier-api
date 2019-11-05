@@ -95,14 +95,19 @@ def extract_keys(cur, single=False):
         return rv[0] if len(rv) > 0 else None
 
 
-def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
+def list_datasets(db, uid, dsid=None, order=None):
     print('list datasets')
     connection = db.connect()
-
     if dsid is None:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, status FROM datasets WHERE uid='{0:s}' and upload_mimetype='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), mimetype, order))
+        if order is None or order == 'ASC':
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}'".format(str(uid)))
+        else:
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' ORDER BY uploaded_ts DESC".format(str(uid)))
     else:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, status FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), str(dsid), order))
+        if order is None or order == 'ASC':
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
+        else:
+            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts DESC".format(str(uid), str(dsid)))
     datasets = extract_keys(result, dsid is not None)
     connection.close()
     return datasets
@@ -234,11 +239,8 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_filename(dzfilepath)
 
-    xml_path = None
-    if mimetype == "application/pdf":
-        xml_path = dzfilepath[:-4] + ".xml"
     # Create
-    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path)
+    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid)
     db.session.add(dataset)
     db.session.commit()
     return dataset.id
@@ -260,10 +262,7 @@ def delete_dataset(db, uid, dsid):
         for i in result:
             connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(i[0])))
         result = connection.execute("SELECT file_path FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
-        file_path = str([x for x in result][0][0])
-        os.remove(file_path)
-        if ".pdf" in file_path:
-            os.remove(file_path[:-4] + ".xml")
+        os.remove(str([x for x in result][0][0]))
         print("File removed")
         connection.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
         connection.close()
@@ -407,18 +406,13 @@ def extract_xpaths(db, dsid):
     return all_paths
 
 
-
 def get_ds_and_xf(db, uid, xfid, dsid):
     print('get ds and xf')
-    connection = db.connect()
-    query = "SELECT ds.name, tf.transform, ds.file_path FROM transformers tf INNER JOIN datasets ds ON tf.dsid = ds.id WHERE tf.dsid = '{0:s}' AND tf.id = '{1:s}'".format(str(dsid), str(xfid))
-    result = connection.execute(query)
 
-    name, transform, ds_file_path = result.fetchone()
-    connection.close()
-    try:
-        transform = json.loads(transform)
-    except:
-        pass
+    transformer, dataset = db.session.query(Transformer, Datasets).filter(Transformer.dsid == Datasets.id).filter(Transformer.id == xfid).first()
+    db.session.commit()
+    xf = transformer.transform
+    ds_path = dataset.file_path
+    name = dataset.name
 
-    return (transform, ds_file_path, name)
+    return(xf, ds_path, name)
