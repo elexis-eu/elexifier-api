@@ -260,7 +260,10 @@ def delete_dataset(db, uid, dsid):
         for i in result:
             connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(i[0])))
         result = connection.execute("SELECT file_path FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
-        os.remove(str([x for x in result][0][0]))
+        file_path = str([x for x in result][0][0])
+        os.remove(file_path)
+        if ".pdf" in file_path:
+            os.remove(file_path[:-4] + ".xml")
         print("File removed")
         connection.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
         connection.close()
