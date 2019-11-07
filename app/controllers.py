@@ -127,6 +127,14 @@ def get_entry(db, uid, dsid, entryid, headwords):
     connection.close()
     return d
 
+
+def set_dataset_status(db, uid, dsid, status):
+    connection = db.connect()
+    query = "UPDATE datasets SET status = '{0:s}' WHERE uid = {1:s} AND id = {2:s}".format(status, str(uid), str(dsid))
+    connection.execute(query)
+    connection.close
+    return dsid
+
 # ---- transforms
 def delete_transform(db, uid, xfid):
     print('delete transform')

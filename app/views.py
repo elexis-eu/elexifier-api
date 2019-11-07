@@ -195,6 +195,7 @@ def generate_filename(filename,stringLength=20):
 
 def transform_pdf2xml(dataset):
     print("Converting PDF to XML")
+    # TODO: add script for compiling pdf2xml, run it in docker-compose
     bashCommands = ['./app/transformator/pdftoxml {0:s}'.format(dataset['file_path']),
                     'rm -r {0:s}'.format( dataset['xml_file_path'] + "_data/")]
 
@@ -211,7 +212,11 @@ def ds_upload_new_dataset():
 
     dictname = flask.request.files.get('dictname', None)
     dzcontent = flask.request.files.get('file', None)
-    dzfilename = dzcontent.filename  # !!
+    try :
+        dzfilename = dzcontent.filename  # !!
+    except AttributeError:
+        dzfilename = "tempFile_USER-{0:s}".format( str(id) )
+
     dztotalfilesize = flask.request.form.get('dztotalfilesize', None)
     dzfilepath = os.path.join(APP_MEDIA, secure_filename(dzfilename))
     dzuuid = flask.request.form.get('dzuuid', None)
@@ -262,6 +267,41 @@ def ds_rename_dataset(dsid):
     id = verify_user(token)
     raise InvalidUsage('Not implemented', status_code=501)
     pass
+
+
+# -- lexonomy
+@app.route('/api/lexonomy/<int:uid>/download/<int:dsid>', methods=['GET'])
+def lexonomy_download(uid, dsid):
+    one_time_token = flask.request.json.get('one_time_token')
+    if one_time_token != "12345678":
+        raise InvalidUsage("One-time authentication token is not valid!", status_code=401, enum="UNAUTHORIZED")
+    # TODO: remove one_time_token from database
+
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+    return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+
+
+@app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
+def ds_send_to_lexonomy(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+
+    #dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+    user = controllers.user_data(db, uid)
+
+    controllers.set_dataset_status(engine, uid, dsid, 'processing')
+
+    # TODO: generate random one_time_token and save it to database
+    # TODO: send this json to lexonomy
+    rv = {
+        'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
+        'email': user.email,
+        'return_to': None,
+        'one_time_token': "1234578"
+    }
+
+    return _j(rv)
+
 
 # -- transforms
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
