@@ -5,6 +5,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     command: bash /var/www/elexifier-api/start.sh
+    volumes:
+      - /home/jgradisar/elexifier_data/media:/var/www/elexifier-api/app/media
     networks:
       elexifier-network:
           aliases:

@@ -11,7 +11,6 @@ import werkzeug.debug
 import pendulum
 import json
 import lxml
-import subprocess
 
 from app.transformator import dictTransformations3 as transformator
 from functools import partial
@@ -111,6 +110,7 @@ def verify_user(token):
         return resp
 
 
+
 @app.route('/api/user/logged-in', methods=['GET'])
 def user_data():
     token = flask.request.headers.get('Authorization')
@@ -132,14 +132,9 @@ def ds_list_datasets():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     order = flask.request.args.get('order')
-    mimetype = flask.request.args.get('mimetype')
     if isinstance(order, str):
         order = order.upper()
-    else:
-        order = "ASC"
-    if not isinstance(mimetype, str):
-        mimetype = "text/xml"
-    datasets = controllers.list_datasets(engine, id, order=order, mimetype=mimetype)
+    datasets = controllers.list_datasets(engine, id, order=order)
     return _j(datasets)
 
 
@@ -194,16 +189,6 @@ def generate_filename(filename,stringLength=20):
     return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
 
 
-def transform_pdf2xml(dataset):
-    print("Converting PDF to XML")
-    bashCommands = ['./app/transformator/pdftoxml {0:s}'.format(dataset['file_path']),
-                    'rm -r {0:s}'.format( dataset['xml_file_path'] + "_data/")]
-
-    for command in bashCommands:
-        print("Command:", command)
-        subprocess.run(command.split(" "))
-
-
 @app.route('/api/dataset/upload', methods=['POST'])
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
@@ -250,16 +235,12 @@ def ds_upload_new_dataset():
             os.rename(dzfilepath, new_path)
             dsid = controllers.add_dataset(db, id, dztotalfilesize, dzfilename, new_path, dzuuid)
             result = controllers.list_datasets(engine, id, dsid=dsid)
-            if "pdf" in result['upload_mimetype']:
-                transform_pdf2xml(result)
-
         return _j(result)
     else:
         return _j({ 'status': 'OK',
                     'filename': dzfilename,
                     'current_chunk': current_chunk,
                     'total_chunks': total_chunks })
-
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
 def ds_rename_dataset(dsid):
@@ -347,7 +328,6 @@ def xf_list_transforms(dsid):
         order = order.upper()
     rv = controllers.list_transforms(engine, id, dsid, order)
     return _j(rv)
-
 
 @app.route('/api/transform/saved', methods=['GET'])
 def xf_list_saved_transforms():
@@ -470,8 +450,7 @@ def ds_list_nodes(dsid):
     id = verify_user(token)
     nodes = controllers.extract_xml_heads(db, dsid)
     return _j({'nodes': nodes})
-
-
+    
 @app.route('/api/xml_paths/<int:dsid>', methods=['GET'])
 def ds_list_paths(dsid):
     token = flask.request.headers.get('Authorization')
