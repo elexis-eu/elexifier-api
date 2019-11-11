@@ -95,19 +95,16 @@ def extract_keys(cur, single=False):
         return rv[0] if len(rv) > 0 else None
 
 
-def list_datasets(db, uid, dsid=None, order=None):
+def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
     print('list datasets')
     connection = db.connect()
+
     if dsid is None:
-        if order is None or order == 'ASC':
-            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}'".format(str(uid)))
-        else:
-            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' ORDER BY uploaded_ts DESC".format(str(uid)))
+        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, status "+
+                                    "FROM datasets WHERE uid='{0:s}' and upload_mimetype='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), mimetype, order))
     else:
-        if order is None or order == 'ASC':
-            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}'".format(str(uid), str(dsid)))
-        else:
-            result = connection.execute("SELECT id, name, size, upload_uuid, file_path, uploaded_ts, upload_mimetype FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts DESC".format(str(uid), str(dsid)))
+        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, status "+
+                                    "FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), str(dsid), order))
     datasets = extract_keys(result, dsid is not None)
     connection.close()
     return datasets
@@ -131,6 +128,22 @@ def get_entry(db, uid, dsid, entryid, headwords):
     d = extract_keys(result)#, ('id', 'entry_name', 'contents'))
     connection.close()
     return d
+
+
+def set_dataset_status(db, uid, dsid, status):
+    connection = db.connect()
+    query = "UPDATE datasets SET status = '{0:s}' WHERE uid = {1:s} AND id = {2:s}".format(status, str(uid), str(dsid))
+    connection.execute(query)
+    connection.close()
+    return dsid
+
+
+def dataset_add_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete):
+    connection = db.connect()
+    query = "UPDATE datasets SET lexonomy_access = '{0:s}', lexonomy_delete = '{1:s}' WHERE uid = {2:s} AND id = {3:s}".format(lexonomy_access, lexonomy_delete, str(uid), str(dsid))
+    connection.execute(query)
+    connection.close()
+    return dsid
 
 # ---- transforms
 def delete_transform(db, uid, xfid):
@@ -268,6 +281,7 @@ def delete_dataset(db, uid, dsid):
         connection.close()
         return True
 
+
 def xmls(mimetype, data):
     if mimetype == 'application/zip':
         print('processing zipfile')
@@ -376,7 +390,8 @@ def extract_xml_heads(db, dsid):
     for element in tree.iter():
         unique_tags.add(clean_tag(element.tag))
     return list(unique_tags)
-    
+
+
 def extract_xpaths(db, dsid):
     print('extract_xpaths')
     

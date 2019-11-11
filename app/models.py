@@ -110,7 +110,10 @@ class Datasets(db.Model):
     uploaded_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     upload_mimetype = db.Column(db.String) 
     upload_uuid = db.Column(db.String)
-   
+    status = db.Column(db.String, server_default=None)
+    lexonomy_access = db.Column(db.String, server_default=None)
+    lexonomy_delete = db.Column(db.String, server_default=None)
+
 
 
 class Datasets_single_entry(db.Model):

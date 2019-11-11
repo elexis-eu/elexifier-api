@@ -28,6 +28,7 @@ from flask_cors import CORS, cross_origin
 from celery import Celery
 import random
 import string
+import jwt, datetime
 
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
@@ -196,7 +197,11 @@ def ds_upload_new_dataset():
 
     dictname = flask.request.files.get('dictname', None)
     dzcontent = flask.request.files.get('file', None)
-    dzfilename = dzcontent.filename  # !!
+    try :
+        dzfilename = dzcontent.filename  # !!
+    except AttributeError:
+        dzfilename = "tempFile_USER-{0:s}".format( str(id) )
+
     dztotalfilesize = flask.request.form.get('dztotalfilesize', None)
     dzfilepath = os.path.join(APP_MEDIA, secure_filename(dzfilename))
     dzuuid = flask.request.form.get('dzuuid', None)
@@ -243,6 +248,75 @@ def ds_rename_dataset(dsid):
     id = verify_user(token)
     raise InvalidUsage('Not implemented', status_code=501)
     pass
+
+
+# -- lexonomy
+@app.route('/api/lexonomy/download', methods=['GET'])
+def lexonomy_download():
+    if 'one_time_token' not in flask.request.json:
+        raise InvalidUsage("Field one_time_token is missing", status_code=422, enum='POST_ERROR')
+
+    one_time_token = flask.request.json.get('one_time_token')
+
+    # Generating one-time token
+    try:
+        one_time_token = jwt.decode(one_time_token, app.config.get('SECRET_KEY'))
+    except jwt.ExpiredSignatureError:
+        raise InvalidUsage("One-time authentication token expired!", status_code=401, enum="UNAUTHORIZED")
+    except jwt.InvalidTokenError:
+        raise InvalidUsage("One-time authentication token is not valid!", status_code=401, enum="UNAUTHORIZED")
+
+    uid = one_time_token['uid']
+    dsid = one_time_token['dsid']
+
+    controllers.set_dataset_status(engine, uid, dsid, 'processing')
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+    return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+
+
+@app.route('/api/lexonomy/<int:uid>/dataset/<int:dsid>')
+def lexonomy_return(uid, dsid):
+    for field in ['access_link', 'delete_link']:
+        if field not in flask.request.json:
+            raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
+
+    access_link = flask.request.json.get('access_link')
+    delete_link = flask.request.json.get('delete_link')
+
+    controllers.set_dataset_status(engine, uid, dsid, 'ready')
+    dsid = controllers.dataset_add_lexonomy_access(engine, uid, dsid, access_link, delete_link)
+
+    return _j({'message': 'OK', 'dsid': str(dsid)})
+
+
+
+@app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
+def ds_send_to_lexonomy(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+
+    user = controllers.user_data(db, uid)
+    controllers.set_dataset_status(engine, uid, dsid, 'pending')
+
+    payload = {
+        'uid': uid,
+        'dsid': dsid,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=600),
+        'iat': datetime.datetime.utcnow(),
+    }
+    one_time_token = jwt.encode(payload, app.config.get('SECRET_KEY'), algorithm='HS256')
+
+
+    # TODO: send this json to lexonomy
+    rv = {
+        'xml_file': ':5000/api/lexonomy/download',
+        'email': user.email,
+        'return_to': ':5000/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid),
+        'one_time_token': one_time_token.decode()
+    }
+
+    return _j(rv)
+
 
 # -- transforms
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
@@ -397,7 +471,7 @@ def ds_download(xfid, dsid):
 
 
     try:
-        xf, ds_path,file_name = controllers.get_ds_and_xf(db, id, xfid, dsid)
+        xf, ds_path, file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
     except:
         raise InvalidUsage('Transformer does not exist. Click on the save transform button duh! Also, change this error message for production', status_code=409)
 
