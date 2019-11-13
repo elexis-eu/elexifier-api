@@ -270,6 +270,7 @@ def ds_rename_dataset(dsid):
 
 
 # -- lexonomy
+# TODO: every connection to/from lexonomy-api should use shared secret in json
 @app.route('/api/lexonomy/download', methods=['GET'])
 def lexonomy_download():
     if 'one_time_token' not in flask.request.json:
@@ -327,14 +328,22 @@ def ds_send_to_lexonomy(dsid):
 
 
     # TODO: send this json to lexonomy
-    rv = {
+    # TODO: add filename
+    req = {
         'xml_file': ':5000/api/lexonomy/download',
         'email': user.email,
         'return_to': ':5000/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid),
         'one_time_token': one_time_token.decode()
     }
+    # TODO: remove one_time_token, this is just for testing
+    resp = {
+        'message': 'OK',
+        'dsid': dsid,
+        'status': 'pending',
+        'one-time-token': one_time_token.decode()
+    }
 
-    return _j(rv)
+    return _j(resp)
 
 
 # -- transforms
