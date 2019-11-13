@@ -330,17 +330,17 @@ def ds_send_to_lexonomy(dsid):
     # TODO: send this json to lexonomy
     # TODO: add filename
     req = {
-        'xml_file': ':5000/api/lexonomy/download',
+        'xml_file': '/api/lexonomy/download',
         'email': user.email,
-        'return_to': ':5000/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid),
+        'return_to': '/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid),
         'one_time_token': one_time_token.decode()
     }
-    # TODO: remove one_time_token, this is just for testing
+    # TODO: remove test_request from response
     resp = {
         'message': 'OK',
         'dsid': dsid,
         'status': 'pending',
-        'one-time-token': one_time_token.decode()
+        'test_request': req
     }
 
     return _j(resp)
