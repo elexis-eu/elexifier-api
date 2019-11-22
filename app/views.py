@@ -270,35 +270,29 @@ def ds_rename_dataset(dsid):
 
 
 # -- lexonomy
-# TODO: every connection to/from lexonomy-api should use shared secret in json
-@app.route('/api/lexonomy/download', methods=['GET'])
-def lexonomy_download():
-    if 'one_time_token' not in flask.request.json:
-        raise InvalidUsage("Field one_time_token is missing", status_code=422, enum='POST_ERROR')
+@app.route('/api/lexonomy/<int:uid>/download/<int:dsid>', methods=['GET'])
+def lexonomy_download(uid, dsid):
+    if 'shared_secret' not in flask.request.json:
+        raise InvalidUsage("Field shared_secret is missing", status_code=401, enum='UNAUTHORIZED')
 
-    one_time_token = flask.request.json.get('one_time_token')
-
-    # Generating one-time token
-    try:
-        one_time_token = jwt.decode(one_time_token, app.config.get('SECRET_KEY'))
-    except jwt.ExpiredSignatureError:
-        raise InvalidUsage("One-time authentication token expired!", status_code=401, enum="UNAUTHORIZED")
-    except jwt.InvalidTokenError:
-        raise InvalidUsage("One-time authentication token is not valid!", status_code=401, enum="UNAUTHORIZED")
-
-    uid = one_time_token['uid']
-    dsid = one_time_token['dsid']
+    # TODO: add shared secrets to .env
+    if flask.request.json.get('shared_secret') != 'AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
+        raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
     controllers.set_dataset_status(engine, uid, dsid, 'processing')
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
     return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
 
 
-@app.route('/api/lexonomy/<int:uid>/dataset/<int:dsid>')
+@app.route('/api/lexonomy/<int:uid>/dataset/<int:dsid>', methods=['POST'])
 def lexonomy_return(uid, dsid):
-    for field in ['access_link', 'delete_link']:
+    for field in ['shared_secret', 'access_link', 'delete_link']:
         if field not in flask.request.json:
             raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
+
+    # TODO: add shared secrets to .env
+    if flask.request.json.get('shared_secret') != 'AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
+        raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
     access_link = flask.request.json.get('access_link')
     delete_link = flask.request.json.get('delete_link')
@@ -317,23 +311,14 @@ def ds_send_to_lexonomy(dsid):
 
     user = controllers.user_data(db, uid)
     controllers.set_dataset_status(engine, uid, dsid, 'pending')
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
-    payload = {
-        'uid': uid,
-        'dsid': dsid,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=600),
-        'iat': datetime.datetime.utcnow(),
-    }
-    one_time_token = jwt.encode(payload, app.config.get('SECRET_KEY'), algorithm='HS256')
-
-
-    # TODO: send this json to lexonomy
-    # TODO: add filename
+    # TODO: send this json to lexonomy and add shared_secret
     req = {
-        'xml_file': '/api/lexonomy/download',
+        'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
-        'return_to': '/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid),
-        'one_time_token': one_time_token.decode()
+        'filename': dataset['name'],
+        'return_to': '/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid)
     }
     # TODO: remove test_request from response
     resp = {
