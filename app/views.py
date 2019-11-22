@@ -196,8 +196,7 @@ def generate_filename(filename,stringLength=20):
 
 def transform_pdf2xml(dataset):
     print("Converting PDF to XML")
-    bashCommands = ['./app/transformator/pdftoxml {0:s}'.format(dataset['file_path']),
-                    'rm -r {0:s}'.format( dataset['xml_file_path'] + "_data/")]
+    bashCommands = ['./app/transformator/pdftoxml -noImage -readingOrder {0:s}'.format(dataset['file_path'])]
 
     for command in bashCommands:
         print("Command:", command)
