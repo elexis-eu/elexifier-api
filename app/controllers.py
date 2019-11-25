@@ -182,7 +182,12 @@ def list_saved_transforms(db, uid):
     return transforms
 
 
-def describe_transform(db, uid, xfid):
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+def describe_transform(db, uid, xfid, page):
     print('describe transform')
     connection = db.connect()
     result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.saved, xf.transform FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.id='{1:s}'".format(str(uid), str(xfid)))
@@ -195,9 +200,15 @@ def describe_transform(db, uid, xfid):
 
     result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
+    
+    pages = list(chunks(entities, 25))
+        if page > len(pages):
+        page = len(pages)
+    entities_page = pages[page-1]
+    
     connection.close()
 
-    return {'transform': transform, 'entities': entities}
+    return {'transform': transform, 'entities': entities_page}
 
 
 def new_transform(db, uid, uuid, xfname, dsid, xpath, saved):
