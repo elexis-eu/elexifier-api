@@ -374,11 +374,11 @@ def xf_new_transform():
     return _j({'xfid': xfid})
 
 
-@app.route('/api/transform/<int:xfid>', methods=['GET'])
-def xf_get_transform_spec(xfid):
+@app.route('/api/transform/<int:xfid>?page=<int:page>', methods=['GET'])
+def xf_get_transform_spec(xfid, page):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = controllers.describe_transform(engine, id, xfid)
+    rv = controllers.describe_transform(engine, id, xfid, page)
     return _j(rv)
 
 
