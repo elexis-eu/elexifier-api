@@ -201,7 +201,7 @@ def describe_transform(db, uid, xfid, page):
     result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}'".format(str(xfid)))
     entities = extract_keys(result)
     
-    page = 1
+    #page = 1
     
     pages = list(chunks(entities, 25))
         if page > len(pages):
