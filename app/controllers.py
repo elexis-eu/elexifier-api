@@ -204,7 +204,7 @@ def describe_transform(db, uid, xfid, page):
     #page = 1
     
     pages = list(chunks(entities, 25))
-        if page > len(pages):
+    if page > len(pages):
         page = len(pages)
     entities_page = pages[page-1]
     
