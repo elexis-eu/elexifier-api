@@ -375,7 +375,7 @@ def xf_new_transform():
 
 
 @app.route('/api/transform/<int:xfid>', methods=['GET'])
-def xf_get_transform_spec(xfid, page):
+def xf_get_transform_spec(xfid):
     token = flask.request.headers.get('Authorization')
     page_num = flask.request.args.get('page_num', default='1', type=int)
     id = verify_user(token)
