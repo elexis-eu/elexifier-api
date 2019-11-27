@@ -453,7 +453,7 @@ def xf_entity_transform(xfid,entityid):
     mapping = transformator.TMapping(spec)
     mapper = transformator.TMapper()
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns,
-                                        stripDictScrap=strip_DictScrap, stripHeader=strip_header, returnFirstEntryOnly = true)
+                                        stripDictScrap=strip_DictScrap, stripHeader=strip_header, returnFirstEntryOnly = True)
 
     return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')})
 
