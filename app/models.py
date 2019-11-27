@@ -114,6 +114,9 @@ class Datasets(db.Model):
     status = db.Column(db.String, server_default=None)
     lexonomy_access = db.Column(db.String, server_default=None)
     lexonomy_delete = db.Column(db.String, server_default=None)
+    header_title = db.Column(db.String)
+    header_publisher = db.Column(db.String)
+    header_bibl = db.Column(db.String)
 
 
 class Datasets_single_entry(db.Model):

@@ -207,7 +207,10 @@ def transform_pdf2xml(dataset):
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-
+    
+    headerTitle = flask.request.json.get('headerTitle', None)
+    headerPublisher = flask.request.json.get('headerPublisher', None)
+    headerBibl = flask.request.json.get('headerBibl', None)
 
     dictname = flask.request.files.get('dictname', None)
     dzcontent = flask.request.files.get('file', None)
@@ -247,7 +250,7 @@ def ds_upload_new_dataset():
             new_random_name = generate_filename(dzfilename)
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
             os.rename(dzfilepath, new_path)
-            dsid = controllers.add_dataset(db, id, dztotalfilesize, dzfilename, new_path, dzuuid)
+            dsid = controllers.add_dataset(db, id, dztotalfilesize, dzfilename, new_path, dzuuid, headerTitle, headerPublisher, headerBibl)
             result = controllers.list_datasets(engine, id, dsid=dsid)
             if "pdf" in result['upload_mimetype']:
                 transform_pdf2xml(result)
@@ -489,7 +492,7 @@ def ds_download(xfid, dsid):
 
 
     try:
-        xf, ds_path, file_name = controllers.get_ds_and_xf(engine, id, xfid, dsid)
+        xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, id, xfid, dsid)
     except:
         raise InvalidUsage('Transformer does not exist. Click on the save transform button duh! Also, change this error message for production', status_code=409)
 
@@ -512,7 +515,7 @@ def ds_download(xfid, dsid):
     mapping = transformator.TMapping(xf)
     mapper = transformator.TMapper()
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns,
-                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap)
+                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap, headerTitle=header_Title, headerPublisher=header_Publisher, headerBibl=header_Publisher)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
     orig_fname, file_type = file_name.split('.')

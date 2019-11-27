@@ -259,7 +259,7 @@ def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
 
 
-def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
+def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, headerTitle, headerPublisher, headerBibl):
     print('add dataset')
 
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
@@ -269,7 +269,7 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     if mimetype == "application/pdf":
         xml_path = dzfilepath[:-4] + ".xml"
     # Create
-    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path)
+    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path, header_title=headerTitle, header_publisher=headerPublisher, header_bibl=headerBibl)
     db.session.add(dataset)
     db.session.commit()
     return dataset.id
@@ -443,14 +443,14 @@ def extract_xpaths(db, dsid):
 def get_ds_and_xf(db, uid, xfid, dsid):
     print('get ds and xf')
     connection = db.connect()
-    query = "SELECT ds.name, tf.transform, ds.file_path FROM transformers tf INNER JOIN datasets ds ON tf.dsid = ds.id WHERE tf.dsid = '{0:s}' AND tf.id = '{1:s}'".format(str(dsid), str(xfid))
+    query = "SELECT ds.name, tf.transform, ds.file_path, ds.header_title, ds.header_publisher, ds.header_bibl FROM transformers tf INNER JOIN datasets ds ON tf.dsid = ds.id WHERE tf.dsid = '{0:s}' AND tf.id = '{1:s}'".format(str(dsid), str(xfid))
     result = connection.execute(query)
 
-    name, transform, ds_file_path = result.fetchone()
+    name, transform, ds_file_path, headerTitle, headerPublisher, headerBibl = result.fetchone()
     connection.close()
     try:
         transform = json.loads(transform)
     except:
         pass
 
-    return (transform, ds_file_path, name)
+    return (transform, ds_file_path, name, headerTitle, headerPublisher, headerBibl)
