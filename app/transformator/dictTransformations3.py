@@ -61,14 +61,27 @@ def GetInnerText(elt, recurse):
         if child.tail: L.append(child.tail)
     return "".join(L)
 
+def AppendToText(node, what):
+    if node is None: return
+    if what is None or what == "": return
+    if node.text is None: node.text = what
+    else: node.text += what
+
+def AppendToTail(node, what):
+    if node is None: return
+    if what is None or what == "": return
+    if node.tail is None: node.tail = what
+    else: node.tail += what
+
 class TTransformOrder:
-    __slots__ = ["elt", "rexMatch", "rexGroup", "attr", "attrVal", "matchedStr", "msFrom", "msTo", "trLanguage"]
+    __slots__ = ["elt", "rexMatch", "rexGroup", "attr", "attrVal", "matchedStr", "msFrom", "msTo", "trLanguage", "finalStr"]
     # msFrom and msTo may point to milestone elements, if a regular expression
     # was used on the inner text (possibly recursive).
-    def __init__(self, elt, rexMatch, rexGroup, attr, attrVal, matchedStr):
+    def __init__(self, elt, rexMatch, rexGroup, attr, attrVal, matchedStr, finalStr):
         self.elt = elt; self.rexMatch = rexMatch
         self.rexGroup = rexGroup; self.attr = attr
-        self.attrVal = attrVal; self.matchedStr = matchedStr
+        self.attrVal = attrVal; self.matchedStr = matchedStr; self.finalStr = finalStr
+        #print("TO %s -> %s" % (self.matchedStr, self.finalStr))
         self.msFrom = None; self.msTo = None; self.trLanguage = None
     def RemoveMilestones(self):
         def Remove(ms):
@@ -171,22 +184,29 @@ class TTransformOrder:
         #assert self.attrVal == GetInnerText(self.elt, recurse)
         newInnerText = GetInnerText(root, True)
         assert oldInnerText == newInnerText # inserting milestones should not change anything else
-        print("TransformOrder for <%s>, rex %s, matched %s, inserted %d start and %d end milestones." % (
-            self.elt.tag, self.rexMatch.re.pattern, repr(self.matchedStr), len(self.msFrom), -1 if self.msTo is None else len(self.msTo)))
+        print("TransformOrder for <%s>, rex %s, matched %s -> %s, inserted %d start and %d end milestones." % (
+            self.elt.tag, self.rexMatch.re.pattern, repr(self.matchedStr), repr(self.finalStr), 
+            len(self.msFrom), -1 if self.msTo is None else len(self.msTo)))
 
 class TSimpleTransformer:
     # This transformer calls 'selector' to select the nodes; from each
     # of those nodes, it takes the attribute 'attr'; searches for the
     # first occurrence of the regular expression 'reg' in it; and returns
     # the group 'rexGroup' from the resulting match.
-    __slots__ = ["selector", "attr", "rex", "crex", "rexGroup", "constValue"]
-    def __init__(self, selector, attr, rex = "", rexGroup = None, constValue = None):
+    __slots__ = ["selector", "attr", "rex", "crex", "rexGroup", "constValue", "xlat"]
+    def __init__(self, selector, attr, rex = "", rexGroup = None, constValue = None, xlat = None):
         self.selector = selector
         self.attr = attr
         self.rex = rex
         self.crex = None if not rex else re.compile(rex)
         self.rexGroup = rexGroup
         self.constValue = constValue
+        self.xlat = xlat
+    def Xlat(self, s):
+        if not self.xlat: return s
+        else: 
+            #print("XLAT %s  %s -> %s" % (self.xlat, s, self.xlat.get(s, s)))
+            return self.xlat.get(s, s)
     def findall(self, root): # yields (Element, str) pairs
         for elt in self.selector.findall(root):
             if self.attr == ATTR_INNER_TEXT: attrVal = GetInnerText(elt, False)
@@ -194,18 +214,19 @@ class TSimpleTransformer:
             elif self.attr == ATTR_CONSTANT: attrVal = self.constValue
             else: attrVal = elt.get(self.attr, None)
             if attrVal is None: continue
-            if not self.rex: yield TTransformOrder(elt, None, None, self.attr, attrVal, attrVal); continue
+            if not self.rex: yield TTransformOrder(elt, None, None, self.attr, attrVal, attrVal, self.Xlat(attrVal)); continue
             m = self.crex.search(attrVal)
             if not m: continue
             s = ""
             try: s = m.group(0 if self.rexGroup is None else self.rexGroup)
             except: pass # must be an error in the mapping, perhaps an invalid group name
-            yield TTransformOrder(elt, m, self.rexGroup, self.attr, attrVal, s)
+            yield TTransformOrder(elt, m, self.rexGroup, self.attr, attrVal, s, self.Xlat(s))
     def ToJson(self): 
         h = {"type": "simple", "selector": self.selector.ToJson(), "attr": self.attr}
         if self.rex is not None: h["rex"] = self.rex
         if self.rexGroup is not None: h["rexGroup"] = self.rexGroup
         if self.constValue is not None: h["const"] = self.constValue
+        if self.xlat is not None: h["xlat"] = {x: self.xlat[x] for x in self.xlat}
         return h
 class TUnionTransformer:
     __slots__ = ["transformers"] # list ot TSimpleTransformer's
@@ -227,7 +248,8 @@ def JsonToTransformer(json):
     ty = json.get("type", None)
     if ty == "simple": return TSimpleTransformer(
         JsonToSelector(json["selector"]), json["attr"],
-        json.get("rex", None), json.get("regGroup", None), json.get("const", None))
+        json.get("rex", None), json.get("regGroup", None), json.get("const", None),
+        json.get("xlat", None))
     elif ty == "union": return TUnionTransformer([JsonToTransformer(x) for x in json["transformers"]])
     assert False, "JsonToTransformer: unknown type %s" % repr(ty)
 
@@ -322,6 +344,7 @@ class TMapping:
         _("entry", self.selEntry)
         _("sense", self.selSense)
         _("entry_lang", self.xfEntryLang)
+        _("pos", self.xfPos)
         _("hw", self.xfHw)
         _("hw_tr", self.xfHwTr)
         _("hw_tr_lang", self.xfHwTrLang)
@@ -334,6 +357,7 @@ class TMapping:
         self.selEntry = JsonToSelector(h.get("entry", None))
         self.selSense = JsonToSelector(h.get("sense", None))
         self.xfDef = JsonToTransformer(h.get("def", None))
+        self.xfPos = JsonToTransformer(h.get("pos", None))
         self.xfHw = JsonToTransformer(h.get("hw", None))
         self.xfHwTr = JsonToTransformer(h.get("hw_tr", None))
         self.xfHwTrLang = JsonToTransformer(h.get("hw_tr_lang", None))
@@ -393,7 +417,8 @@ def GetAnwMapping():
     m.xfHw = TSimpleTransformer(TXpathSelector(".//Lemmavorm"), ATTR_INNER_TEXT_REC)
     m.selSense = TXpathSelector(".//Kernbetekenis")
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Definitie"), ATTR_INNER_TEXT_REC)
-    m.xfPos = TSimpleTransformer(TXpathSelector(".//Woordsoort/Type"), ATTR_INNER_TEXT)
+    m.xfPos = TSimpleTransformer(TXpathSelector(".//Woordsoort/Type"), ATTR_INNER_TEXT,
+        xlat = {"substantief": "noun"})
     m.xfHwTr = None
     m.xfHwTrLang = None
     m.xfEx = TSimpleTransformer(TXpathSelector(".//Voorbeeld/Tekst"), ATTR_INNER_TEXT_REC)
@@ -712,7 +737,7 @@ class TEntryMapper:
         if elt is self.entry: newTag = ELT_entry
         elif eltId in self.senseIds: newTag = ELT_sense;
         elif eltId in self.mDef: newTag = ELT_def; trOrder = self.mDef[eltId]
-        elif eltId in self.mPos: newTag = ELT_gram; trOrder = self.mPos[eltId]
+        elif eltId in self.mPos: newTag = ELT_gram; trOrder = self.mPos[eltId]; typeAttr = "pos"
         elif eltId in self.mHw: newTag = ELT_orth; trOrder = self.mHw[eltId]
         elif eltId in self.mHwTr: newTag = ELT_cit; trOrder = self.mHwTr[eltId]; typeAttr = "translationEquivalent"
         elif eltId in self.mEx: newTag = ELT_cit; trOrder = self.mEx[eltId]; typeAttr = "example"
@@ -720,6 +745,8 @@ class TEntryMapper:
         elif elt.tag == ELT_ENTRY_PLACEHOLDER: newTag = elt.tag
         else: newTag = ELT_seg
         needsMilestones = False; newSib = None
+        if trOrder != None and trOrder.finalStr != trOrder.matchedStr:
+            print("# %s -> %s" % (trOrder.matchedStr, trOrder.finalStr))
         if trOrder != None and trOrder.attr != ATTR_INNER_TEXT and trOrder.attr != ATTR_INNER_TEXT_REC and trOrder.attr != ATTR_CONSTANT:
             # The data here is extracted from an attribute, not from the inner text.
             # Thus we'll have to turn the original node into a <seg> and make a new
@@ -727,11 +754,13 @@ class TEntryMapper:
             newElt = self.mapper.Element(ELT_seg)
             newSib = self.mapper.Element(newTag)
             newElt.tail = None; newSib.tail = elt.tail
-            newSib.text = trOrder.matchedStr
-        elif trOrder is not None and trOrder.rexMatch is not None and trOrder.attrVal != trOrder.matchedStr:  
+            newSib.text = trOrder.finalStr
+        elif trOrder is not None and (True or trOrder.rexMatch is not None) and trOrder.attrVal != trOrder.finalStr:  
             # The transformation order collected the inner text (possibly recursively)
             # and applied a regular expression to it, extracting only a part of the text.
-            # We'll transform the current element into a <seg> and create a new
+            # - Alternatively, perhaps the whole inner text was used, but it was then
+            # transformed with the xlat table.
+            # - Either way, we'll transform the current element into a <seg> and create a new
             # descendant with a suitable tag somewhere below it.
             newElt = self.mapper.Element(ELT_seg)
             newElt.tail = elt.tail
@@ -742,8 +771,8 @@ class TEntryMapper:
         # Process the attributes.
         newElt.set(ATTR_LEGACY_ELT, elt.tag)
         if typeAttr: newElt.set(ATTR_TEMP_type, typeAttr)
-        if trOrder is not None and trOrder.trLanguage is not None and trOrder.trLanguage.matchedStr:
-            newElt.set(ATTR_XML_LANG, trOrder.trLanguage.matchedStr)
+        if trOrder is not None and trOrder.trLanguage is not None and trOrder.trLanguage.finalStr:
+            newElt.set(ATTR_XML_LANG, trOrder.trLanguage.finalStr)
         for (attrName, attrValue) in elt.items():
             if attrName == ATTR_ID: newElt.set(ATTR_LEGACY_ID, attrValue)
             elif attrName.startswith("{"): newElt.set(attrName, attrValue)
@@ -771,7 +800,7 @@ class TEntryMapper:
                 newSib = self.mapper.Element(newTag)
                 newElt.tag = ELT_seg 
                 newElt.tail = None; newSib.tail = elt.tail
-                newSib.text = trOrder.matchedStr
+                newSib.text = trOrder.finalStr
             else:
                 newDescendant = self.InsertNewTagWithMilestones(newElt, newTag, trOrder)
                 if Verbose: logging.info("After InsertNewTagWithMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
@@ -941,6 +970,10 @@ class TEntryMapper:
             newNode = self.mapper.Element(ELT_gramGrp)
             i = parent.index(elt); assert 0 <= i < len(parent)
             parent[i] = newNode; newNode.append(elt)
+            ty = elt.get(ATTR_TEMP_type, None)
+            if ty is not None: 
+                elt.set(ATTR_type_UNPREFIXED, ty); # the type attribute stays in <gram>
+                elt.attrib.pop(ATTR_TEMP_type, None)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
             # It may also not contain character data and <def>s, so we'll wrap those things into <dictScraps>.
@@ -1411,7 +1444,7 @@ class TTreeMapper:
                 if tr and not (tr.matchedStr is None): found = True; break
                 langElt = langElt.getparent()
             if not found: continue
-            elt.xmlLangAttribute = tr.matchedStr
+            elt.xmlLangAttribute = tr.finalStr
     def Transform(self): # the main function
         oldRoot = self.tree.getroot()
         newRoot = self.InsertTempRoot(oldRoot)
@@ -1453,7 +1486,7 @@ class TMapper:
         parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
         self.parser = etree.XMLParser()
         self.parser.set_element_class_lookup(parserLookup)
-        with open("app/transformator/TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
+        with open("TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
             relaxNgDoc = etree.parse(f)
         self.relaxNg = etree.RelaxNG(relaxNgDoc)
     def E(self, tag, attrib_ = {}, children = [], text = None, tail = None):
@@ -1507,12 +1540,8 @@ class TMapper:
                 if isScrap: child.tail = ""
                 Rec(child)
                 if IsScrap(child) and len(child) == 0:
-                    if i == 0: 
-                        if elt.text is None: elt.text = child.tail
-                        else: elt.text += child.tail
-                    else: 
-                        if elt[i - 1].tail is None: elt[i - 1].tail = child.tail
-                        else: elt[i - 1].tail += child.tail
+                    if i == 0: AppendToText(elt, child.tail) 
+                    else: AppendToTail(elt[i - 1], child.tail)
                     del elt[i]
                 else: i += 1    
         Rec(root)        
@@ -1556,8 +1585,25 @@ class TMapper:
         # existing IDs weren't unique (due to the duplication of nodes etc.),
         # we'll fix this now.
         Rec2(root)    
+    def GetFirstEntry(self, root):  
+        if root.tag == ELT_entry: return root
+        def Rec(node):
+            for i in range(len(node)):
+                child = node[i]
+                if child.tag == ELT_entry:
+                    if i == 0: AppendToText(node, child.tail)
+                    else: AppendToTail(node[i - 1], child.tail)
+                    child.tail = ""; del node[i]; 
+                    #print("CHILD.nsmap = %s" % child.nsmap)
+                    return child
+                r = Rec(child)
+                if r is not None: return r
+        r = Rec(root)
+        if r is None: return root
+        else: return r
     def Transform(self, mapping, fnOrFileList, treeList = [], makeAugmentedInputTrees = False, 
             stripForValidation = False, stripDictScrap = False, stripHeader = False,
+            returnFirstEntryOnly = False,
             headerTitle = "Placeholder Title",
             headerPublisher = "Placeholder Publisher",
             headerBibl = "Placeholder Bibl"):
@@ -1586,6 +1632,9 @@ class TMapper:
         The 'stripDictScrap' parameter can be set to True to strip all <dictScrap>
         elements from the resulting output, and stripHeader can be set to True to
         strip the <teiHeader> element from the resulting output.
+        
+        The 'returnFirstEntryOnly' parameter can be set to True to return
+        only the first <entry> element instead of the whole TEI XML document.
         """
         outBody = self.E(ELT_body)
         augTrees = [] if makeAugmentedInputTrees else None
@@ -1593,7 +1642,8 @@ class TMapper:
             print("Processing %s." % fn)
             tree = etree.ElementTree(file = f, parser = self.parser)
             self.TransformTree(mapping, tree, outBody, augTrees)
-        print("stripHeader = %s, stripDictScrap = %s" % (stripHeader, stripDictScrap))    
+        print("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s" % (stripHeader,
+            stripDictScrap, stripForValidation, returnFirstEntryOnly))    
         if type(fnOrFileList) is type(""): fnOrFileList = [fnOrFileList]    
         for fn in fnOrFileList:
             if type(fn) is not str:
@@ -1636,8 +1686,20 @@ class TMapper:
                 #]),
             ]))
         outTei = self.E(ELT_tei, {}, L)
+        if returnFirstEntryOnly: 
+            outTei = self.GetFirstEntry(outTei)
+            x = self.E(outTei.tag, {}, [outTei[i] for i in range(len(outTei))])
+            x.text = outTei.text
+            outTei = x
+            """
+            print("NSMAP %s" % outTei.nsmap)
+            outTei.nsmap[None] = NS_TEI
+            del outTei.nsmap["ns0"]
+            print("NSMAP %s" % outTei.nsmap)
+            """
+            #outTei = self.E(ELT_tei, {}, [outTei])
         #print(outBody.nsmap)
-        etree.cleanup_namespaces(outTei, top_nsmap = NS_MAP)
+        #etree.cleanup_namespaces(outTei, top_nsmap = NS_MAP)
         #return outTei, augTrees
         if stripForValidation:
             self.StripForValidation(outTei)
@@ -1750,6 +1812,7 @@ def MyWsgiHandler(env, start_response):
         callParams["stripForValidation"] = (GetArg("stripForValidation") == "true")
         callParams["stripDictScrap"] = (GetArg("stripDictScrap") == "true")
         callParams["stripHeader"] = (GetArg("stripHeader") == "true")
+        callParams["returnFirstEntryOnly"] = (GetArg("firstEntryOnly") == "true")
         TransferArg("headerTitle"); TransferArg("headerPublisher"); TransferArg("headerBibl")
         for name in params: print("param %s" % repr(name))
         #print("stripForValidation = %s" % GetArg("stripForValidation"))
