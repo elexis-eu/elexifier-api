@@ -68,6 +68,8 @@ def prepare_dataset2(xml, xf):
     mapping = transformator.TMapping(xf)
     mapper = transformator.TMapper()
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=True)
+    
+
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
     
     return out_aug
@@ -97,9 +99,9 @@ xf = {
 
 entries2 = prepare_dataset2('Oxford_test01.xml', xf)
 
-print(entries[0])
+#print(entries[0])
 
-print('\n')
+#print('\n')
 
 xmlstr = lxml.etree.tostring(entries2[0], encoding='utf8', method='xml')
 #print(xmlstr)

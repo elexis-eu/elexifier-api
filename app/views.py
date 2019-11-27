@@ -454,8 +454,11 @@ def xf_entity_transform(xfid,entityid):
     mapper = transformator.TMapper()
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns,
                                         stripDictScrap=strip_DictScrap, stripHeader=strip_header, returnFirstEntryOnly=True)
+                                        
+    target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
+    target_xml = target_xml.replace('<entry xmlns:a="http://elex.is/wp1/teiLex0Mapper/legacyAttributes" xmlns:m="http://elex.is/wp1/teiLex0Mapper/meta" xmlns="http://www.tei-c.org/ns/1.0">', '<entry>')
 
-    return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')})
+    return _j({'spec': spec, 'entity_xml': entity.replace('\t', '  '), 'output': target_xml})
 
 
 @app.route('/api/xml_nodes/<int:dsid>', methods=['GET'])
