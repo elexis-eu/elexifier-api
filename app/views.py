@@ -13,6 +13,7 @@ import json
 import lxml
 import subprocess
 
+
 from app.transformator import dictTransformations3 as transformator
 from functools import partial
 import json, collections
@@ -29,8 +30,7 @@ from flask_cors import CORS, cross_origin
 from celery import Celery
 import random
 import string
-import jwt, datetime
-
+import requests
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -274,37 +274,13 @@ def ds_rename_dataset(dsid):
 # -- lexonomy
 @app.route('/api/lexonomy/<int:uid>/download/<int:dsid>', methods=['GET'])
 def lexonomy_download(uid, dsid):
-    if 'shared_secret' not in flask.request.json:
-        raise InvalidUsage("Field shared_secret is missing", status_code=401, enum='UNAUTHORIZED')
-
     # TODO: add shared secrets to .env
-    if flask.request.json.get('shared_secret') != 'AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
+    if flask.request.headers.get('Authorization') != 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
         raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
-    controllers.set_dataset_status(engine, uid, dsid, 'processing')
+    controllers.set_dataset_status(engine, uid, dsid, 'Ready')
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
     return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
-
-
-@app.route('/api/lexonomy/<int:uid>/dataset/<int:dsid>', methods=['POST'])
-def lexonomy_return(uid, dsid):
-    for field in ['shared_secret', 'access_link', 'delete_link']:
-        if field not in flask.request.json:
-            raise InvalidUsage("Field {0:s} is missing".format(field), status_code=422, enum='POST_ERROR')
-
-    # TODO: add shared secrets to .env
-    if flask.request.json.get('shared_secret') != 'AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
-        raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
-
-    access_link = flask.request.json.get('access_link')
-    delete_link = flask.request.json.get('delete_link')
-
-    controllers.set_dataset_status(engine, uid, dsid, 'ready')
-    dsid = controllers.dataset_add_lexonomy_access(engine, uid, dsid, access_link, delete_link)
-
-    return _j({'message': 'OK', 'dsid': str(dsid)})
-
-
 
 @app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
 def ds_send_to_lexonomy(dsid):
@@ -312,25 +288,34 @@ def ds_send_to_lexonomy(dsid):
     uid = verify_user(token)
 
     user = controllers.user_data(db, uid)
-    controllers.set_dataset_status(engine, uid, dsid, 'pending')
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
-    # TODO: send this json to lexonomy and add shared_secret
-    req = {
+    request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
-        'filename': dataset['name'],
-        'return_to': '/api/lexonomy/' + str(uid) + '/dataset/' + str(dsid)
-    }
-    # TODO: remove test_request from response
-    resp = {
-        'message': 'OK',
-        'dsid': dsid,
-        'status': 'pending',
-        'test_request': req
+        'filename': dataset['name']
     }
 
-    return _j(resp)
+    # TODO: add shared secret to .env
+    response = requests.post("https://beta.lexonomy.cjvt.si/elexifier/new",
+                             headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
+                             data=json.dumps(request_data))
+
+    try:
+        resp_js = json.loads(response.text)
+        status = "Processing"
+        msg = "OK"
+        # Update dataset in db
+        controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+    except:
+        resp_js = None
+        status = "Error"
+        msg = "Error while sending request to Lexonomy."
+
+    # Update dataset status
+    controllers.set_dataset_status(engine, uid, dsid, status)
+
+    return _j({'message': msg, 'dsid': dsid, 'status': status, 'lexonomy_response': resp_js })
 
 
 # -- transforms

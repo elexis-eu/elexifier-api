@@ -100,10 +100,10 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
     connection = db.connect()
 
     if dsid is None:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, status "+
+        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
                                     "FROM datasets WHERE uid='{0:s}' and upload_mimetype='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), mimetype, order))
     else:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, status "+
+        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
                                     "FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), str(dsid), order))
     datasets = extract_keys(result, dsid is not None)
     connection.close()
@@ -138,9 +138,9 @@ def set_dataset_status(db, uid, dsid, status):
     return dsid
 
 
-def dataset_add_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete):
+def dataset_add_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status):
     connection = db.connect()
-    query = "UPDATE datasets SET lexonomy_access = '{0:s}', lexonomy_delete = '{1:s}' WHERE uid = {2:s} AND id = {3:s}".format(lexonomy_access, lexonomy_delete, str(uid), str(dsid))
+    query = "UPDATE datasets SET lexonomy_access = '{0:s}', lexonomy_delete = '{1:s}', lexonomy_edit = '{2:s}', lexonomy_status = '{3:s}' WHERE uid = {4:s} AND id = {5:s}".format(lexonomy_access, lexonomy_delete,lexonomy_edit, lexonomy_status, str(uid), str(dsid))
     connection.execute(query)
     connection.close()
     return dsid
