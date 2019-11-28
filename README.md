@@ -11,6 +11,27 @@
 
 ## Getting started
 
+### Local development
+Docker and docker-compose are required to run the container locally.
+
+1. Copy properties from `.example.env` file to a `.env` file and fill with desired values.<br>
+`$ cat .example.env >> .env`
+
+Docker volume is bound to your local development repository and changing files will result in reloaded python application.
+
+##### Building image
+`$ docker-compose -f docker-compose.yml -p elexifier build`
+
+##### Starting container
+`$ docker-compose -f docker-compose.yml -p elexifier up`
+
+Optionally add `-d` to the command above to keep it running in the background.
+
+Run `$ docker logs -f elexifier_flask_1` to attach to the container and view logs.
+
+Development server will be running on http://localhost:5000/.
+___
+
 Run the following script from the root folder. 
 It will install all of the environment dependencies required to run the project on your computer.
 ```
