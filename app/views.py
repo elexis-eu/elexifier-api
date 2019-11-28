@@ -208,9 +208,9 @@ def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     
-    headerTitle = flask.request.json.get('headerTitle', None)
-    headerPublisher = flask.request.json.get('headerPublisher', None)
-    headerBibl = flask.request.json.get('headerBibl', None)
+    headerTitle = flask.request.form.get('headerTitle', None)
+    headerPublisher = flask.request.form.get('headerPublisher', None)
+    headerBibl = flask.request.form.get('headerBibl', None)
 
     dictname = flask.request.files.get('dictname', None)
     dzcontent = flask.request.files.get('file', None)
