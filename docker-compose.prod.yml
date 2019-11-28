@@ -19,10 +19,7 @@ services:
   db:
     image: postgres:latest
     restart: always
-    environment:
-      POSTGRES_USER: elexifier
-      POSTGRES_PASSWORD: elexifierpass
-      POSTGRES_DB: postgresdb
+    env_file: .env
     networks:
       elexifier-network:
           aliases:
