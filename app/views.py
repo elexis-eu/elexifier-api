@@ -297,11 +297,10 @@ def ds_send_to_lexonomy(dsid):
     }
 
     # TODO: add shared secret to .env
-    response = requests.post("https://beta.lexonomy.cjvt.si/elexifier/new",
-                             headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
-                             data=json.dumps(request_data))
-
     try:
+        response = requests.post("https://beta.lexonomy.cjvt.si/elexifier/new",
+                                 headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
+                                 data=json.dumps(request_data))
         resp_js = json.loads(response.text)
         status = "Processing"
         msg = "OK"
@@ -315,7 +314,7 @@ def ds_send_to_lexonomy(dsid):
     # Update dataset status
     controllers.set_dataset_status(engine, uid, dsid, status)
 
-    return _j({'message': msg, 'dsid': dsid, 'status': status, 'lexonomy_response': resp_js })
+    return _j({'message': msg, 'dsid': dsid, 'status': status, 'lexonomy_response': resp_js, 'test_request': request_data })
 
 
 # -- transforms
