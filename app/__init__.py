@@ -53,7 +53,8 @@ else:
 	os.environ['SQLALCHEMY_DB'] = ''
 	os.environ['SQLALCHEMY_TRACK_MODIFICATIONS'] = ''
 	os.environ['SECRET_KEY'] = ''
-	os.environ['CSRF_ENABLED'] = ''
+	# CSRF_ENABLED - remove in the future
+	# os.environ['CSRF_ENABLED'] = ''
 	os.environ['CELERY_BROKER_URL'] = ''
 	os.environ['CELERY_RESULT_BACKEND'] = ''
 	app.config.from_object('app.configuration.DevelopmentConfig')

@@ -6,8 +6,8 @@ from app import db, app
 
 
 
-if app.config['ENV'] == 'development':
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+# if app.config['ENV'] == 'development':
+#     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 

@@ -1,8 +1,8 @@
-"""empty message
+"""Initial
 
-Revision ID: da2bb71b3d99
+Revision ID: 3952b781c9bd
 Revises: 
-Create Date: 2019-10-10 15:01:28.330028
+Create Date: 2019-11-28 18:11:28.497300
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'da2bb71b3d99'
+revision = '3952b781c9bd'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -31,7 +31,7 @@ def upgrade():
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('password_hash', sa.String(length=120), nullable=True),
     sa.Column('authenticated', sa.Boolean(), nullable=True),
-    sa.Column('registered_ts', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('registered_ts', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('sketch_engine_uid', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
@@ -43,9 +43,18 @@ def upgrade():
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('size', sa.Integer(), nullable=True),
     sa.Column('file_path', sa.String(), nullable=True),
-    sa.Column('uploaded_ts', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('xml_file_path', sa.String(), nullable=True),
+    sa.Column('uploaded_ts', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('upload_mimetype', sa.String(), nullable=True),
     sa.Column('upload_uuid', sa.String(), nullable=True),
+    sa.Column('status', sa.String(), nullable=True),
+    sa.Column('lexonomy_access', sa.String(), nullable=True),
+    sa.Column('lexonomy_delete', sa.String(), nullable=True),
+    sa.Column('lexonomy_edit', sa.String(), nullable=True),
+    sa.Column('lexonomy_status', sa.String(), nullable=True),
+    sa.Column('header_title', sa.String(), nullable=True),
+    sa.Column('header_publisher', sa.String(), nullable=True),
+    sa.Column('header_bibl', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['uid'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -64,7 +73,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('dsid', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(), nullable=True),
-    sa.Column('created_ts', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
+    sa.Column('created_ts', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('entity_spec', sa.String(), nullable=True),
     sa.Column('transform', sa.JSON(), nullable=True),
     sa.Column('saved', sa.Boolean(), nullable=True),

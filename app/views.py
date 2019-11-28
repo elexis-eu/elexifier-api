@@ -38,11 +38,11 @@ celery.conf.update(app.config)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 APP_MEDIA = os.path.join(APP_ROOT, 'media')
 
-if app.config['ENV'] == 'development':
-    db_path = os.path.join(os.path.dirname(__file__), '../app.db')
-    db_uri = 'sqlite:///{}'.format(db_path)
-else:
-    db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+# if app.config['ENV'] == 'development':
+#     db_path = os.path.join(os.path.dirname(__file__), '../app.db')
+#     db_uri = 'sqlite:///{}'.format(db_path)
+# else:
+db_uri = app.config['SQLALCHEMY_DATABASE_URI']
 engine = create_engine(db_uri, encoding="utf8")
 orm = SQLAlchemy()
 orm.init_app(app)
