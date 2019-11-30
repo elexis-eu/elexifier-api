@@ -287,7 +287,6 @@ def lexonomy_download(uid, dsid):
 def make_lexonomy_request(uid, dsid, request_data):
     # Send request async and save links to db
     # TODO: add shared secret to .env
-    print('Asynchronous request to Lexonomy')
     try:
         response = requests.post('https://beta.lexonomy.cjvt.si/elexifier/new',
                                  headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
@@ -318,6 +317,7 @@ def ds_send_to_lexonomy(dsid):
         'return_to': ""  # remove if no longer required
     }
 
+    print('Starting asynchronous request to Lexonomy')
     make_lexonomy_request.delay(uid, dsid, request_data)
 
     status = 'Starting'
