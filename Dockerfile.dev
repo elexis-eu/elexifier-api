@@ -10,6 +10,5 @@ COPY . /elexifier-api
 WORKDIR /elexifier-api
 
 RUN pip install -r /elexifier-api/requirements.txt
-RUN service redis-server start
 
-CMD ["python", "run.py"]
+CMD bash start.dev.sh

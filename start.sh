@@ -17,6 +17,12 @@ else
   fi
 fi
 
+service redis-server start
+
+# Celery warns not to run worker with root
+echo "Starting Celery worker in background with user: redis"
+celery -A app.views:celery worker --loglevel=info --uid redis &
+
 mkdir /var/www/elexifier-api/app/media
 echo "Starting the gunicorn server"
 gunicorn -b 0.0.0.0:8080 wsgi:app --timeout 12000

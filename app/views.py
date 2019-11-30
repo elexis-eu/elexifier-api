@@ -287,18 +287,17 @@ def lexonomy_download(uid, dsid):
 def make_lexonomy_request(uid, dsid, request_data):
     # Send request async and save links to db
     # TODO: add shared secret to .env
+    response = requests.post('https://beta.lexonomy.cjvt.si/elexifier/new',
+                             headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
+                             data=json.dumps(request_data))
     try:
-        response = requests.post('https://beta.lexonomy.cjvt.si/elexifier/new',
-                                 headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
-                                 data=json.dumps(request_data))
 
         resp_js = json.loads(response.text)
         # Update dataset in db
         controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
         controllers.set_dataset_status(engine, uid, dsid, 'Ready')
     except:
-        controllers.set_dataset_status(engine, uid, dsid, response.text)
-
+        controllers.set_dataset_status(engine, uid, dsid, "Lexonomy_error: " + str(response.status_code))
     return
 
 
@@ -318,7 +317,7 @@ def ds_send_to_lexonomy(dsid):
     }
 
     print('Starting asynchronous request to Lexonomy')
-    make_lexonomy_request.delay(uid, dsid, request_data)
+    task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], countdown=0)
 
     status = 'Starting'
     msg = 'OK'

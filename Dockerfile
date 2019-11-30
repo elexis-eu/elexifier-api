@@ -9,4 +9,3 @@ COPY ./ /var/www/elexifier-api
 WORKDIR /var/www/elexifier-api/
 
 RUN pip install -r /var/www/elexifier-api/requirements.txt
-RUN service redis-server start
