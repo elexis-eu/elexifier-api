@@ -278,9 +278,30 @@ def lexonomy_download(uid, dsid):
     if flask.request.headers.get('Authorization') != 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
         raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
-    controllers.set_dataset_status(engine, uid, dsid, 'Ready')
+    controllers.set_dataset_status(engine, uid, dsid, 'Processing')
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
     return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+
+
+@celery.task
+def make_lexonomy_request(uid, dsid, request_data):
+    # Send request async and save links to db
+    # TODO: add shared secret to .env
+    print('Asynchronous request to Lexonomy')
+    try:
+        response = requests.post('https://beta.lexonomy.cjvt.si/elexifier/new',
+                                 headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
+                                 data=json.dumps(request_data))
+
+        resp_js = json.loads(response.text)
+        # Update dataset in db
+        controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+        controllers.set_dataset_status(engine, uid, dsid, 'Ready')
+    except:
+        controllers.set_dataset_status(engine, uid, dsid, response.text)
+
+    return
+
 
 @app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
 def ds_send_to_lexonomy(dsid):
@@ -293,28 +314,18 @@ def ds_send_to_lexonomy(dsid):
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
-        'filename': dataset['name']
+        'filename': dataset['name'],
+        'return_to': ""  # remove if no longer required
     }
 
-    # TODO: add shared secret to .env
-    try:
-        response = requests.post("https://beta.lexonomy.cjvt.si/elexifier/new",
-                                 headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
-                                 data=json.dumps(request_data))
-        resp_js = json.loads(response.text)
-        status = "Processing"
-        msg = "OK"
-        # Update dataset in db
-        controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
-    except:
-        resp_js = None
-        status = "Error"
-        msg = "Error while sending request to Lexonomy."
+    make_lexonomy_request.delay(uid, dsid, request_data)
 
+    status = 'Starting'
+    msg = 'OK'
     # Update dataset status
     controllers.set_dataset_status(engine, uid, dsid, status)
 
-    return _j({'message': msg, 'dsid': dsid, 'status': status, 'lexonomy_response': resp_js, 'test_request': request_data })
+    return _j({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data})
 
 
 # -- transforms
