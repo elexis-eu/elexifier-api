@@ -28,6 +28,7 @@ from app.models import User, BlacklistToken
 from app import app, db
 from flask_cors import CORS, cross_origin
 from celery import Celery
+from celery.result import AsyncResult
 import random
 import string
 import requests
@@ -474,25 +475,39 @@ def ds_list_paths(dsid):
     nodes = controllers.extract_xpaths(db, dsid)
     return _j({'nodes': nodes})
 
-
-@app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
-def ds_download(xfid, dsid):
-    print('transformed dataset download')
+# --- download
+@app.route('/api/<int:xfid>/fetch/<int:dsid>')
+def fetch_ds_download(xfid, dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    
-    strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
-    strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
-    strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
+    task_id = controllers.dataset_task_id(engine, dsid, set=False)
 
+    if task_id == "":
+        return InvalidUsage('Nothing to fetch. Start downloading process first.', status_code=202, enum="NO_TASK")
 
-    try:
+    task = AsyncResult(task_id)
+
+    if task.status == "SUCCESS":
         xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, id, xfid, dsid)
-    except:
-        raise InvalidUsage('Transformer does not exist. Click on the save transform button duh! Also, change this error message for production', status_code=409)
+        orig_fname, file_type = file_name.split('.')
+        target_fname = orig_fname + '_TEI.' + file_type
+        target_path = os.path.join(APP_MEDIA, target_fname)
 
-    if xf is None:
-        return _j({'spec': None, 'entity_xml': None, 'output': None})
+        @after_this_request
+        def remove_file(response):
+            controllers.dataset_task_id(engine, dsid, set=True, task_id="")
+            os.remove(target_path)
+            return response
+
+        return flask.send_file(target_path, attachment_filename=target_path.split('/')[-1], as_attachment=True)
+
+    else:
+        return InvalidUsage('File is still processing.', status_code=202, enum="TASK_NOT_FINISHED")
+
+
+@celery.task
+def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
+    xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
 
     # Why is this used for?
     # Frontend has been modified to send dumy now directly in the root of the transformer.
@@ -501,16 +516,18 @@ def ds_download(xfid, dsid):
     #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
     #         spec[t] = spec[t]['selector']
 
-
     orig_xml = open(ds_path, 'rb').read()
-    parserLookup = lxml.etree.ElementDefaultClassLookup(element = transformator.TMyElement)
+    parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
     myParser = lxml.etree.XMLParser()
     myParser.set_element_class_lookup(parserLookup)
-    entity_xml = lxml.etree.fromstring(orig_xml, parser = myParser)
+    entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
     mapping = transformator.TMapping(xf)
     mapper = transformator.TMapper()
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripForValidation=strip_ns,
-                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap, headerTitle=header_Title, headerPublisher=header_Publisher, headerBibl=header_Publisher)
+    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
+                                        stripForValidation=strip_ns,
+                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap,
+                                        headerTitle=header_Title, headerPublisher=header_Publisher,
+                                        headerBibl=header_Publisher)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
     orig_fname, file_type = file_name.split('.')
@@ -519,13 +536,38 @@ def ds_download(xfid, dsid):
 
     with open(target_path, 'w') as out:
         out.write(target_xml)
+    return
 
-    @after_this_request
-    def remove_file(response):
-        os.remove(target_path)
-        return response
 
-    return flask.send_file(target_path, attachment_filename=target_path.split('/')[-1], as_attachment=True)
+@app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
+def ds_download(xfid, dsid):
+    print('transformed dataset download')
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+
+    task_id = controllers.dataset_task_id(engine, dsid, set=False)
+    if task_id != "":
+        return _j({'message': 'File is still processing.', 'link': '/api/' + str(xfid) + '/fetch/'+str(dsid)})
+
+    strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
+    strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
+    strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
+
+    try:
+        xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, id,
+                                                                                                        xfid, dsid)
+    except:
+        raise InvalidUsage(
+            'Transformer does not exist. Click on the save transform button duh! Also, change this error message for production',
+            status_code=409)
+
+    if xf is None:
+        return _j({'spec': None, 'entity_xml': None, 'output': None})
+    else:
+        task = prepare_download.apply_async(args=[id, xfid, dsid, strip_ns, strip_header, strip_DictScrap], countdown=0)
+        controllers.dataset_task_id(engine, dsid, set=True, task_id=task.id)
+
+    return _j({'message': 'OK', 'link': '/api/' + str(xfid) + '/fetch/'+str(dsid)})
 
 
 # --- login, static content ---

@@ -138,6 +138,19 @@ def set_dataset_status(db, uid, dsid, status):
     return dsid
 
 
+def dataset_task_id(db, dsid, set=False, task_id=None):
+    connection = db.connect()
+    if not set:
+        query = "SELECT task_id FROM datasets where id={0:s}".format(str(dsid))
+        result = connection.execute(query)
+        task_id = extract_keys(result)[0]['task_id']
+    else:
+        query = "UPDATE datasets SET task_id = '{0:s}' where id = {1:s}".format(task_id, str(dsid))
+        connection.execute(query)
+    connection.close()
+    return task_id
+
+
 def dataset_add_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status):
     connection = db.connect()
     query = "UPDATE datasets SET lexonomy_access = '{0:s}', lexonomy_delete = '{1:s}', lexonomy_edit = '{2:s}', lexonomy_status = '{3:s}' WHERE uid = {4:s} AND id = {5:s}".format(lexonomy_access, lexonomy_delete,lexonomy_edit, lexonomy_status, str(uid), str(dsid))
