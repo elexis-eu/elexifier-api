@@ -11,4 +11,4 @@ WORKDIR /elexifier-api
 
 RUN pip install -r /elexifier-api/requirements.txt
 
-CMD bash start.dev.sh
+CMD python run.py

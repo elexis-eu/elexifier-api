@@ -26,6 +26,21 @@ services:
           - db
     ports:
       - 5431:5432
+  redis:
+    image: redis
+    networks:
+      elexifier-network:
+        aliases:
+          - redis
+  worker:
+    build: .
+    command: celery -A app.views:celery worker --loglevel=info
+    networks:
+      elexifier-network:
+        aliases:
+          - worker
+    depends_on:
+      - redis
 
 networks:
     elexifier-network:
