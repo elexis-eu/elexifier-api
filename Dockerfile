@@ -1,7 +1,7 @@
 FROM python:3.6
 
 RUN apt-get update && \
-      apt-get -y install g++ gcc libxslt-dev apt-utils libffi-dev python3-dev virtualenv autoconf automake g++ make redis-server
+      apt-get -y install g++ gcc libxslt-dev apt-utils libffi-dev python3-dev virtualenv autoconf automake g++ make
 
 
 COPY ./ /var/www/elexifier-api
