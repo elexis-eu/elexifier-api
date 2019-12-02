@@ -483,7 +483,7 @@ def fetch_ds_download(xfid, dsid):
     task_id = controllers.dataset_task_id(engine, dsid, set=False)
 
     if task_id == "":
-        return InvalidUsage('Nothing to fetch. Start downloading process first.', status_code=202, enum="NO_TASK")
+        raise InvalidUsage('Nothing to fetch. Start downloading process first.', status_code=202, enum="NO_TASK")
 
     task = AsyncResult(task_id)
 
@@ -502,7 +502,7 @@ def fetch_ds_download(xfid, dsid):
         return flask.send_file(target_path, attachment_filename=target_path.split('/')[-1], as_attachment=True)
 
     else:
-        return InvalidUsage('File is still processing.', status_code=202, enum="TASK_NOT_FINISHED")
+        raise InvalidUsage('File is still processing.', status_code=202, enum="TASK_NOT_FINISHED")
 
 
 @celery.task

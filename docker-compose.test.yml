@@ -35,6 +35,8 @@ services:
   worker:
     build: .
     command: celery -A app.views:celery worker --loglevel=info
+    volumes:
+      - /var/elexifier_data/media:/var/www/elexifier-api/app/media
     networks:
       elexifier-network:
         aliases:
