@@ -18,3 +18,7 @@ eventlet==0.25.1
 python-dotenv==0.10.3
 requests==2.22.0
 redis==3.2.1
+numpy==1.17.3
+keras==2.2.5
+tensorflow==1.13.1
+sklearn==0.21.3
