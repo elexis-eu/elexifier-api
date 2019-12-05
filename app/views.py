@@ -13,9 +13,10 @@ import json
 import lxml
 import subprocess
 
-
 from app.transformator import dictTransformations3 as transformator
-from app.pdf2lex_ml import xml2json_ML, train_ML, json2xml_ML
+from app.pdf2lex_ml.xml2json_ML import xml2json
+from app.pdf2lex_ml.train_ML import train_ML
+from app.pdf2lex_ml.json2xml_ML import json2xml
 from functools import partial
 import json, collections
 from flask_bcrypt import Bcrypt
@@ -343,7 +344,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
 
     print("xml2json_ML")
     try:
-        xml2json_ML(xml_raw, xml_lex, json_ml_in)
+        xml2json(xml_raw, xml_lex, json_ml_in)
         controllers.set_dataset_status(engine, uid, dsid, "ML_Format")
     except:
         controllers.set_dataset_status(engine, uid, dsid, "Lex2ML_Error")
@@ -361,7 +362,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
 
     print("json2xml_ML")
     try:
-        json2xml_ML(json_ml_out, xml_raw, xml_out)
+        json2xml(json_ml_out, xml_raw, xml_out)
         controllers.set_dataset_status(engine, uid, dsid, "Lex_Format")
     except:
         controllers.set_dataset_status(engine, uid, dsid, "ML2Lex_Error")
@@ -392,7 +393,7 @@ def ds_machine_learning(dsid):
     xml_lex = '/var/www/elexifier-api/app/pdf2lex_ml/IrishSample_11-20p.xml'
     xml_out = '/var/www/elexifier-api/app/media/IrishSample_11-20p-ML-{}.xml'.format(str(dsid))
 
-    # Check if all params are None
+    # Check if all params are Nonexml2json_ML, train_ML, json2xml_ML
     if xml_format is None and get_file is None and run_ml is None and send_file is None:
         raise InvalidUsage("Invalid API call. No params.", status_code=422, enum="GET_ERROR")
     # Check if to many params
