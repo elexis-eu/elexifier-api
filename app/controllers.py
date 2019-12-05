@@ -150,6 +150,18 @@ def dataset_task_id(db, dsid, set=False, task_id=None):
     connection.close()
     return task_id
 
+def dataset_ml_task_id(db, dsid, set=False, task_id=None):
+    connection = db.connect()
+    if not set:
+        query = "SELECT ml_task_id FROM datasets where id={0:s}".format(str(dsid))
+        result = connection.execute(query)
+        task_id = extract_keys(result)[0]['ml_task_id']
+    else:
+        query = "UPDATE datasets SET ml_task_id = '{0:s}' where id = {1:s}".format(task_id, str(dsid))
+        connection.execute(query)
+    connection.close()
+    return task_id
+
 
 def dataset_add_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status):
     connection = db.connect()

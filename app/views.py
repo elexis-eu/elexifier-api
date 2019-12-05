@@ -15,6 +15,7 @@ import subprocess
 
 
 from app.transformator import dictTransformations3 as transformator
+from app.pdf2lex_ml import xml2json_ML, train_ML, json2xml_ML
 from functools import partial
 import json, collections
 from flask_bcrypt import Bcrypt
@@ -326,6 +327,114 @@ def ds_send_to_lexonomy(dsid):
     controllers.set_dataset_status(engine, uid, dsid, status)
 
     return _j({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data})
+
+
+# -- Machine Learning
+@celery.task
+def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
+    json_ml_in = '/var/www/elexifier-api/app/media/IrishSample_11-20p_ML-IN-{}.json'.format(str(dsid))
+    json_ml_out = '/var/www/elexifier-api/app/media/IrishSample_11-20p_ML-OUT-{}.json'.format(str(dsid))
+
+    # Create files
+    open(json_ml_in, 'a').close()
+    open(json_ml_out, 'a').close()
+    open(xml_out, 'a').close()
+
+
+    print("xml2json_ML")
+    try:
+        xml2json_ML(xml_raw, xml_lex, json_ml_in)
+        controllers.set_dataset_status(engine, uid, dsid, "ML_Format")
+    except:
+        controllers.set_dataset_status(engine, uid, dsid, "Lex2ML_Error")
+        controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        return
+
+    print("train_ML")
+    try:
+        train_ML(json_ml_in, json_ml_out)
+        controllers.set_dataset_status(engine, uid, dsid, "ML_Annotated")
+    except:
+        controllers.set_dataset_status(engine, uid, dsid, "ML_Error")
+        controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        return
+
+    print("json2xml_ML")
+    try:
+        json2xml_ML(json_ml_out, xml_raw, xml_out)
+        controllers.set_dataset_status(engine, uid, dsid, "Lex_Format")
+    except:
+        controllers.set_dataset_status(engine, uid, dsid, "ML2Lex_Error")
+        controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        return
+
+    controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+    os.remove(json_ml_in)
+    os.remove(json_ml_out)
+    return
+
+
+@app.route('/api/ml/<int:dsid>', methods=['GET'])
+def ds_machine_learning(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+
+    xml_format = flask.request.args.get('xml_format')
+    get_file = flask.request.args.get('get_file')
+    #lexonomy_to_ml = flask.request.args.get('lexonomy_to_ml')
+    run_ml = flask.request.args.get('run_ml')
+    #ml_to_lexonomy = flask.request.args.get('ml_to_lexonomy')
+    send_file = flask.request.args.get('send_file')
+
+    # TODO: remove when getting xml_lex file from Lexonomy is finished
+    # TODO: Save paths to DB
+    xml_raw = '/var/www/elexifier-api/app/pdf2lex_ml/hand_annotated.xml'
+    xml_lex = '/var/www/elexifier-api/app/pdf2lex_ml/IrishSample_11-20p.xml'
+    xml_out = '/var/www/elexifier-api/app/media/IrishSample_11-20p-ML-{}.xml'.format(str(dsid))
+
+    # Check if all params are None
+    if xml_format is None and get_file is None and run_ml is None and send_file is None:
+        raise InvalidUsage("Invalid API call. No params.", status_code=422, enum="GET_ERROR")
+    # Check if to many params
+    elif xml_format and (get_file or run_ml or send_file):
+        raise InvalidUsage("Invalid API call. Can't work on file and send it.", status_code=422, enum="GET_ERROR")
+
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+    dataset['ml_task_id'] = controllers.dataset_ml_task_id(engine, dsid)
+    status = dataset['status']
+
+    # Check if dataset has ml_task, then send status
+    if dataset['ml_task_id']:
+        return _j({"message": "File is still processing.", "dsid": dsid, "Status": status})
+
+    # Check if user wants file and then return it
+    if xml_format and status is not "Lex_Format":
+        return flask.send_file(xml_out, attachment_filename=xml_out.split('/')[-1], as_attachment=True)
+    elif xml_format:
+        raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
+
+    # Run ML scripts
+    if get_file:  # Get file from Lexonomy
+        raise InvalidUsage('Not implemented', status_code=501)
+
+    #elif lexonomy_to_ml:
+    #    task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_out], kwargs={'script': 1}, countdown=0)
+    #    controllers.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
+
+    elif run_ml:
+        status = "Starting ML"
+        controllers.set_dataset_status(engine, uid, dsid, status)
+        task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_out], countdown=0)
+        controllers.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
+
+    #elif ml_to_lexonomy:
+    #    task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_out], kwargs={'script': 3}, countdown=0)
+    #    controllers.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
+
+    elif send_file:  # Send file to Lexonomy
+        raise InvalidUsage('Not implemented', status_code=501)
+
+    return _j({"message": "OK", "dsid": dsid, "Status": status})
 
 
 # -- transforms

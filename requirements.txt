@@ -21,4 +21,4 @@ redis==3.2.1
 numpy==1.17.3
 keras==2.2.5
 tensorflow==1.13.1
-sklearn==0.21.3
+sklearn

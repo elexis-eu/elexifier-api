@@ -120,6 +120,7 @@ class Datasets(db.Model):
     header_publisher = db.Column(db.String, server_default=None)
     header_bibl = db.Column(db.String, server_default=None)
     task_id = db.Column(db.String, server_default="")
+    ml_task_id = db.Column(db.String, server_default="")
 
 
 class Datasets_single_entry(db.Model):
