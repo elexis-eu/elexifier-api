@@ -290,7 +290,7 @@ def lexonomy_download(uid, dsid):
 def make_lexonomy_request(uid, dsid, request_data):
     # Send request async and save links to db
     # TODO: add shared secret to .env
-    response = requests.post('https://beta.lexonomy.cjvt.si/elexifier/new',
+    response = requests.post('https://lexonomy.cjvt.is/elexifier/new',
                              headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
                              data=json.dumps(request_data))
     try:
@@ -347,8 +347,8 @@ def get_lex_xml(uid, dsid):
 
 @celery.task
 def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
-    json_ml_in = '/var/www/elexifier-api/app/media/IrishSample_11-20p_ML-IN-{}.json'.format(str(dsid))
-    json_ml_out = '/var/www/elexifier-api/app/media/IrishSample_11-20p_ML-OUT-{}.json'.format(str(dsid))
+    json_ml_in = '/var/www/elexifier-api/app/media/ML-IN-{}.json'.format(str(dsid))
+    json_ml_out = '/var/www/elexifier-api/app/media/ML-OUT-{}.json'.format(str(dsid))
 
     # Create files
     open(json_ml_in, 'a').close()
