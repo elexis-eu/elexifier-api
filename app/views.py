@@ -389,8 +389,8 @@ def ds_machine_learning(dsid):
 
     # TODO: remove when getting xml_lex file from Lexonomy is finished
     # TODO: Save paths to DB
-    xml_raw = '/var/www/elexifier-api/app/pdf2lex_ml/hand_annotated.xml'
-    xml_lex = '/var/www/elexifier-api/app/pdf2lex_ml/IrishSample_11-20p.xml'
+    xml_raw = '/var/www/elexifier-api/app/pdf2lex_ml/Irish-annotated.xml'
+    xml_lex = '/var/www/elexifier-api/app/pdf2lex_ml/IrishSample_20p.xml'
     xml_out = '/var/www/elexifier-api/app/media/IrishSample_11-20p-ML-{}.xml'.format(str(dsid))
 
     # Check if all params are Nonexml2json_ML, train_ML, json2xml_ML
