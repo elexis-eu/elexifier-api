@@ -44,7 +44,7 @@ def xml2json( xml_raw_file, xml_lex_file, json_out_file ):
     prev_entry = None
     prev_sense = None
 
-    page_n = 1
+    page_n = int( tokens_raw[0].attrib['page'] )
     line_n = 0
     # iterate over the annotated data that will be used for ML training
     for idx, token_a in enumerate( tokens_lex ):
@@ -171,7 +171,7 @@ def xml2json( xml_raw_file, xml_lex_file, json_out_file ):
 
     # prepare the rest of the data that will go into ML for prediction
     index_start = 0
-    page_n = 0
+    page_n = int( tokens_raw[0].attrib['page'] )
     unlabelled_pages = []   # order by pages, such will be the 1st level input
     feats_page = []
     line_n = 0
