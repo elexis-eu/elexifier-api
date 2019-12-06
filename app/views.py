@@ -283,22 +283,29 @@ def lexonomy_download(uid, dsid):
 
     controllers.set_dataset_status(engine, uid, dsid, 'Processing')
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+
+    if flask.request.args.get('ml') is not None:
+        flask.send_file(dataset['xml_ml_out'], attachment_filename=dataset['xml_ml_out'].split('/')[-1], as_attachment=True)
+
     return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
 
 
 @celery.task
-def make_lexonomy_request(uid, dsid, request_data):
+def make_lexonomy_request(uid, dsid, request_data, ml=False):
     # Send request async and save links to db
     # TODO: add shared secret to .env
     response = requests.post('https://lexonomy.elex.is/elexifier/new',
                              headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
                              data=json.dumps(request_data))
     try:
-
         resp_js = json.loads(response.text)
-        # Update dataset in db
-        controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
-        controllers.set_dataset_status(engine, uid, dsid, 'Ready')
+        if ml:
+            controllers.dataset_add_ml_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+
+        else:
+            # Update dataset in db
+            controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+            controllers.set_dataset_status(engine, uid, dsid, 'Ready')
     except:
         controllers.set_dataset_status(engine, uid, dsid, "Lexonomy_error: " + str(response.status_code))
     return
@@ -313,7 +320,7 @@ def ds_send_to_lexonomy(dsid):
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
     request_data = {
-        'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
+        'xml_file': '/api/lexonomy/' + str(8) + '/download/' + str(dsid),
         'email': user.email,
         'filename': dataset['name'],
         'return_to': ""  # remove if no longer required
@@ -339,10 +346,34 @@ def get_lex_xml(uid, dsid):
     request_headers = { "Authorization": "Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08", "Content-Type": 'application/json' }
     response = requests.get(dataset['lexonomy_access'], headers=request_headers)
 
+    cut_length = len(dataset['lexonomy_access'].split("/")[-1]) + 2
+
     f = open(xml_lex, "w")
-    f.write(response.text)
+    f.write(response.text[cut_length: -cut_length-1].strip())
     f.close()
     return
+
+
+def ds_sendML_to_lexonomy(uid, dsid):
+    user = controllers.user_data(db, uid)
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+
+    request_data = {
+        'xml_file': '/api/lexonomy/' + str(8) + '/download/' + str(dsid) + "?ml=True",
+        'email': user.email,
+        'filename': dataset['name'],
+        'return_to': ""  # remove if no longer required
+    }
+
+    print('Starting asynchronous request to Lexonomy')
+    task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], kwargs={"ml": True}, countdown=0)
+
+    status = 'Starting'
+    msg = 'OK'
+    # Update dataset status
+    controllers.set_dataset_status(engine, uid, dsid, status)
+
+    return _j({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data})
 
 
 @celery.task
@@ -399,21 +430,12 @@ def ds_machine_learning(dsid):
     run_ml = flask.request.args.get('run_ml')
     send_file = flask.request.args.get('send_file')
 
-
-    # TODO: remove when getting xml_lex file from Lexonomy is finished
-    # xml_raw = datasets.xml_file_path
-    #xml_lex = '/var/www/elexifier-api/app/pdf2lex_ml/Irish-annotated.xml'
-    #xml_raw = '/var/www/elexifier-api/app/pdf2lex_ml/IrishSample_20p.xml'
-    #xml_ml_out = '/var/www/elexifier-api/app/media/IrishSample_11-20p-ML-{}.xml'.format(str(dsid))
-
-
     # TODO: Save paths to DB
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
     xml_lex = dataset['xml_lex']
     xml_raw = dataset['xml_file_path']
     xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
     controllers.dataset_add_ml_paths(engine, uid, dsid, dataset['xml_lex'], xml_ml_out)
-
 
     # Check if all params are None
     if xml_format is None and get_file is None and run_ml is None and send_file is None:
@@ -438,8 +460,9 @@ def ds_machine_learning(dsid):
 
     # Run ML scripts
     if get_file:  # Get file from Lexonomy
+        status = "Lexonomy_Annotated"
         get_lex_xml(uid, dsid)
-        controllers.set_dataset_status(engine, uid, dsid, "Lexonomy_Annotated")
+        controllers.set_dataset_status(engine, uid, dsid, status)
 
     elif run_ml:
         status = "Starting ML"
@@ -448,7 +471,10 @@ def ds_machine_learning(dsid):
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
 
     elif send_file:  # Send file to Lexonomy
-        raise InvalidUsage('Not implemented', status_code=501)
+        #stauts = "ML_Annotated_@Lexonomy"
+        ds_sendML_to_lexonomy(uid, dsid)
+        #controllers.set_dataset_status(engine, uid, dsid, status)
+
 
     return _j({"message": "OK", "dsid": dsid, "Status": status})
 

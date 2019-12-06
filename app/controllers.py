@@ -101,9 +101,11 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
 
     if dsid is None:
         result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, xml_lex, xml_ml_out, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
+                                    ", lexonomy_ml_access, lexonomy_ml_delete, lexonomy_ml_edit, lexonomy_ml_status "+
                                     "FROM datasets WHERE uid='{0:s}' and upload_mimetype='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), mimetype, order))
     else:
         result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, xml_lex, xml_ml_out, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
+                                    ", lexonomy_ml_access, lexonomy_ml_delete, lexonomy_ml_edit, lexonomy_ml_status " +
                                     "FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), str(dsid), order))
     datasets = extract_keys(result, dsid is not None)
     connection.close()
@@ -177,6 +179,15 @@ def dataset_add_ml_paths(db, uid, dsid, xml_lex, xml_ml_out):
     connection.execute(query)
     connection.close()
     return dsid
+
+
+def dataset_add_ml_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status):
+    connection = db.connect()
+    query = "UPDATE datasets SET lexonomy_ml_access = '{0:s}', lexonomy_ml_delete = '{1:s}', lexonomy_ml_edit = '{2:s}', lexonomy_ml_status = '{3:s}' WHERE uid = {4:s} AND id = {5:s}".format(lexonomy_access, lexonomy_delete,lexonomy_edit, lexonomy_status, str(uid), str(dsid))
+    connection.execute(query)
+    connection.close()
+    return dsid
+
 
 # ---- transforms
 def delete_transform(db, uid, xfid):
