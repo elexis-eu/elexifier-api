@@ -284,7 +284,9 @@ def lexonomy_download(uid, dsid):
     controllers.set_dataset_status(engine, uid, dsid, 'Processing')
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
-    if flask.request.args.get('ml') is not None:
+    ml = flask.request.args.get('ml', default="False", type=str) == "True"
+
+    if ml:
         flask.send_file(dataset['xml_ml_out'], attachment_filename=dataset['xml_ml_out'].split('/')[-1], as_attachment=True)
 
     return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
@@ -320,7 +322,7 @@ def ds_send_to_lexonomy(dsid):
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
     request_data = {
-        'xml_file': '/api/lexonomy/' + str(8) + '/download/' + str(dsid),
+        'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
         'filename': dataset['name'],
         'return_to': ""  # remove if no longer required
@@ -359,7 +361,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
     request_data = {
-        'xml_file': '/api/lexonomy/' + str(8) + '/download/' + str(dsid) + "?ml=True",
+        'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid) + "?ml=True",
         'email': user.email,
         'filename': dataset['name'],
         'return_to': ""  # remove if no longer required
@@ -425,10 +427,10 @@ def ds_machine_learning(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
 
-    xml_format = flask.request.args.get('xml_format')
-    get_file = flask.request.args.get('get_file')
-    run_ml = flask.request.args.get('run_ml')
-    send_file = flask.request.args.get('send_file')
+    xml_format = flask.request.args.get('xml_format', default=None, type=str) == 'True'
+    get_file = flask.request.args.get('get_file', default=None, type=str) == 'True'
+    run_ml = flask.request.args.get('run_ml', default=None, type=str) == 'True'
+    send_file = flask.request.args.get('send_file', default=None, type=str) == 'True'
 
     # TODO: Save paths to DB
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
@@ -474,7 +476,6 @@ def ds_machine_learning(dsid):
         #stauts = "ML_Annotated_@Lexonomy"
         ds_sendML_to_lexonomy(uid, dsid)
         #controllers.set_dataset_status(engine, uid, dsid, status)
-
 
     return _j({"message": "OK", "dsid": dsid, "Status": status})
 
