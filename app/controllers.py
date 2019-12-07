@@ -175,7 +175,7 @@ def dataset_add_lexonomy_access(db, uid, dsid, lexonomy_access, lexonomy_delete,
 
 def dataset_add_ml_paths(db, uid, dsid, xml_lex, xml_ml_out):
     connection = db.connect()
-    query = "UPDATE datasets SET xml_lex = '{0:s}', xml_ml_out = '{1:s}' WHERE uid = {2:s} AND id = {3:s}".format(xml_lex, xml_ml_out, str(uid), str(dsid))
+    query = "UPDATE datasets SET xml_lex = '{0:s}', xml_ml_out = '{1:s}' WHERE uid = {2:s} AND id = {3:s}".format(str(xml_lex), str(xml_ml_out), str(uid), str(dsid))
     connection.execute(query)
     connection.close()
     return dsid
