@@ -438,10 +438,10 @@ def ds_machine_learning(dsid):
     xml_raw = dataset['xml_file_path']
     print('xml_lex:', xml_lex, 'xml_raw:', xml_raw)
     
-    if len(xml_lex) > 4:
-        xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
+    if xml_lex == None:
+        xml_ml_out = None
     else:
-        xml_ml_out = ''
+        xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
     controllers.dataset_add_ml_paths(engine, uid, dsid, dataset['xml_lex'], xml_ml_out)
 
     # Check if all params are None
