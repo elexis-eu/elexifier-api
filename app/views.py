@@ -637,7 +637,7 @@ def ds_list_paths(dsid):
 def fetch_ds_download(xfid, dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    task_id = controllers.dataset_task_id(engine, dsid, set=False)
+    task_id = str(controllers.transformer_task_id(engine, xfid, set=False))
 
     if task_id == "":
         raise InvalidUsage('Nothing to fetch. Start downloading process first.', status_code=202, enum="NO_TASK")
@@ -647,12 +647,12 @@ def fetch_ds_download(xfid, dsid):
     if task.status == "SUCCESS":
         xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, id, xfid, dsid)
         orig_fname, file_type = file_name.split('.')
-        target_fname = orig_fname + '_TEI.' + file_type
+        target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
         target_path = os.path.join(APP_MEDIA, target_fname)
 
         @after_this_request
         def remove_file(response):
-            controllers.dataset_task_id(engine, dsid, set=True, task_id="")
+            controllers.transformer_task_id(engine, xfid, set=True, task_id="")
             os.remove(target_path)
             return response
 
@@ -688,7 +688,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
     orig_fname, file_type = file_name.split('.')
-    target_fname = orig_fname + '_TEI.' + file_type
+    target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
     target_path = os.path.join(APP_MEDIA, target_fname)
 
     with open(target_path, 'w') as out:
@@ -702,7 +702,7 @@ def ds_download(xfid, dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
 
-    task_id = controllers.dataset_task_id(engine, dsid, set=False)
+    task_id = str(controllers.transformer_task_id(engine, xfid, set=False))
     if task_id != "":
         return _j({'message': 'File is still processing.', 'link': '/api/' + str(xfid) + '/fetch/'+str(dsid)})
 
@@ -722,7 +722,7 @@ def ds_download(xfid, dsid):
         return _j({'spec': None, 'entity_xml': None, 'output': None})
     else:
         task = prepare_download.apply_async(args=[id, xfid, dsid, strip_ns, strip_header, strip_DictScrap], countdown=0)
-        controllers.dataset_task_id(engine, dsid, set=True, task_id=task.id)
+        controllers.transformer_task_id(engine, xfid, set=True, task_id=task.id)
 
     return _j({'message': 'OK', 'link': '/api/' + str(xfid) + '/fetch/'+str(dsid)})
 

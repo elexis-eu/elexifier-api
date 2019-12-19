@@ -119,7 +119,6 @@ class Datasets(db.Model):
     header_title = db.Column(db.String, server_default=None)
     header_publisher = db.Column(db.String, server_default=None)
     header_bibl = db.Column(db.String, server_default=None)
-    task_id = db.Column(db.String, server_default="")
     ml_task_id = db.Column(db.String, server_default="")
     xml_lex = db.Column(db.String, server_default="")
     xml_ml_out = db.Column(db.String, server_default="")
@@ -154,4 +153,6 @@ class Transformer(db.Model):
     entity_spec = db.Column(db.String)
     transform = db.Column(db.JSON)
     saved = db.Column(db.Boolean, default=False)
+    task_id = db.Column(db.String, server_default=None)
+
 

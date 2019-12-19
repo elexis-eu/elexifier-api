@@ -140,14 +140,14 @@ def set_dataset_status(db, uid, dsid, status):
     return dsid
 
 
-def dataset_task_id(db, dsid, set=False, task_id=None):
+def transformer_task_id(db, xfid, set=False, task_id=None):
     connection = db.connect()
     if not set:
-        query = "SELECT task_id FROM datasets where id={0:s}".format(str(dsid))
+        query = "SELECT task_id FROM transformers where id={0:s}".format(str(xfid))
         result = connection.execute(query)
         task_id = extract_keys(result)[0]['task_id']
     else:
-        query = "UPDATE datasets SET task_id = '{0:s}' where id = {1:s}".format(task_id, str(dsid))
+        query = "UPDATE transformers SET task_id = '{0:s}' where id = {1:s}".format(str(task_id), str(xfid))
         connection.execute(query)
     connection.close()
     return task_id
