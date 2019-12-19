@@ -321,10 +321,16 @@ def ds_send_to_lexonomy(dsid):
     user = controllers.user_data(db, uid)
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
+    if dataset['lexonomy_delete'] is not None:
+        requests.post(dataset['lexonomy_delete'],
+                      headers={"Content-Type": 'application/json',
+                               "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'})
+
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
         'filename': dataset['name'],
+        'type': 'edit',
         'return_to': ""  # remove if no longer required
     }
 
@@ -360,10 +366,16 @@ def ds_sendML_to_lexonomy(uid, dsid):
     user = controllers.user_data(db, uid)
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
+    if dataset['lexonomy_ml_delete'] is not None:
+        requests.post(dataset['lexonomy_ml_delete'],
+                      headers={"Content-Type": 'application/json',
+                               "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'})
+
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid) + "?ml=True",
         'email': user.email,
         'filename': dataset['name'],
+        'type': 'preview',
         'return_to': ""  # remove if no longer required
     }
 
