@@ -324,6 +324,7 @@ def delete_dataset(db, uid, dsid):
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).filter(Datasets.uid == uid).first()
     db.session.commit()
     db.session.query(Transformer).filter(Transformer.dsid == dataset.id).delete()
+    db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == dataset.id).delete()
     db.session.query(Datasets).filter(Datasets.id == dataset.id).delete()
     db.session.commit()
     try:
