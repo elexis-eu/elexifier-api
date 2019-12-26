@@ -158,13 +158,8 @@ def ds_dataset_info(dsid):
 def ds_delete_dataset(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    resp = controllers.delete_dataset(engine, id, dsid)
-    if resp is None:
-        raise InvalidUsage("Dictionary does not exist.", status_code=404, enum="DICTIONARY_DOESNT_EXIST")
-    elif not resp:
-        raise InvalidUsage("You do not own this dataset", status_code=401, enum="UNAUTHORIZED")
-    else:
-        return _j({'deleted': dsid})
+    controllers.delete_dataset(db, id, dsid)
+    return _j({'deleted': dsid})
 
 
 @app.route('/api/dataset/<int:dsid>/preview', methods=['GET'])

@@ -320,29 +320,20 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, header
 
 
 def delete_dataset(db, uid, dsid):
-    print('delete dataset')
-    connection = db.connect()
-    result = connection.execute("SELECT * FROM datasets WHERE id = {0:s}".format(str(dsid)))
-    if len([x for x in result]) == 0:
-        connection.close()
-        return None
-    result = connection.execute("SELECT * FROM datasets WHERE uid = {0:s} AND id = {1:s}".format(str(uid), str(dsid)))
-    if len([x for x in result]) == 0:
-        connection.close()
-        return False
-    else:
-        result = connection.execute("SELECT ts.id FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.id = {0:s} AND ds.uid = {1:s}".format(str(dsid), str(uid)))
-        for i in result:
-            connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(i[0])))
-        result = connection.execute("SELECT file_path FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
-        file_path = str([x for x in result][0][0])
-        os.remove(file_path)
-        if ".pdf" in file_path:
-            os.remove(file_path[:-4] + ".xml")
-        print("File removed")
-        connection.execute("DELETE FROM datasets WHERE id = {0:s} AND uid = {1:s}".format(str(dsid), str(uid)))
-        connection.close()
-        return True
+    print('Delete dataset uid: {0:s}, dsid: {1:s}'.format(str(uid), str(dsid)))
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).filter(Datasets.uid == uid).first()
+    db.session.commit()
+    db.session.query(Transformer).filter(Transformer.dsid == dataset.id).delete()
+    db.session.query(Datasets).filter(Datasets.id == dataset.id).delete()
+    db.session.commit()
+    try:
+        os.remove(dataset.file_path)
+        os.remove(dataset.xml_file_path)
+        os.remove(dataset.xml_lex)
+        os.remove(dataset.xml_out)
+    except:
+        pass
+    return
 
 
 def xmls(mimetype, data):
