@@ -129,7 +129,7 @@ class Datasets(db.Model):
     pos_elements = db.Column(db.String, server_default=None)
     xpaths_for_validation = db.Column(db.String, server_default=None)
     root_element = db.Column(db.String, server_default=None)
-    metadata = db.Column(db.String, server_default=None)
+    dictionary_metadata = db.Column(db.String, server_default=None)
 
 
 class Datasets_single_entry(db.Model):

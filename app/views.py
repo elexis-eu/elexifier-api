@@ -643,9 +643,10 @@ def ds_list_paths(dsid):
     id = verify_user(token)
     nodes = controllers.extract_xpaths(db, dsid)
     return _j({'paths': nodes})
-    
+
+
 @app.route('/api/xml_pos/<int:dsid>', methods=['GET'])
-def ds_list_paths(dsid):
+def ds_pos(dsid):
     token = flask.request.headers.get('Authorization')
     pos_element = flask.request.args.get('pos_element', type=str)
     attribute_name = flask.request.args.get('attribute_name', type=str)
