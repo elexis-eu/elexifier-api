@@ -455,6 +455,45 @@ def extract_xml_heads(db, dsid):
     return list(unique_tags)
 
 
+def extract_pos_elements(db, dsid, pos_element, attribute_name=None):
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+    if dataset.pos_elements != None:
+        db.session.commit()
+        return json.loads(dataset.pos_elements)
+    else:
+        xml_file = dataset.file_path
+        tree = lxml.etree.parse(xml_file)
+        namespaces = tree.getroot().nsmap
+        namespace=''
+        namespace_prefix = False
+        for prefix, ns in namespaces.items():
+            if prefix:
+                namespace_prefix = True
+                namespace = {prefix:ns}
+                break
+            else:
+                namespace = ns
+        
+        if namespace_prefix:
+            pos_els = tree.xpath('//' + pos_element, namespaces=namespace)
+        else:
+            pos_els = tree.xpath('//' + pos_element)
+        
+        unique_pos = []
+        if attribute_name:
+            for el in pos_els:
+                pos = el.attrib[attribute_name].strip()
+                unique_pos.append(pos)
+        else:
+            for el in pos_els:
+                if el.text.strip() not in unique_pos:
+                    unique_pos.append(el.text.strip())
+            
+        pos_elements = json.dumps(sorted(unique_pos))
+        dataset.pos_elements = pos_elements
+        db.session.commit()
+        return json.loads(pos_elements)
+
 def extract_xpaths(db, dsid):
     print('extract_xpaths')
     

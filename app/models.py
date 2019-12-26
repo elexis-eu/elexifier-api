@@ -126,6 +126,10 @@ class Datasets(db.Model):
     lexonomy_ml_delete = db.Column(db.String, server_default=None)
     lexonomy_ml_edit = db.Column(db.String, server_default=None)
     lexonomy_ml_status = db.Column(db.String, server_default=None)
+    pos_elements = db.Column(db.String, server_default=None)
+    xpaths_for_validation = db.Column(db.String, server_default=None)
+    root_element = db.Column(db.String, server_default=None)
+    metadata = db.Column(db.String, server_default=None)
 
 
 class Datasets_single_entry(db.Model):
