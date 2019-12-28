@@ -449,10 +449,8 @@ def extract_xml_heads(db, dsid):
 
 def extract_pos_elements(db, dsid, pos_element, attribute_name=None):
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
-    print(dataset.pos_elements)
-    #if dataset.pos_elements != None:
-    if len(dataset.pos_elements) > 1:
-        db.session.commit()
+    db.session.commit()
+    if dataset.pos_elements != None:
         return json.loads(dataset.pos_elements)
     else:
         xml_file = dataset.file_path
