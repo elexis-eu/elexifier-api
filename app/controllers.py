@@ -439,7 +439,7 @@ def extract_xml_heads(db, dsid):
     db.session.commit()
 
     if dataset.head_elements is not None:
-        return json.loads(dataset.unique_tags)
+        return json.loads(dataset.head_elements)
     else:
         xml_file = dataset.file_path
 
