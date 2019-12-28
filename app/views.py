@@ -618,7 +618,7 @@ def xf_entity_transform(xfid,entityid):
                                         stripDictScrap=strip_DictScrap, stripHeader=strip_header, returnFirstEntryOnly=True)
                                         
     target_xml = '\n'+lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
-    #target_xml = target_xml.replace('<entry xmlns:m="http://elex.is/wp1/teiLex0Mapper/meta" xmlns:a="http://elex.is/wp1/teiLex0Mapper/legacyAttributes" xmlns="http://www.tei-c.org/ns/1.0">', '<entry>')
+    target_xml = target_xml.replace('<entry xmlns:m="http://elex.is/wp1/teiLex0Mapper/meta" xmlns:a="http://elex.is/wp1/teiLex0Mapper/legacyAttributes" xmlns="http://www.tei-c.org/ns/1.0">', '<entry>')
 
     original = '\n'+lxml.etree.tostring(entity_xml, pretty_print=True, encoding='unicode')
     return _j({'spec': spec, 'entity_xml': original, 'output': target_xml})
