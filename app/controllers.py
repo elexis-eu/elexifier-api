@@ -435,16 +435,24 @@ def extract_xml_head_content(db, dsid):
 
 def extract_xml_heads(db, dsid):
     print('extract xml head')
-
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
-    xml_file = dataset.file_path
     db.session.commit()
 
-    tree = lxml.etree.parse(xml_file)
-    unique_tags = set()
-    for element in tree.iter():
-        unique_tags.add(clean_tag(element.tag))
-    return list(unique_tags)
+    if dataset.head_elements is not None:
+        return json.loads(dataset.unique_tags)
+    else:
+        xml_file = dataset.file_path
+
+        tree = lxml.etree.parse(xml_file)
+        unique_tags = set()
+        for element in tree.iter():
+            unique_tags.add(clean_tag(element.tag))
+
+        unique_tags = sorted(list(unique_tags))
+        dataset.head_elements = json.dumps(unique_tags)
+        db.session.commit()
+
+        return unique_tags
 
 
 def extract_pos_elements(db, dsid, pos_element, attribute_name=None):
