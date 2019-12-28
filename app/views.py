@@ -646,7 +646,7 @@ def ds_pos(dsid):
     pos_element = flask.request.args.get('pos_element', type=str)
     attribute_name = flask.request.args.get('attribute_name', type=str)
     id = verify_user(token)
-    nodes = controllers.extract_pos(db, dsid, pos_element, attribute_name)
+    nodes = controllers.extract_pos_elements(db, dsid, pos_element, attribute_name)
     return _j({'pos': nodes})
 
 # --- download
