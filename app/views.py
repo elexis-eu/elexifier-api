@@ -652,6 +652,20 @@ def ds_pos(dsid):
         id = verify_user(token)
         nodes = controllers.extract_pos_elements(db, dsid, pos_element)
     return _j({'pos': nodes})
+    
+@app.route('api/save_metadata/<int:dsid>', methods=['POST'])
+def ds_save_metadata(dsid):
+    token = flask.request.headers.get('Authorization')
+    ds_metadata = flask.request.json.get('ds_metadata', None)
+    rv = controllers.save_ds_metadata(db, dsid, ds_metadata)
+    return _j({'done': rv})
+    
+@app.route('api/get_metadata/<int:dsid>', methods=['POST'])
+def ds_save_metadata(dsid):
+    token = flask.request.headers.get('Authorization')
+    ds_metadata = controllers.get_ds_metadata(db, dsid)
+    return _j({'metadata': ds_metadata})
+
 
 # --- download
 @app.route('/api/<int:xfid>/fetch/<int:dsid>')
