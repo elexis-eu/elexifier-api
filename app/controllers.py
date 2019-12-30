@@ -548,5 +548,7 @@ def get_ds_metadata(db, dsid):
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     ds_metadata = dataset.dictionary_metadata
     db.session.commit()
-    return json.loads(ds_metadata)
-    
+    if ds_metadata is not None:
+        return json.loads(ds_metadata)
+    else:
+        return {}
