@@ -1,13 +1,14 @@
 # coding=Windows-1250
 #import xml.etree, xml.etree.ElementTree
 from lxml import etree
-import copy, re, logging, traceback, zipfile, json, pathlib, eventlet, sys, datetime, os, os.path, io
+import copy, re, logging, traceback, zipfile, json, pathlib, eventlet, sys, datetime, os, os.path, io, time
 from eventlet import wsgi
 urllib_parse = eventlet.import_patched("urllib.parse")
 urllib_request = eventlet.import_patched("urllib.request")
 urllib_error = eventlet.import_patched("urllib.error")
 
 Verbose = False
+Verbose2 = False
 
 class TXpathSelector:
     __slots__ = ["expr"]
@@ -332,7 +333,8 @@ class TMapping:
         "xfExTrLang",  # language of the translated example [goes into the xml:lang attribute]
     ]
     def __init__(self, js = None):
-        self.selEntry = None; self.xfHw = None; self.selSense = None
+        self.selEntry = None; self.xfEntryLang = None
+        self.xfHw = None; self.selSense = None
         self.xfPos = None; self.xfHwTr = None; self.xfHwTrLang = None
         self.xfEx = None; self.xfExTr = None; self.xfExTrLang = None
         self.xfDef = None
@@ -451,6 +453,25 @@ def GetToyMapping():
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Def"), ATTR_INNER_TEXT_REC)
     m.xfHw = TSimpleTransformer(TXpathSelector(".//Headword"), ATTR_INNER_TEXT_REC)
     m.selSense = TXpathSelector(".//Sense")
+    return m
+
+def GetMcCraeTestMapping():
+    m = TMapping()
+    m.selEntry = TXpathSelector(".//LexicalEntry")
+    m.xfHw = TSimpleTransformer(TXpathSelector(".//Sense"), "n")
+    m.xfDef = TSimpleTransformer(TXpathSelector(".//Sense"), "synset")
+    m.selSense = TXpathSelector(".//Sense")
+    #m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//LexicalEntry"), ATTR_CONSTANT, constValue = "en")
+    #m.xfEntryLang = None; m.xfHwTr = None; m.xfEx = None; m.xfExTr = None; m.xfExTrLang = None; m.selSense = None
+    return m
+
+def GetSpMapping():
+    js = {"entry": {"type": "xpath", "expr": ".//geslo"},
+          "hw": {"type": "simple", "selector": {"type": "xpath", "expr": ".//ge"},
+               "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerTextRec"},
+          "sense": {"type": "xpath", "expr": "dummy" } }
+    m = TMapping()
+    m.InitFromJson(js)
     return m
 
 class TMyElement(etree.ElementBase):
@@ -624,7 +645,9 @@ class TEntryMapper:
         #print("MakeTrOrderHash: entry = %s, tr = %s" % (self.entry, "None" if not transformer else transformer.ToJson()))
         h = {}
         if transformer:
+            #print("LOOKING FOR %s" % transformer.ToJson())
             for trOrder in transformer.findall(self.entry): 
+                #print("MATCH FOUND! %s" % transformer.ToJson())
                 h[id(trOrder.elt)] = trOrder
                 SetMatchInfo(trOrder.elt, augMatchAttr, trOrder.attr, trOrder.msFrom, trOrder.msTo)
         return h
@@ -732,6 +755,126 @@ class TEntryMapper:
             if len(cur) > i + 1: prev = None; cur = cur[i + 1] # Move into the next child.
             else: prev = cur; cur = cur.getparent() # Move back into the parent.
     def StageOne_TransformSubtree(self, elt):
+        if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
+        class TOrder:
+            TYPE_SIB = 1; TYPE_MILESTONES = 2; TYPE_CONSUME = 3
+            # Note that the newElt of this order might not be what is called 'newElt' 
+            # within the caller's context; it could be one of the newSibs, or a decendant 
+            # created using milestones.  The newElt of this order is where typeAttr should
+            # be applied, as well as trOrder.trLanguage.
+            __slots__ = ["newTag", "trOrder", "typeAttr", "type", "newElt"]
+            def __init__(self, newTag, trOrder, typeAttr = ""):
+                self.newTag = newTag; self.trOrder = trOrder; self.typeAttr = typeAttr
+                assert trOrder
+                if trOrder.attr not in [ATTR_INNER_TEXT, ATTR_INNER_TEXT_REC, ATTR_CONSTANT]: 
+                    # The data here is extracted from an attribute, not from the inner text.
+                    # Thus we'll have to turn the original node into a <seg> and make a new
+                    # sibling with the extracted value.
+                    self.type = TOrder.TYPE_SIB
+                elif trOrder.attrVal != trOrder.finalStr: 
+                    # The transformation order collected the inner text (possibly recursively)
+                    # and applied a regular expression to it, extracting only a part of the text.
+                    # - Alternatively, perhaps the whole inner text was used, but it was then
+                    # transformed with the xlat table.
+                    # - Either way, we'll transform the current element into a <seg> and create a new
+                    # descendant with a suitable tag somewhere below it.
+                    self.type = TOrder.TYPE_MILESTONES
+                else: 
+                    # The transformation order used the entire inner text, so we'll try to
+                    # simply consume the existing element.
+                    self.type = TOrder.TYPE_CONSUME
+        # Prepare a list of orders that apply to 'elt'.        
+        eltId = id(elt); orders = []        
+        if eltId in self.mDef: orders.append(TOrder(ELT_def, self.mDef[eltId]))
+        if eltId in self.mPos: orders.append(TOrder(ELT_gram, self.mPos[eltId], typeAttr = "pos"))
+        if eltId in self.mHw: orders.append(TOrder(ELT_orth, self.mHw[eltId]))
+        if eltId in self.mHwTr: orders.append(TOrder(ELT_cit, self.mHwTr[eltId], typeAttr = "translationEquivalent"))
+        if eltId in self.mEx: orders.append(TOrder(ELT_cit, self.mEx[eltId], typeAttr = "example"))
+        if eltId in self.mExTr: orders.append(TOrder(ELT_cit, self.mExTr[eltId], typeAttr = "translation"))
+        # Create siblings where needed.  
+        consumers = []; newSibs = []
+        for o in orders:
+            if o.type == TOrder.TYPE_CONSUME: consumers.append(o)
+            elif o.type == TOrder.TYPE_SIB:
+                newSib = self.mapper.Element(o.newTag)
+                newSib.text = o.trOrder.finalStr; newSibs.append(newSib)
+                o.newElt = newSib
+            elif o.type == TOrder.TYPE_MILESTONES: pass
+        # There can be at most one consumer; others will be converted into milestone orders
+        # and might result in the creation of descendants or siblings.
+        if len(consumers) > 1:
+            for o in consumers[1:]: o.type = TOrder.TYPE_MILESTONES
+        consumer = consumers[0] if consumers else None
+        # Create a new element.
+        if consumer: newTag = consumer.newTag
+        elif elt.tag == ELT_ENTRY_PLACEHOLDER: newTag = elt.tag
+        else: newTag = ELT_seg
+        newElt = self.mapper.Element(newTag)
+        if consumer: consumer.newElt = newElt
+        del newTag
+        # Process the children.    
+        newElt.text = elt.text
+        for i in range(len(elt)):
+            (newChild, newChildSibs) = self.StageOne_TransformSubtree(elt[i])
+            assert newChild is not None
+            newElt.append(newChild)
+            for newChildSib in newChildSibs: newElt.append(newChildSib)
+        # Do the milestone processing where necessary.
+        for o in orders:
+            if o.type != TOrder.TYPE_MILESTONES: continue
+            if Verbose: logging.info("Before InsertMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
+            o.trOrder.InsertMilestones(self.mapper, newElt)
+            if Verbose: logging.info("After InsertMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
+            if o.trOrder.msFrom is None:
+                # The milestones couldn't be inserted because the inner text is already
+                # different than it was in the original tree - most likely because of
+                # new nodes being inserted to take into account transformation order
+                # that involve regex matching and extracting a group.  Thus we'll have
+                # to create a new sibling instead.
+                newSib = self.mapper.Element(o.newTag)
+                newSib.text = o.trOrder.finalStr
+                newSibs.append(newSib)
+                o.newElt = newSib
+            else:
+                newDescendant = self.InsertNewTagWithMilestones(newElt, o.newTag, o.trOrder)
+                if Verbose: logging.info("After InsertNewTagWithMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
+                o.newElt = newDescendant
+                # ToDo: do anything with newDescendant?
+            o.trOrder.RemoveMilestones()
+            if Verbose: logging.info("After RemoveMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
+        # If a <sense> or <entry> selector applies to 'elt', we'll either
+        # rename newElt appropriately (if it's a <seg> now and there are no new siblings),
+        # or we'll wrap it and the new siblings in a new <sense> or <entry>.
+        def Wrap(mapper, newTag):
+            nonlocal newElt, newSibs
+            if newElt.tag == ELT_seg and not newSibs: newElt.tag = newTag; return
+            newerElt = mapper.Element(newTag)
+            if newElt.tag == ELT_seg and len(newElt) == 0 and not newElt.text:
+                newerElt.text = newElt.tail
+            else: newerElt.append(newElt)
+            for sib in newSibs: newerElt.append(sib)
+            newElt = newerElt; newSibs.clear()
+        #print("eltId = %d, senseIds = %s" % (eltId, self.senseIds))    
+        if eltId in self.senseIds: Wrap(self.mapper, ELT_sense)
+        if elt is self.entry: Wrap(self.mapper, ELT_entry)
+        # Set type and language attributes of the new elements of the transformation orders.
+        newElt.set(ATTR_LEGACY_ELT, elt.tag)
+        for o in orders:
+            if o.typeAttr: o.newElt.set(ATTR_TEMP_type, o.typeAttr) 
+            if o.trOrder.trLanguage is not None and o.trOrder.trLanguage.finalStr:
+                o.newElt.set(ATTR_XML_LANG, o.trOrder.trLanguage.finalStr)
+        # Transfer attributes from 'elt' into 'newElt' (the outermost new element).
+        for (attrName, attrValue) in elt.items():
+            if attrName == ATTR_ID: newElt.set(ATTR_LEGACY_ID, attrValue)
+            elif attrName.startswith("{"): newElt.set(attrName, attrValue)
+            else: newElt.set("{" + NS_ATTR + "}" + attrName, attrValue)
+        newElt.originalElement = elt
+        newElt.entryTime = getattr(elt, "entryTime", None)
+        # The last sibling gets the original elt's tail; if there are no siblings, newElt gets it.
+        if newSibs: newSibs[-1].tail = elt.tail
+        else: newElt.tail = elt.tail
+        return (newElt, newSibs)
+    def StageOne_TransformSubtree_Old(self, elt):
         if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
         eltId = id(elt); trOrder = None; typeAttr = None
         if elt is self.entry: newTag = ELT_entry
@@ -931,8 +1074,8 @@ class TEntryMapper:
         # the tags of the nodes (and the attributes) are suitably transformed,
         # regardless of whether the resulting parent-child relationships
         # are compatible with the model or not.
-        (newEntry, newSib) = self.StageOne_TransformSubtree(self.entry)
-        assert newSib is None
+        (newEntry, newSibs) = self.StageOne_TransformSubtree(self.entry)
+        assert len(newSibs) == 0
         return newEntry
 #    seg                                       -> CDATA, seg
 #    form/orth, def, gramGrp/gram, cit/quote   -> CDATA, seg, cit
@@ -997,7 +1140,7 @@ class TEntryMapper:
     def StageThree(self):
         self.StageThree_ProcessSubtree(self.transformedEntry)
     def TransformEntry(self): 
-        self.senseIds = set(id(x) for x in self.m.selSense.findall(self.entry))
+        self.senseIds = set(id(x) for x in ([] if not self.m.selSense else self.m.selSense.findall(self.entry)))
         #mSense = self.MakeTrOrderHashFromSelector(self.m.selSense)
         self.mDef = self.MakeTrOrderHash(self.m.xfDef, MATCH_def)
         self.mPos = self.MakeTrOrderHash(self.m.xfPos, MATCH_pos)
@@ -1009,7 +1152,7 @@ class TEntryMapper:
         self.mExTr = self.MakeTrOrderHash(self.m.xfExTr, MATCH_ex_tr)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
-        print("TEntryMapper: %d sense elements, %d headwords, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
+        if Verbose: print("TEntryMapper: %d sense elements, %d headwords, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
             len(self.senseIds), len(self.mHw), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
             len(self.mEx), len(self.mExTr), len(self.mExTrLang)))
         #traceback.print_stack()    
@@ -1086,6 +1229,7 @@ class TTreeMapper:
         self.topEntryList.clear(); self.keepAliveHash.clear();
         self.relaxNg = None; self.outBody = None; self.augTree = None
     def MakeAugTree(self, e):    
+        if Verbose2 and len(augmentedNodes) % 1000 == 0: sys.stdout.write("MakeAugTree keepAliveHash %d, augmentedNodes %d  \r" % (len(self.keepAliveHash), len(augmentedNodes))); sys.stdout.flush()
         nsmap = e.nsmap
         if NS_META not in nsmap.values():
             n = 0
@@ -1138,10 +1282,10 @@ class TTreeMapper:
         # - isEntry: boolean indicating if this element is an entry or not.
         # - entryTime, exitTime: time when we entered/exited this element in the in-order traversal
         # It also builds self.topEltList.
-        counter = 0
+        counter = 0; tmStart = time.clock(); tmPrev = tmStart; counterPrev = counter
         self.topEntryList = []
         def Rec(elt, outermostContainingEntry):
-            nonlocal counter
+            nonlocal counter, tmPrev, counterPrev
             if type(elt) is not TMyElement: return
             elt.entryTime = counter; counter += 1
             elt.isEntry = id(elt) in self.entryHash
@@ -1151,8 +1295,13 @@ class TTreeMapper:
                 self.topEntryList.append(elt)
             nChildren = len(elt)
             firstSubEntry = None; lastSubEntry = None
+            # Note: it turns out that accessing a child as elt[iChild] takes O(iChild) time rather than O(1)
+            # time.  If we enumerate the children into a separate list and then access that, the overall time
+            # spent in MarkEntries is very substantially reduced.
+            children = [child for child in elt]; nChildren = len(children)
+            #if nChildren >= 1000: print("Note: elt has %d children!" % nChildren)
             for iChild in range(nChildren):
-                child = elt[iChild]
+                child = children[iChild]; # child = elt[iChild]
                 if type(child) is not TMyElement: continue
                 Rec(child, outermostContainingEntry)
                 s = id(child) if child.isEntry else child.firstSubEntry
@@ -1162,6 +1311,11 @@ class TTreeMapper:
             elt.firstSubEntry = firstSubEntry
             elt.lastSubEntry = lastSubEntry
             elt.exitTime = counter; counter += 1
+            if Verbose2 and counter % 10000 == 0: 
+                tmNow = time.clock()
+                sys.stdout.write("MarkEntries %d (%.2f sec, %.2f counts/sec, recently %.2f)    \r" % (counter, tmNow - tmStart,
+                    counter / max(tmNow - tmStart, 0.1), (counter - counterPrev) / max(0.01, tmNow - tmPrev))); sys.stdout.flush()
+                counterPrev = counter; tmPrev = tmNow
         Rec(self.tree.getroot(), None)    
         #for entry in self.topEntryList: print("Entry [id = %d] time %d..%d" % (id(entry), entry.entryTime, entry.exitTime))
     def SegifyElt(self, elt):
@@ -1406,7 +1560,13 @@ class TTreeMapper:
             outBody.append(self.SegifySubtree(self.tree.getroot()))
         else:
             nextLeft = self.ScrapifyLeft(self.topEntryList[0])
+            tmStart = time.clock(); iPrev = 0; tmPrev = tmStart
             for i in range(nTopEntries):
+                if (True or Verbose2) and i % 1000 == 0: 
+                    tmNow = time.clock();
+                    sys.stdout.write("BuildBody transforming entry %d/%d  (%.2f sec; %.2f entries/sec, recently %.2f)     \r" % (i, nTopEntries,
+                        tmNow - tmStart, i / max(0.1, tmNow - tmStart), (i - iPrev) / max(0.1, tmNow - tmPrev))); sys.stdout.flush()
+                    tmPrev = tmNow; iPrev = i    
                 curLeft = nextLeft
                 if i == nTopEntries - 1:
                     curRight = self.ScrapifyRight(self.topEntryList[i])
@@ -1446,15 +1606,24 @@ class TTreeMapper:
             if not found: continue
             elt.xmlLangAttribute = tr.finalStr
     def Transform(self): # the main function
+        verbose = True # Verbose2
+        if verbose: print("Transform")
         oldRoot = self.tree.getroot()
         newRoot = self.InsertTempRoot(oldRoot)
         self.FindEntries(newRoot) # fills self.entryHash and self.eltHash
+        if verbose: print("FindEntries found %d entries, %d elements." % (len(self.entryHash), len(self.eltHash)))
         self.MarkEntries() # fills self.topEntryList
+        if verbose: print("MarkEntries found %d top-levelentries." % (len(self.topEntryList)))
         self.SetEntryLangs(newRoot) # sets the 'xmlLangAttribute' attribute of the entry Element objects
+        if verbose: print("SetEntryLangs returned.")
         self.RemoveTempRoot(newRoot)
+        if verbose: print("RemoveTempRoot returned.")
         self.TransformNonTopEntries()
+        if verbose: print("TransformNonTopEntries returned.")
         self.BuildBody()  
+        if verbose: print("BuildBody returned.")
         self.ReplacePlaceholders(self.outBody)  # replace placeholders with transformed entries
+        if verbose: print("ReplacePlaceholders returned.")
         return self.outBody
         #print(etree.tostring(outTei, pretty_print = True).decode("utf8"))
         if not self.relaxNg.validate(outTei):
@@ -1486,7 +1655,7 @@ class TMapper:
         parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
         self.parser = etree.XMLParser()
         self.parser.set_element_class_lookup(parserLookup)
-        with open("app/transformator/TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
+        with open("TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
             relaxNgDoc = etree.parse(f)
         self.relaxNg = etree.RelaxNG(relaxNgDoc)
     def E(self, tag, attrib_ = {}, children = [], text = None, tail = None):
@@ -1641,6 +1810,7 @@ class TMapper:
         def ProcessFile(fn, f):
             print("Processing %s." % fn)
             tree = etree.ElementTree(file = f, parser = self.parser)
+            print("Done parsing %s." % fn)
             self.TransformTree(mapping, tree, outBody, augTrees)
         print("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s" % (stripHeader,
             stripDictScrap, stripForValidation, returnFirstEntryOnly))    
@@ -1718,21 +1888,25 @@ def TestXpath():
     _(".//root")    
     
 
+
+
 def Test():
     parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
     myParser = etree.XMLParser()
     myParser.set_element_class_lookup(parserLookup)
     #
-    f = open("WP1\\KD\\MLDS-FR-tralala.xml", "rt", encoding = "utf8")
+    #f = open("WP1\\KD\\MLDS-FR-tralala.xml", "rt", encoding = "utf8")
     #f = open("toy01.xml", "rt", encoding = "Windows-1250")
     #f = open("toy02.xml", "rt", encoding = "Windows-1250")
     #f = open("toy03.xml", "rt", encoding = "Windows-1250")
     #f = open("toy04.xml", "rt", encoding = "Windows-1250")
+    f = open("WP1\\JMcCrae\\McC_xray.xml", "rt", encoding = "utf8")
     tree = etree.ElementTree(file = f, parser = myParser)
     f.close()
     #
-    m = GetMldsMapping()
+    #m = GetMldsMapping()
     #m = GetToyMapping()
+    #m = GetMcCraeTestMapping()
     #mapper = TTreeMapper(tree, m, myParser)
     #outTei = mapper.Transform()
     mapper = TMapper()
@@ -1742,6 +1916,7 @@ def Test():
     with open("mapping-ANW.json", "wt", encoding = "utf8") as f: json.dump(GetAnwMapping().ToJson(), f, indent = 4)
     with open("mapping-DDO.json", "wt", encoding = "utf8") as f: json.dump(GetDdoMapping().ToJson(), f, indent = 4)
     with open("mapping-SLD.json", "wt", encoding = "utf8") as f: json.dump(GetSldMapping().ToJson(), f, indent = 4)
+    with open("mapping-SP.json", "wt", encoding = "utf8") as f: json.dump(GetSpMapping().ToJson(), f, indent = 4)
     #js = GetSldMapping().ToJson()
     #json.dump(js, f, indent = 4)
     #f.close()
@@ -1752,7 +1927,9 @@ def Test():
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = True)
-    outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True)
+    #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True)
+    #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
+    outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
@@ -1764,7 +1941,7 @@ def Test():
     f.close()
 
 #TestXpath()
-#Test()
+#Test(); sys.exit(0)
 
 # ToDo: use the defusedxml library
 
