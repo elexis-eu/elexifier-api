@@ -671,6 +671,7 @@ def ds_get_metadata(dsid):
 
 
 # --- download
+"""
 @app.route('/api/<int:xfid>/fetch/<int:dsid>')
 def fetch_ds_download(xfid, dsid):
     token = flask.request.headers.get('Authorization')
@@ -698,7 +699,7 @@ def fetch_ds_download(xfid, dsid):
 
     else:
         raise InvalidUsage('File is still processing.', status_code=202, enum="TASK_NOT_FINISHED")
-
+"""
 
 @celery.task
 def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
@@ -729,11 +730,16 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
     target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
     target_path = os.path.join(APP_MEDIA, target_fname)
 
+    open(target_path, 'a').close()
     with open(target_path, 'w') as out:
+        print("writing to file: " + str(target_path))
         out.write(target_xml)
+        out.close()
+        controllers.transformer_download_status(db, xfid, set=True, download_status='Ready')
+
     return
 
-
+"""
 @app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
 def ds_download(xfid, dsid):
     print('transformed dataset download')
@@ -763,6 +769,56 @@ def ds_download(xfid, dsid):
         controllers.transformer_task_id(engine, xfid, set=True, task_id=task.id)
 
     return _j({'message': 'OK', 'link': '/api/' + str(xfid) + '/fetch/'+str(dsid)})
+"""
+
+@app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
+def ds_download2(xfid, dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    print('Transformed dataset download uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
+    status = controllers.transformer_download_status(db, xfid)
+
+    if status is None:
+        strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
+        strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
+        strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
+
+        # Check if transformer exists
+        try:
+            xf, _, _, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
+        except:
+            raise InvalidUsage('Transformer does not exist.', status_code=409)
+
+        if xf is None:  # Not sure why this is needed here?
+            return _j({'spec': None, 'entity_xml': None, 'output': None})
+        else:
+            # start download task
+            task = prepare_download.apply_async(args=[uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap], countdown=0)
+            # controllers.transformer_task_id(engine, xfid, set=True, task_id=task.id)  # Is this needed or is download_status enough?
+            status = 'Processing'
+            controllers.transformer_download_status(db,xfid, set=True, download_status=status)
+
+    elif status == "Processing":
+        return _j({'message': 'File is still processing'})
+
+    elif status == "Ready":
+        # return file and delete afterwards
+        _, _, file_name, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
+        file_name, file_type = file_name.split('.')
+        target_file_name = file_name + '_' + str(xfid) + '_TEI.' + file_type
+        target_path = os.path.join(APP_MEDIA, target_file_name)
+
+        @after_this_request
+        def remove_file(response):
+            if status in None:
+                print("Deleting :" + str(target_path))
+                os.remove(target_path)
+            return response
+
+        controllers.transformer_download_status(db, xfid, set=True)  # reset status
+        return flask.send_file(target_path, attachment_filename=target_path, as_attachment=True)
+
+    return _j({'message': 'ok', 'status': status})
 
 
 # --- login, static content ---

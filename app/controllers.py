@@ -140,18 +140,6 @@ def set_dataset_status(db, uid, dsid, status):
     return dsid
 
 
-def transformer_task_id(db, xfid, set=False, task_id=None):
-    connection = db.connect()
-    if not set:
-        query = "SELECT task_id FROM transformers where id={0:s}".format(str(xfid))
-        result = connection.execute(query)
-        task_id = extract_keys(result)[0]['task_id']
-    else:
-        query = "UPDATE transformers SET task_id = '{0:s}' where id = {1:s}".format(str(task_id), str(xfid))
-        connection.execute(query)
-    connection.close()
-    return task_id
-
 def dataset_ml_task_id(db, dsid, set=False, task_id=None):
     connection = db.connect()
     if not set:
@@ -301,6 +289,27 @@ def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
 def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     n = int(bits, 2)
     return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
+
+"""
+def transformer_task_id(db, xfid, set=False, task_id=None):
+    transformer = db.session.query(Transformer).filter(Transformer.id == xfid).first()
+    if set:
+        transformer.task_id = task_id
+    else:
+        task_id = transformer.task_id
+    db.session.commit()
+    return task_id
+"""
+
+
+def transformer_download_status(db, xfid, set=False, download_status=None):
+    transformer = db.session.query(Transformer).filter(Transformer.id == xfid).first()
+    if set:
+        transformer.file_download_status = download_status
+    else:
+        download_status = transformer.file_download_status
+    db.session.commit()
+    return download_status
 
 
 def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, headerTitle, headerPublisher, headerBibl):

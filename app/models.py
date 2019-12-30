@@ -158,6 +158,7 @@ class Transformer(db.Model):
     entity_spec = db.Column(db.String)
     transform = db.Column(db.JSON)
     saved = db.Column(db.Boolean, default=False)
-    task_id = db.Column(db.String, server_default=None)
+    #task_id = db.Column(db.String, server_default=None)
+    file_download_status = db.Column(db.String, server_default=None)
 
 
