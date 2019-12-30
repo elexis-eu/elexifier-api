@@ -540,7 +540,7 @@ def get_ds_and_xf(db, uid, xfid, dsid):
     
 def save_ds_metadata(db, dsid, ds_metadata):
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
-    dataset.dictionary_metadata = ds_metadata
+    dataset.dictionary_metadata = json.dumps(ds_metadata)
     db.session.commit()
     return 1
 
@@ -548,5 +548,5 @@ def get_ds_metadata(db, dsid):
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     ds_metadata = dataset.dictionary_metadata
     db.session.commit()
-    return ds_metadata
+    return json.loads(ds_metadata)
     
