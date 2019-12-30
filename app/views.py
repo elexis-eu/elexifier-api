@@ -607,7 +607,7 @@ def xf_entity_transform(xfid,entityid):
     #         spec[t] = spec[t]['selector']
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element = transformator.TMyElement)
-    myParser = lxml.etree.XMLParser()
+    myParser = lxml.etree.XMLParser(remove_blank_text=True)
     myParser.set_element_class_lookup(parserLookup)
     entity_xml = lxml.etree.fromstring(entity, parser = myParser)
 
