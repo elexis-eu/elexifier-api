@@ -696,8 +696,12 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
                                         headerBibl=header_Publisher)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
+    ns = "_NF"
+    if strip_ns:
+        ns = "_NT"
+
     orig_fname, file_type = file_name.split('.')
-    target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
+    target_fname = orig_fname + '_' + str(xfid) + ns + '_TEI.' + file_type
     target_path = os.path.join(APP_MEDIA, target_fname)
 
     open(target_path, 'a').close()
@@ -717,11 +721,11 @@ def ds_download2(xfid, dsid):
     print('Transformed dataset download uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
     status = controllers.transformer_download_status(db, xfid)
 
-    if status is None:
-        strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
-        strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
-        strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
+    strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
+    strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
+    strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
 
+    if status is None:
         # Check if transformer exists
         try:
             xf, _, _, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
@@ -742,9 +746,13 @@ def ds_download2(xfid, dsid):
 
     elif status == "Ready":
         # return file and delete afterwards
+        ns = "_NF"
+        if strip_ns:
+            ns = "_NT"
+
         _, _, file_name, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
         file_name, file_type = file_name.split('.')
-        target_file_name = file_name + '_' + str(xfid) + '_TEI.' + file_type
+        target_file_name = file_name + '_' + str(xfid) + ns + '_TEI.' + file_type
         target_path = os.path.join(APP_MEDIA, target_file_name)
 
         @after_this_request
