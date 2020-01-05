@@ -22,6 +22,7 @@ import json, collections
 from flask_bcrypt import Bcrypt
 from werkzeug.utils import secure_filename
 import app.controllers as controllers
+import re
 
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
@@ -349,10 +350,10 @@ def get_lex_xml(uid, dsid):
     request_headers = { "Authorization": "Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08", "Content-Type": 'application/json' }
     response = requests.get(dataset['lexonomy_access'], headers=request_headers)
 
-    cut_length = len(dataset['lexonomy_access'].split("/")[-1]) + 2
+    data = re.search("<BODY.*<\/BODY>", response.text).group()
 
     f = open(xml_lex, "w")
-    f.write(response.text[cut_length: -cut_length-1].strip())
+    f.write(data)
     f.close()
     return
 
