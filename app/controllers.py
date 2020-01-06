@@ -112,6 +112,14 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
     return datasets
 
 
+def search_dataset_entries(db, dsid, xfid, pattern):
+    pattern = pattern + '%'
+    entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).all()
+    db.session.commit()
+    entries = [{'id': x.id, 'entry_text': x.entry_text} for x in entries]
+    return entries
+
+
 def list_dataset_entries(db, uid, dsid, headwords):
     connection = db.connect()
     print('list dataset entries')
@@ -289,17 +297,6 @@ def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
 def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
     n = int(bits, 2)
     return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
-
-"""
-def transformer_task_id(db, xfid, set=False, task_id=None):
-    transformer = db.session.query(Transformer).filter(Transformer.id == xfid).first()
-    if set:
-        transformer.task_id = task_id
-    else:
-        task_id = transformer.task_id
-    db.session.commit()
-    return task_id
-"""
 
 
 def transformer_download_status(db, xfid, set=False, download_status=None):

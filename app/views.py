@@ -624,6 +624,16 @@ def xf_entity_transform(xfid,entityid):
     original = '\n'+lxml.etree.tostring(entity_xml, pretty_print=True, encoding='unicode')
     return _j({'spec': spec, 'entity_xml': original, 'output': target_xml})
 
+@app.route('/api/transform/<int:xfid>/search/<int:dsid>')
+def entries_search(xfid, dsid):
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+
+    pattern = flask.request.args.get('pattern', default='', type=str)
+    result = controllers.search_dataset_entries(db, dsid, xfid, pattern)
+
+    return _j({'result': result})
+
 
 @app.route('/api/xml_nodes/<int:dsid>', methods=['GET'])
 def ds_list_nodes(dsid):
