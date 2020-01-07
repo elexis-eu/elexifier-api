@@ -113,10 +113,14 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
 
 
 def search_dataset_entries(db, dsid, xfid, pattern):
-    pattern = pattern + '%'
-    entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).all()
+    if len(pattern) == 0:
+        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).all()
+    else:
+        pattern = pattern + '%'
+        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).all()
+
     db.session.commit()
-    entries = [{'id': x.id, 'entry_text': x.entry_text} for x in entries]
+    entries = [{'id': x.id, 'entry_text': x.entry_text, 'is_short_name': x.entry_name, 'entry_head': x.entry_head} for x in entries]
     return entries
 
 
