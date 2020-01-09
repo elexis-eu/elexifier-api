@@ -318,7 +318,7 @@ def ds_send_to_lexonomy(dsid):
     if dataset['lexonomy_delete'] is not None:
         requests.post(dataset['lexonomy_delete'],
                       headers={"Content-Type": 'application/json',
-                               "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'})
+                               "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
@@ -345,7 +345,7 @@ def get_lex_xml(uid, dsid):
     xml_lex = dataset['xml_file_path'][:-4] + "-LEX.xml"
     controllers.dataset_add_ml_paths(engine, uid, dsid, xml_lex, dataset['xml_ml_out'])
 
-    request_headers = { "Authorization": "Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08", "Content-Type": 'application/json' }
+    request_headers = { "Authorization": app.config['LEXONOMY_AUTH_KEY'], "Content-Type": 'application/json' }
     response = requests.get(dataset['lexonomy_access'], headers=request_headers)
 
     data = re.search("<BODY.*<\/BODY>", response.text).group()
@@ -363,7 +363,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
     if dataset['lexonomy_ml_delete'] is not None:
         requests.post(dataset['lexonomy_ml_delete'],
                       headers={"Content-Type": 'application/json',
-                               "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'})
+                               "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid) + "?ml=True",
