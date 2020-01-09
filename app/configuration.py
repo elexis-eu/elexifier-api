@@ -15,6 +15,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = os.environ['SQLALCHEMY_TRACK_MODIFICATIONS']
     CELERY_BROKER_URL = os.environ['CELERY_BROKER_URL']
     CELERY_RESULT_BACKEND = os.environ['CELERY_RESULT_BACKEND']
+    LEXONOMY_AUTH_KEY = os.environ['LEXONOMY_AUTH_KEY']
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://{user}:{passwd}@{host}/{db}'.format(
         user=os.environ['SQLALCHEMY_USER'],
         passwd=os.environ['SQLALCHEMY_PASSWD'],

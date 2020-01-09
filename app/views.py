@@ -273,8 +273,7 @@ def ds_rename_dataset(dsid):
 # -- lexonomy
 @app.route('/api/lexonomy/<int:uid>/download/<int:dsid>', methods=['GET'])
 def lexonomy_download(uid, dsid):
-    # TODO: add shared secrets to .env
-    if flask.request.headers.get('Authorization') != 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08':
+    if flask.request.headers.get('Authorization') != app.config['LEXONOMY_AUTH_KEY']:
         raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
     controllers.set_dataset_status(engine, uid, dsid, 'Processing')
@@ -291,9 +290,8 @@ def lexonomy_download(uid, dsid):
 @celery.task
 def make_lexonomy_request(uid, dsid, request_data, ml=False):
     # Send request async and save links to db
-    # TODO: add shared secret to .env
     response = requests.post('https://lexonomy.elex.is/elexifier/new',
-                             headers={"Content-Type": 'application/json', "Authorization": 'Basic AKCdmbwzk7YOXGzswlJ2xyi1aWG4E6B08'},
+                             headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']},
                              data=json.dumps(request_data))
     try:
         resp_js = json.loads(response.text)
