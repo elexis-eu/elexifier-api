@@ -115,10 +115,10 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
 
 def search_dataset_entries(db, dsid, xfid, pattern):
     if len(pattern) == 0:
-        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).limit(100).order_by(sqlalchemy.desc(Datasets_single_entry.entry_text)).all()
+        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).order_by(sqlalchemy.desc(Datasets_single_entry.entry_text)).limit(100).all()
     else:
         pattern = pattern + '%'
-        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).limit(100).order_by(sqlalchemy.desc(Datasets_single_entry.entry_text)).all()
+        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()
 
     db.session.commit()
     entries = [{'id': x.id, 'entry_text': x.entry_text, 'is_short_name': x.entry_name, 'entry_head': x.entry_head} for x in entries]
@@ -243,7 +243,7 @@ def describe_transform(db, uid, xfid, page):
         except:
             pass
 
-    result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}' order by entry_text desc".format(str(xfid)))
+    result = connection.execute("SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}' order by entry_text asc".format(str(xfid)))
     entities = extract_keys(result)
     
     #page = 1
