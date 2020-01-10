@@ -136,7 +136,7 @@ class TTransformOrder:
         curPos = 0; self.msFrom = []; self.msTo = [] if endIdx > startIdx else None
         def MakeMs(isStart, tail_):
             ms = mapper.E(ELT_MILESTONE, text = None, tail = tail_)
-            ms.transformOrder = self; ms.isStart = isStart; 
+            ms.transformOrder = self; ms.isStart = isStart
             if isStart: self.msFrom.append(ms)
             else: self.msTo.append(ms)
             return ms
@@ -292,6 +292,7 @@ ELT_def = "{%s}def" % NS_TEI
 ELT_body = "{%s}body" % NS_TEI
 ELT_text = "{%s}text" % NS_TEI
 ELT_tei = "{%s}TEI" % NS_TEI
+# teiHeader and its descendants
 ELT_teiHeader = "{%s}teiHeader" % NS_TEI
 ELT_titleStmt = "{%s}titleStmt" % NS_TEI
 ELT_title = "{%s}title" % NS_TEI
@@ -302,11 +303,23 @@ ELT_bibl = "{%s}bibl" % NS_TEI
 ELT_sourceDesc = "{%s}sourceDesc" % NS_TEI
 ELT_fileDesc = "{%s}fileDesc" % NS_TEI
 ELT_entry = "{%s}entry" % NS_TEI
+ELT_author = "{%s}author" % NS_TEI
+ELT_respStmt = "{%s}respStmt" % NS_TEI
+ELT_resp = "{%s}resp" % NS_TEI
+ELT_name = "{%s}name" % NS_TEI
+ELT_extent = "{%s}extent" % NS_TEI
+ELT_availability = "{%s}availability" % NS_TEI
+ELT_licence = "{%s}licence" % NS_TEI
+ELT_date = "{%s}date" % NS_TEI
+#ATTR_when  = "{%s}when" % NS_TEI
+ATTR_when_UNPREFIXED = "when"
+ELT_idno = "{%s}idno" % NS_TEI
 CommentType = type(etree.Comment(""))
 
 MATCH_entry = "entry"
 MATCH_entry_lang = "entry_lang"
 MATCH_hw = "hw"
+MATCH_lemma = "lemma"
 MATCH_sense = "sense"
 MATCH_def = "def"
 MATCH_pos = "pos"
@@ -321,7 +334,8 @@ class TMapping:
     __slots__ = [
         "selEntry",      # becomes <entry>
         # - The rest is relative to the entry.
-        "xfHw",  # headword; becomes <orth>
+        "xfHw",  # headword; becomes <form type="lemma"><orth>
+        "xfLemma",  # headword; becomes <form type="simple"><orth>
         "selSense",  # becomes <sense>  
         "xfEntryLang", # becomes @xml:lang of <entry>
         "xfDef",  # definition; becomes <def>
@@ -334,7 +348,7 @@ class TMapping:
     ]
     def __init__(self, js = None):
         self.selEntry = None; self.xfEntryLang = None
-        self.xfHw = None; self.selSense = None
+        self.xfHw = None; self.xfLemma = None; self.selSense = None
         self.xfPos = None; self.xfHwTr = None; self.xfHwTrLang = None
         self.xfEx = None; self.xfExTr = None; self.xfExTrLang = None
         self.xfDef = None
@@ -348,6 +362,7 @@ class TMapping:
         _("entry_lang", self.xfEntryLang)
         _("pos", self.xfPos)
         _("hw", self.xfHw)
+        _("sec_hw", self.xfLemma)
         _("hw_tr", self.xfHwTr)
         _("hw_tr_lang", self.xfHwTrLang)
         _("ex", self.xfEx)
@@ -361,6 +376,7 @@ class TMapping:
         self.xfDef = JsonToTransformer(h.get("def", None))
         self.xfPos = JsonToTransformer(h.get("pos", None))
         self.xfHw = JsonToTransformer(h.get("hw", None))
+        self.xfLemma = JsonToTransformer(h.get("sec_hw", None))
         self.xfHwTr = JsonToTransformer(h.get("hw_tr", None))
         self.xfHwTrLang = JsonToTransformer(h.get("hw_tr_lang", None))
         self.xfEx = JsonToTransformer(h.get("ex", None))
@@ -458,6 +474,7 @@ def GetToyMapping():
 def GetMcCraeTestMapping():
     m = TMapping()
     m.selEntry = TXpathSelector(".//LexicalEntry")
+    m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//LexicalEntry"), ATTR_CONSTANT, constValue = "en")
     m.xfHw = TSimpleTransformer(TXpathSelector(".//Sense"), "n")
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Sense"), "synset")
     m.selSense = TXpathSelector(".//Sense")
@@ -481,10 +498,12 @@ class TMyElement(etree.ElementBase):
         return other.entryTime <= self.entryTime and self.exitTime <= other.exitTime
 
 # This assumes that the form/orth pair is represented by orth, gramGrp/gram by gram, cit/quote by cit.
+# Also note that this hash table is used in stage 2, when <orth> elements are still
+# actually temporary <orthHw> and <orthLemma> - they will be renamed in stage 3.
 allowedParentHash = {
     ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense]),
-    ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_def: set([ELT_sense, ELT_dictScrap, ELT_entry]),
+    ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_gram: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit]),
     ELT_sense: set([ELT_sense, ELT_dictScrap, ELT_entry]),
@@ -637,7 +656,7 @@ allowedParentHash = {
 class TEntryMapper:
     __slots__ = ["entry", "m", "parser", "mapper",
         "senseIds", 
-        "mDef", "mPos", "mHw", "mHwTr", "mHwTrLang", "mEx", "mExTr", "mExTrLang",
+        "mDef", "mPos", "mHw", "mLemma", "mHwTr", "mHwTrLang", "mEx", "mExTr", "mExTrLang",
         "transformedEntry"]
     def __init__(self, entry, m, parser, mapper):
         self.entry = entry; self.m = m; self.parser = parser; self.mapper = mapper
@@ -655,7 +674,7 @@ class TEntryMapper:
         h = {}
         if selector:
             for elt in selector.findall(self.entry): 
-                trOrder = TTransformOrder(elt, None, None, None, None, None)
+                trOrder = TTransformOrder(elt, None, None, None, None, None, None)
                 h[id(trOrder.elt)] = trOrder
         return h
     def FindLanguage(self, trOrder, hTrLang):
@@ -693,7 +712,7 @@ class TEntryMapper:
         return (None, None)
     def MakeSegifiedCopy(self, elt):
         def Rec(cur):
-            newCur = self.mapper.Element(ELT_seg)
+            #newCur = self.mapper.Element(ELT_seg)
             cur.tag = ELT_seg
             for i in range(len(cur)): Rec(cur[i])
         elt = copy.deepcopy(elt)
@@ -787,7 +806,8 @@ class TEntryMapper:
         eltId = id(elt); orders = []        
         if eltId in self.mDef: orders.append(TOrder(ELT_def, self.mDef[eltId]))
         if eltId in self.mPos: orders.append(TOrder(ELT_gram, self.mPos[eltId], typeAttr = "pos"))
-        if eltId in self.mHw: orders.append(TOrder(ELT_orth, self.mHw[eltId]))
+        if eltId in self.mHw: orders.append(TOrder(ELT_orth, self.mHw[eltId], typeAttr = "lemma"))
+        if eltId in self.mLemma: orders.append(TOrder(ELT_orth, self.mLemma[eltId], typeAttr = "simple"))
         if eltId in self.mHwTr: orders.append(TOrder(ELT_cit, self.mHwTr[eltId], typeAttr = "translationEquivalent"))
         if eltId in self.mEx: orders.append(TOrder(ELT_cit, self.mEx[eltId], typeAttr = "example"))
         if eltId in self.mExTr: orders.append(TOrder(ELT_cit, self.mExTr[eltId], typeAttr = "translation"))
@@ -878,10 +898,11 @@ class TEntryMapper:
         if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
         eltId = id(elt); trOrder = None; typeAttr = None
         if elt is self.entry: newTag = ELT_entry
-        elif eltId in self.senseIds: newTag = ELT_sense;
+        elif eltId in self.senseIds: newTag = ELT_sense
         elif eltId in self.mDef: newTag = ELT_def; trOrder = self.mDef[eltId]
         elif eltId in self.mPos: newTag = ELT_gram; trOrder = self.mPos[eltId]; typeAttr = "pos"
-        elif eltId in self.mHw: newTag = ELT_orth; trOrder = self.mHw[eltId]
+        elif eltId in self.mHw: newTag = ELT_orth; trOrder = self.mHw[eltId]; typeAttr = "lemma"
+        elif eltId in self.mLemma: newTag = ELT_orth; trOrder = self.mLemma[eltId]; typeAttr = "simple"
         elif eltId in self.mHwTr: newTag = ELT_cit; trOrder = self.mHwTr[eltId]; typeAttr = "translationEquivalent"
         elif eltId in self.mEx: newTag = ELT_cit; trOrder = self.mEx[eltId]; typeAttr = "example"
         elif eltId in self.mExTr: newTag = ELT_cit; trOrder = self.mExTr[eltId]; typeAttr = "translation"
@@ -992,7 +1013,7 @@ class TEntryMapper:
             #print("len[parent] = %s, parent[%d] = %s" % (len(parent), idx, parent[idx]))
             # Remove 'ms' from 'parent', insert it and 'sib' as the
             # right siblings of 'parent'.
-            parent.remove(ms);
+            parent.remove(ms)
             sib.tail = parent.tail; parent.tail = None
             grandparent.insert(pidx + 1, sib)
             grandparent.insert(pidx + 1, ms)
@@ -1013,7 +1034,7 @@ class TEntryMapper:
             # that the regex matched an empty string.  We'll insert a new element 
             # with empty content at the point of one of the milestones.
             msBest = None
-            for ms in self.msFrom:
+            for ms in trOrder.msFrom:
                 if msBest is None or ms.depth < msBest.depth: msBest = ms
             assert msBest is not None
             newElt = self.mapper.Element(newTag)
@@ -1090,6 +1111,10 @@ class TEntryMapper:
             newNode = self.mapper.Element(ELT_form)
             i = parent.index(elt); assert 0 <= i < len(parent)
             parent[i] = newNode; newNode.append(elt)
+            ty = elt.get(ATTR_TEMP_type, None)
+            if ty is not None: 
+                newNode.set(ATTR_type_UNPREFIXED, ty) # the type attribute moves to <form>
+                elt.attrib.pop(ATTR_TEMP_type, None)
         elif elt.tag == ELT_cit: # cit -> cit/quote
             newNode = self.mapper.Element(ELT_cit)
             i = parent.index(elt); assert 0 <= i < len(parent)
@@ -1106,7 +1131,7 @@ class TEntryMapper:
                 # [Note: https://www.w3.org/TR/xml-names/#scoping-defaulting says that "Default 
                 # namespace declarations do not apply directly to attribute names; the interpretation 
                 # of unprefixed attributes is determined by the element on which they appear.".]
-                newNode.set(ATTR_type_UNPREFIXED, ty); # the type attribute goes into <cit>, not <quote>  
+                newNode.set(ATTR_type_UNPREFIXED, ty) # the type attribute goes into <cit>, not <quote>  
                 #print("After setting type.  %s" % elt.nsmap)
                 elt.attrib.pop(ATTR_TEMP_type, None)
         elif elt.tag == ELT_gram: # gram -> gramGrp/gram
@@ -1115,7 +1140,7 @@ class TEntryMapper:
             parent[i] = newNode; newNode.append(elt)
             ty = elt.get(ATTR_TEMP_type, None)
             if ty is not None: 
-                elt.set(ATTR_type_UNPREFIXED, ty); # the type attribute stays in <gram>
+                elt.set(ATTR_type_UNPREFIXED, ty) # the type attribute stays in <gram>
                 elt.attrib.pop(ATTR_TEMP_type, None)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
@@ -1145,6 +1170,7 @@ class TEntryMapper:
         self.mDef = self.MakeTrOrderHash(self.m.xfDef, MATCH_def)
         self.mPos = self.MakeTrOrderHash(self.m.xfPos, MATCH_pos)
         self.mHw = self.MakeTrOrderHash(self.m.xfHw, MATCH_hw)
+        self.mLemma = self.MakeTrOrderHash(self.m.xfLemma, MATCH_lemma)
         self.mHwTrLang = self.MakeTrOrderHash(self.m.xfHwTrLang, MATCH_hw_tr_lang)
         self.mHwTr = self.MakeTrOrderHash(self.m.xfHwTr, MATCH_hw_tr)
         self.mEx = self.MakeTrOrderHash(self.m.xfEx, MATCH_ex)
@@ -1152,8 +1178,8 @@ class TEntryMapper:
         self.mExTr = self.MakeTrOrderHash(self.m.xfExTr, MATCH_ex_tr)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
-        if Verbose: print("TEntryMapper: %d sense elements, %d headwords, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
-            len(self.senseIds), len(self.mHw), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
+        if Verbose: print("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
+            len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
             len(self.mEx), len(self.mExTr), len(self.mExTrLang)))
         #traceback.print_stack()    
         # Insert milestone elements where needed.  Note that we don't need
@@ -1180,6 +1206,7 @@ class TEntryMapper:
         # The language was set by the caller in self.entry.xmlLangAttribute, if available.
         lang = getattr(self.entry, "xmlLangAttribute", None)
         if lang is not None: self.transformedEntry.set(ATTR_XML_LANG, lang)
+        self.transformedEntry.set(ATTR_type_UNPREFIXED, "null")
         return self.transformedEntry
 
 def IsNonSp(s): return s and not s.isspace()
@@ -1226,7 +1253,7 @@ class TTreeMapper:
     def Clear(self):
         self.tree = None; self.m = None; self.parser = None
         self.eltHash.clear(); self.entryHash.clear()
-        self.topEntryList.clear(); self.keepAliveHash.clear();
+        self.topEntryList.clear(); self.keepAliveHash.clear()
         self.relaxNg = None; self.outBody = None; self.augTree = None
     def MakeAugTree(self, e):    
         if Verbose2 and len(augmentedNodes) % 1000 == 0: sys.stdout.write("MakeAugTree keepAliveHash %d, augmentedNodes %d  \r" % (len(self.keepAliveHash), len(augmentedNodes))); sys.stdout.flush()
@@ -1301,7 +1328,7 @@ class TTreeMapper:
             children = [child for child in elt]; nChildren = len(children)
             #if nChildren >= 1000: print("Note: elt has %d children!" % nChildren)
             for iChild in range(nChildren):
-                child = children[iChild]; # child = elt[iChild]
+                child = children[iChild] # child = elt[iChild]
                 if type(child) is not TMyElement: continue
                 Rec(child, outermostContainingEntry)
                 s = id(child) if child.isEntry else child.firstSubEntry
@@ -1446,7 +1473,7 @@ class TTreeMapper:
         #
         anythingScrappedR = False; segCur = None; cur = entryR
         while True:
-            parent = cur.getparent(); 
+            parent = cur.getparent()
             #print("Going up the right branch.  parent = %s, lca = %s" % (id(parent), id(lca)))
             iCur = parent.index(cur); assert iCur >= 0
             if parent is lca: lcaRightBranch = iCur; break
@@ -1473,7 +1500,7 @@ class TTreeMapper:
         # we'll treat entryL's tail much as if it was another of lca's subtrees between
         # the two branches.  entryL's tail will move into lcaL's text or lcaR's text, same
         # as those subtrees.
-        nChildren = len(lca); 
+        nChildren = len(lca)
         #print("lca has %d children, left = %d, right = %d" % (nChildren, lcaLeftBranch, lcaRightBranch))
         assert 0 <= lcaLeftBranch < lcaRightBranch < nChildren
         if segL is not None: lcaL.append(segL)
@@ -1563,7 +1590,7 @@ class TTreeMapper:
             tmStart = time.clock(); iPrev = 0; tmPrev = tmStart
             for i in range(nTopEntries):
                 if (True or Verbose2) and i % 1000 == 0: 
-                    tmNow = time.clock();
+                    tmNow = time.clock()
                     sys.stdout.write("BuildBody transforming entry %d/%d  (%.2f sec; %.2f entries/sec, recently %.2f)     \r" % (i, nTopEntries,
                         tmNow - tmStart, i / max(0.1, tmNow - tmStart), (i - iPrev) / max(0.1, tmNow - tmPrev))); sys.stdout.flush()
                     tmPrev = tmNow; iPrev = i    
@@ -1626,11 +1653,13 @@ class TTreeMapper:
         if verbose: print("ReplacePlaceholders returned.")
         return self.outBody
         #print(etree.tostring(outTei, pretty_print = True).decode("utf8"))
+        """
         if not self.relaxNg.validate(outTei):
             print("Relax-NG validation failed:\n%s" % (self.relaxNg.error_log))
         return outTei
+        """
     def TestScrapify(self):    
-        self.FindEntries() # fills self.entryHash and self.eltHash
+        self.FindEntries(self.tree.getroot()) # fills self.entryHash and self.eltHash
         self.MarkEntries() # fills self.topEntryList
         scrap = self.ScrapifyLeft(self.topEntryList[0])
         print("Scrapified left!")
@@ -1762,7 +1791,7 @@ class TMapper:
                 if child.tag == ELT_entry:
                     if i == 0: AppendToText(node, child.tail)
                     else: AppendToTail(node[i - 1], child.tail)
-                    child.tail = ""; del node[i]; 
+                    child.tail = ""; del node[i]
                     #print("CHILD.nsmap = %s" % child.nsmap)
                     return child
                 r = Rec(child)
@@ -1770,12 +1799,92 @@ class TMapper:
         r = Rec(root)
         if r is None: return root
         else: return r
+    def BuildHeader(self, metadata):
+        """
+        extent        -> teiHeader/fileDesc/extent
+        bibl          -> teiHeader/fileDesc/sourceDesc/bibl
+        source        -> teiHeader/fileDesc/sourceDesc/p
+        
+        title         -> teiHeader/fileDesc/titleStmt/title
+        creator       -> each element gets a teiHeader/fileDesc/titleStmt/author
+        contributor   -> each element gets a teiHeader/fileDesc/titleStmt/respStmt/name  + there's a respStmt/resp 
+
+        publisher     -> teiHeader/fileDesc/publicationStmt/publisher
+        license       -> teiHeader/fileDesc/publicationStmt/availability/licence
+        created       -> teiHeader/fileDesc/publicationStmt/date  and its @when attribute
+        identifier    -> teiHeader/fileDesc/publicationStmt/idno
+        """
+        # Note: <fileDesc> is required, and inside it <titleStmt>, <publicationStmt> and <sourceDesc> are all required.
+        eltSourceDesc = self.E(ELT_sourceDesc, {}, [])
+        # Inside <sourceDesc> we can have <bibl> and <p> with 'source'.
+        hasSource = "source" in metadata; hasBibl = "bibl" in metadata
+        eltBibl = self.E(ELT_bibl, {}, [], text = metadata.get("bibl", ""))
+        if hasSource:
+            # 'source' must go into a <p>, and we can't combine <p> and <bibl> inside <sourceDesc>
+            # otherwise than by wrapping the <bibl> inside a <p>.
+            if hasBibl: eltSourceDesc.append(self.E(ELT_p, {}, [eltBibl]))
+            eltSourceDesc.append(self.E(ELT_p, {}, [], text = metadata.get("source", "")))
+        elif hasBibl: eltSourceDesc.append(eltBibl)        # append a <bibl> if there's no 'source' in metadata
+        else: eltSourceDesc.append(self.E(ELT_p, {}, []))  # <sourceDesc> requires something, at least an empty <p>
+        # A <title> is required within <titleStmt>.
+        eltTitleStmt = self.E(ELT_titleStmt, {}, [
+            self.E(ELT_title, {}, [], text = metadata.get("title", ""))])
+        def IsStr(x): return isinstance(x, str)
+        def IsList(x): return isinstance(x, list)
+        def IsDict(x): return isinstance(x, dict)
+        def IsTuple(x): return isinstance(x, tuple)
+        def GetAuthors(key):
+            L = metadata.get(key, None)
+            if L is None: return []
+            if IsTuple(L) or IsStr(L): L = [L]
+            L2 = []
+            for author in L:
+                if IsTuple(author): author = author[0]  # maybe it's a (name, eMail, url) triple
+                elif IsDict(author): author = author.get("name", None) # maybe it's a dict with keys like "name" etc.
+                if author: L2.append(author)
+            return L2
+        # The 'creator' list contributes <author> elements in the <titleStmt>.
+        creators = GetAuthors("creator") + GetAuthors("creators")
+        for creator in creators: eltTitleStmt.append(self.E(ELT_author, {}, [], text = str(creator)))
+        # The 'contributor' list contributes <name> elements in a <respStmt> within the <titleStmt>.
+        contribs = GetAuthors("contributor") + GetAuthors("contributors")
+        eltRespStmt = None
+        for contrib in contribs:
+            if eltRespStmt is None: eltRespStmt = self.E(ELT_respStmt, {}, [
+                self.E(ELT_resp, {}, [], text = "Made contributions to the dictionary")])
+            eltRespStmt.append(self.E(ELT_name, {}, [], text = str(contrib))    )
+        if eltRespStmt is not None: eltTitleStmt.append(eltRespStmt)
+        # In the <publicationStmt>, we need something - at least an empty <p>.
+        # If any details are provided -- i.e. <idno>, <date>, <availability>, they must be preceded
+        # by a <publisher> or something like that.
+        children = []
+        if "licence" in metadata: children.append(self.E(ELT_availability, {}, [
+            self.E(ELT_licence, {}, [], text = metadata.get("licence", ""))]))
+        if "license" in metadata: children.append(self.E(ELT_availability, {}, [
+            self.E(ELT_licence, {}, [], text = metadata.get("license", ""))]))
+        if "created" in metadata: 
+            when = metadata.get("created", "")
+            children.append(self.E(ELT_date, {ATTR_when_UNPREFIXED: when}, [], text = when))
+        if "identifier" in metadata: children.append(self.E(ELT_idno, {}, [], text = metadata.get("identifier", "")))
+        hasPublisher = "publisher" in metadata
+        if hasPublisher or children:
+            children.insert(0, self.E(ELT_publisher, {}, [], text = metadata.get("publisher", "")))
+        else: children.append(self.E(ELT_p, {}, []))
+        eltPublicationStmt = self.E(ELT_publicationStmt, {}, children)
+        # Now we can create a <fileDesc>.  <extent> must come after <titleStmt> but before <publicationStmt>.
+        children = [eltTitleStmt]
+        if "extent" in metadata: children.append(self.E(ELT_extent, {}, [], text = metadata.get("extent", "")))
+        children += [eltPublicationStmt, eltSourceDesc]
+        eltFileDesc = self.E(ELT_fileDesc, {}, children)
+        # <extent> must come before <sourceDesc>.
+        # Finally create the <teiHeader>.
+        eltHeader = self.E(ELT_teiHeader, {}, [eltFileDesc])
+        return eltHeader
     def Transform(self, mapping, fnOrFileList, treeList = [], makeAugmentedInputTrees = False, 
             stripForValidation = False, stripDictScrap = False, stripHeader = False,
             returnFirstEntryOnly = False,
-            headerTitle = "Placeholder Title",
-            headerPublisher = "Placeholder Publisher",
-            headerBibl = "Placeholder Bibl"):
+            headerTitle = None, headerPublisher = None, headerBibl = None,
+            metadata = None):
         """This method processes one or more XML trees and returns
         an (outTei, augTrees) pair, where outTei is the root <TEI> element 
         of the transformed output document, and augTrees is a list containing
@@ -1834,6 +1943,13 @@ class TMapper:
         #            
         L = []
         if not stripHeader:
+            if metadata is None: metadata = {}
+            if headerTitle and "title" not in metadata: metadata["title"] = headerTitle
+            if headerPublisher and "publisher" not in metadata: metadata["publisher"] = headerPublisher
+            if headerBibl and "bibl" not in metadata: metadata["bibl"] = headerBibl
+            L.append(self.BuildHeader(metadata))
+            """
+            # old version:
             L.append(self.E(ELT_teiHeader, {}, [
                 self.E(ELT_fileDesc, {}, [
                     self.E(ELT_titleStmt, {}, [
@@ -1847,6 +1963,7 @@ class TMapper:
                     ]),
                 ]),
             ]))
+            """
         L.append(self.E(ELT_text, {}, [
                 outBody
                 #self.E(ELT_body, {}, [
@@ -1887,7 +2004,32 @@ def TestXpath():
         print("%s -> %d matches" % (s, n))
     _(".//root")    
     
-
+def TestHeader():
+    items = [
+        ("bibl", "This is a bibl."), 
+        ("license", "An it harm none, do what thou wilt."), 
+        ("title", "How to transform dictionaries and influence people"), 
+        ("creator", ["First creator", "Second creator", "Third creator"]),
+        ("publisher", "Random Mouse Publishers"), ("created", "2020-02-29"), 
+        ("contributor", ["First contributor", "Second contributor"]), ("extent", "Absolutely massive"),
+        ("identifier", "This one right here"), 
+        ("source", "Fell from the sky")
+        ]
+    for bits in range(1 << len(items)):
+        #if bits != (1 << len(items)) - 1: continue
+        #if bits != 0: continue
+        metadata = {}
+        for i, (key, value) in enumerate(items):
+            if ((bits >> i) & 1) == 0: continue
+            metadata[key] = value
+        mapper = TMapper()
+        outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = True, metadata = metadata)
+        f = open("transformed.xml", "wt", encoding = "utf8")
+        f.write(etree.tostring(outTei, pretty_print = True, encoding = "utf8").decode("utf8"))
+        f.close()
+        if not mapper.relaxNg.validate(outTei):
+            print("[%d] Relax-NG validation failed:\n%s" % (bits, mapper.relaxNg.error_log))
+            sys.exit(0)
 
 
 def Test():
@@ -1940,6 +2082,7 @@ def Test():
     f.write(etree.tostring(outAug[0], pretty_print = True, encoding = "utf8").decode("utf8"))
     f.close()
 
+#TestHeader()
 #TestXpath()
 #Test(); sys.exit(0)
 
