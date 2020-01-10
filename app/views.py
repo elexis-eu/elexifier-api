@@ -211,6 +211,8 @@ def ds_upload_new_dataset():
     headerPublisher = flask.request.form.get('headerPublisher', None)
     headerBibl = flask.request.form.get('headerBibl', None)
 
+    metadata = flask.request.form.get('metadata', "{}")
+
     dictname = flask.request.files.get('dictname', None)
     dzcontent = flask.request.files.get('file', None)
     try :
@@ -250,6 +252,7 @@ def ds_upload_new_dataset():
             new_path = os.path.join(APP_MEDIA, secure_filename(new_random_name))
             os.rename(dzfilepath, new_path)
             dsid = controllers.add_dataset(db, id, dztotalfilesize, dzfilename, new_path, dzuuid, headerTitle, headerPublisher, headerBibl)
+            controllers.save_ds_metadata(db, dsid, json.loads(metadata))
             result = controllers.list_datasets(engine, id, dsid=dsid)
             if "pdf" in result['upload_mimetype']:
                 transform_pdf2xml(result)
