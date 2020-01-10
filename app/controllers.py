@@ -115,7 +115,7 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
 
 def search_dataset_entries(db, dsid, xfid, pattern):
     if len(pattern) == 0:
-        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).order_by(sqlalchemy.desc(Datasets_single_entry.entry_text)).limit(100).all()
+        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()
     else:
         pattern = pattern + '%'
         entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()

@@ -155,11 +155,17 @@ def ds_dataset_info(dsid):
     return _j(datasets)
 
 
+@celery.task
+def delete_dataset_async(id, dsid):
+    controllers.delete_dataset(db, id, dsid)
+
+
 @app.route('/api/dataset/<int:dsid>', methods=['DELETE'])
 def ds_delete_dataset(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    controllers.delete_dataset(db, id, dsid)
+    delete_dataset_async.apply_async(args=[id, dsid])
+
     return _j({'deleted': dsid})
 
 
