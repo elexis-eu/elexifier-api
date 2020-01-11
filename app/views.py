@@ -320,7 +320,7 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
             # Update dataset in db
             controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
     except:
-        controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_error")
+        controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_Error")
 
     controllers.set_dataset_status(engine, uid, dsid, status_prepend + 'Ready')
     return
@@ -497,7 +497,7 @@ def ds_machine_learning(dsid):
         controllers.set_dataset_status(engine, uid, dsid, status)
 
     elif run_ml:
-        status = "Starting ML"
+        status = "Starting_ML"
         controllers.set_dataset_status(engine, uid, dsid, status)
         task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_ml_out], countdown=0)
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
