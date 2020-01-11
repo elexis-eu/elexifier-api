@@ -285,10 +285,13 @@ def lexonomy_download(uid, dsid):
     if flask.request.headers.get('Authorization') != app.config['LEXONOMY_AUTH_KEY']:
         raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
-    controllers.set_dataset_status(engine, uid, dsid, 'Processing')
-    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
-
     ml = flask.request.args.get('ml', default="False", type=str) == "True"
+    if ml:
+        controllers.set_dataset_status(engine, uid, dsid, 'preview_Processing')
+    else:
+        controllers.set_dataset_status(engine, uid, dsid, 'annotate_Processing')
+
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
     if ml:
         flask.send_file(dataset['xml_ml_out'], attachment_filename=dataset['xml_ml_out'].split('/')[-1], as_attachment=True)
@@ -302,6 +305,12 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
     response = requests.post('https://lexonomy.elex.is/elexifier/new',
                              headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']},
                              data=json.dumps(request_data))
+
+    if ml:
+        status_prepend = "preview_"
+    else:
+        status_prepend = "annotate_"
+
     try:
         resp_js = json.loads(response.text)
         if ml:
@@ -311,8 +320,9 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
             # Update dataset in db
             controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
     except:
-        controllers.set_dataset_status(engine, uid, dsid, "Lexonomy_error: " + str(response.status_code))
-    controllers.set_dataset_status(engine, uid, dsid, 'Ready')
+        controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_error: " + str(response.status_code))
+
+    controllers.set_dataset_status(engine, uid, dsid, status_prepend + 'Ready')
     return
 
 
@@ -340,7 +350,7 @@ def ds_send_to_lexonomy(dsid):
     print('Starting asynchronous request to Lexonomy')
     task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], countdown=0)
 
-    status = 'Starting'
+    status = 'annotate_Starting'
     msg = 'OK'
     # Update dataset status
     controllers.set_dataset_status(engine, uid, dsid, status)
@@ -385,7 +395,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
     print('Starting asynchronous request to Lexonomy')
     task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], kwargs={"ml": True}, countdown=0)
 
-    status = 'Starting'
+    status = 'preview_Starting'
     msg = 'OK'
     # Update dataset status
     controllers.set_dataset_status(engine, uid, dsid, status)
