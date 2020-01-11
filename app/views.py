@@ -320,7 +320,7 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
             # Update dataset in db
             controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
     except:
-        controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_error: " + str(response.status_code))
+        controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_error")
 
     controllers.set_dataset_status(engine, uid, dsid, status_prepend + 'Ready')
     return
