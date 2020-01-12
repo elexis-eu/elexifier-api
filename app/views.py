@@ -314,11 +314,11 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
     try:
         resp_js = json.loads(response.text)
         if ml:
-            controllers.dataset_add_ml_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+            controllers.dataset_add_ml_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
 
         else:
             # Update dataset in db
-            controllers.dataset_add_lexonomy_access(engine, uid, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+            controllers.dataset_add_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
     except:
         controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_Error")
 
@@ -356,6 +356,22 @@ def ds_send_to_lexonomy(dsid):
     controllers.set_dataset_status(engine, uid, dsid, status)
 
     return _j({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data})
+
+
+@app.route('/api/lexonomy/<int:dsid>', methods=['DELETE'])
+def delete_lexonomy(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+
+    if dataset['lexonomy_delete'] is not None:
+        requests.post(dataset['lexonomy_delete'],
+                      headers={"Content-Type": 'application/json',
+                               "Authorization": app.config['LEXONOMY_AUTH_KEY']})
+
+    controllers.dataset_add_lexonomy_access(db, dsid)
+
+    return _j({'message': 'OK'})
 
 
 # -- Machine Learning
@@ -508,6 +524,40 @@ def ds_machine_learning(dsid):
         #controllers.set_dataset_status(engine, uid, dsid, status)
 
     return _j({"message": "OK", "dsid": dsid, "Status": status})
+
+
+@app.route('/api/ml/<int:dsid>', methods=['DELETE'])
+def delete_ml(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+
+    local = flask.request.args.get('local', default=None, type=str) == 'True'
+
+    if local:
+        try:
+            print("Deleting local ml files uid: {0:s}, dsid: {1:s}".format(str(uid), str(dsid)))
+            json_ml_in = '/var/www/elexifier-api/app/media/ML-IN-{}.json'.format(str(dsid))
+            json_ml_out = '/var/www/elexifier-api/app/media/ML-OUT-{}.json'.format(str(dsid))
+            os.remove(json_ml_in)
+            os.remove(json_ml_out)
+            if dataset['xml_lex'] != "":
+                os.remove(dataset['xml_lex'])
+            if dataset['xml_ml_out'] != "":
+                os.remove(dataset['xml_ml_out'])
+        except:
+            pass
+        controllers.dataset_add_ml_paths(engine, uid, dsid, '', '')
+
+    else:
+        if dataset['lexonomy_ml_delete'] is not None:
+            requests.post(dataset['lexonomy_ml_delete'],
+                          headers={"Content-Type": 'application/json',
+                                   "Authorization": app.config['LEXONOMY_AUTH_KEY']})
+
+        controllers.dataset_add_ml_lexonomy_access(db, dsid)
+
+    return _j({'message': 'OK'})
 
 
 # -- transforms
