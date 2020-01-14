@@ -760,6 +760,8 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
     #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
     #         spec[t] = spec[t]['selector']
 
+    metadata = controllers.get_ds_metadata(db, dsid)
+
     orig_xml = open(ds_path, 'rb').read()
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
     myParser = lxml.etree.XMLParser()
@@ -771,7 +773,8 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
                                         stripForValidation=strip_ns,
                                         stripHeader=strip_header, stripDictScrap=strip_DictScrap,
                                         headerTitle=header_Title, headerPublisher=header_Publisher,
-                                        headerBibl=header_Publisher)
+                                        headerBibl=header_Publisher,
+                                        metadata=metadata)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
     orig_fname, file_type = file_name.split('.')
