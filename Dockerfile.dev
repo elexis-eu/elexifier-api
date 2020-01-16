@@ -5,7 +5,7 @@ RUN apt-get update && \
 
 RUN mkdir /elexifier-api
 
-COPY . /elexifier-api
+ADD . /elexifier-api
 
 WORKDIR /elexifier-api
 

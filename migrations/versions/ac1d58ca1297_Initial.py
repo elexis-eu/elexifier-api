@@ -1,8 +1,8 @@
-"""Initial
+"""empty message
 
-Revision ID: 3952b781c9bd
+Revision ID: ac1d58ca1297
 Revises: 
-Create Date: 2019-11-28 18:11:28.497300
+Create Date: 2020-01-16 13:09:45.713936
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '3952b781c9bd'
+revision = 'ac1d58ca1297'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -55,6 +55,18 @@ def upgrade():
     sa.Column('header_title', sa.String(), nullable=True),
     sa.Column('header_publisher', sa.String(), nullable=True),
     sa.Column('header_bibl', sa.String(), nullable=True),
+    sa.Column('ml_task_id', sa.String(), server_default='', nullable=True),
+    sa.Column('xml_lex', sa.String(), server_default='', nullable=True),
+    sa.Column('xml_ml_out', sa.String(), server_default='', nullable=True),
+    sa.Column('lexonomy_ml_access', sa.String(), nullable=True),
+    sa.Column('lexonomy_ml_delete', sa.String(), nullable=True),
+    sa.Column('lexonomy_ml_edit', sa.String(), nullable=True),
+    sa.Column('lexonomy_ml_status', sa.String(), nullable=True),
+    sa.Column('pos_elements', sa.String(), nullable=True),
+    sa.Column('head_elements', sa.String(), nullable=True),
+    sa.Column('xpaths_for_validation', sa.String(), nullable=True),
+    sa.Column('root_element', sa.String(), nullable=True),
+    sa.Column('dictionary_metadata', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['uid'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -77,6 +89,7 @@ def upgrade():
     sa.Column('entity_spec', sa.String(), nullable=True),
     sa.Column('transform', sa.JSON(), nullable=True),
     sa.Column('saved', sa.Boolean(), nullable=True),
+    sa.Column('file_download_status', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['dsid'], ['datasets.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
