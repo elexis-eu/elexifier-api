@@ -1,0 +1,2659 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<artikel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="27823" xsi:noNamespaceSchemaLocation="N:/ANW/Werkstation/Schema/ANWSchema-main.xsd" pid="78332">
+	<Lemma>
+		<Lemmavorm>kat</Lemmavorm>
+		<Lemmatype>woord</Lemmatype>
+	</Lemma>
+	<Woordsoort>
+		<Type>substantief</Type>
+		<Substantief>
+			<Naamtype>soortnaam</Naamtype>
+			<GeslachtBody>
+				<Geslacht>mannelijk of vrouwelijk</Geslacht>
+			</GeslachtBody>
+			<Lidwoord>
+				<AardLidwoord>de</AardLidwoord>
+			</Lidwoord>
+			<Betekenisklasse>diernaam</Betekenisklasse>
+		</Substantief>
+	</Woordsoort>
+	<SpellingEnFlexie>
+		<SubstantiefVormen>
+			<Enkelvoud>
+				<Woordvorm>kat</Woordvorm>
+				<Afbreking>kat</Afbreking>
+			</Enkelvoud>
+			<meervoudBody>
+				<Meervoud>
+					<Woordvorm>katten</Woordvorm>
+					<Afbreking>kat.ten</Afbreking>
+				</Meervoud>
+			</meervoudBody>
+			<Verkleiningsvorm>
+				<Woordvorm>katje</Woordvorm>
+				<Afbreking>kat.je</Afbreking>
+			</Verkleiningsvorm>
+		</SubstantiefVormen>
+	</SpellingEnFlexie>
+	<Uitspraak>
+		<AantalLettergrepenBody>
+			<AantalLettergrepen>1</AantalLettergrepen>
+		</AantalLettergrepenBody>
+		<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+	</Uitspraak>
+	<Woordvorming>
+		<WoordvormingType>ongeleed</WoordvormingType>
+	</Woordvorming>
+	<BijzonderhedenGebruik>
+		<Frequentie>
+			<FrequentieTotaal>4607</FrequentieTotaal>
+		</Frequentie>
+	</BijzonderhedenGebruik>
+	<BetekenisEnGebruik>
+		<Kernbetekenis pid="78333">
+			<betekenisInfo>
+				<Betekenisnummer>1.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>diernaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>katje</Woordvorm>
+							<Afbreking>kat.je</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<definitieBody>
+					<Definitie>klein huisdier dat miauwt en spint en dat gehouden wordt als gezelschapsdier of voor het vangen van muizen en ratten; huiskat; poes</Definitie>
+					<Definitieaanvulling>
+						<Opmerking>Zowel in toepassing op dieren van het vrouwelijk als van het mannelijk geslacht.</Opmerking>
+					</Definitieaanvulling>
+					<Minidefinitie>huisdier dat miauwt en spint</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>zoogdier</lemma>
+							<dtype>art</dtype>
+							<pid>188698</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>huiskat</lemma>
+								<dtype>bet</dtype>
+								<desc>1.0 - kat als huisdier</desc>
+								<pid>69601</pid>
+							</link>
+							<link>
+								<lemma>poes</lemma>
+								<dtype>bet</dtype>
+								<desc>1.0 - huisdier dat miauwt en spint</desc>
+								<pid>123218</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>dakhaas</lemma>
+								<dtype>bet</dtype>
+								<desc>1.0 - kat</desc>
+								<pid>609397</pid>
+							</link>
+						</Synoniem>
+						<BijzonderhedenGebruik>
+							<Houding>schertsend</Houding>
+						</BijzonderhedenGebruik>
+					</SynoniemBody>
+					<Feminiem>
+						<link>
+							<lemma>kattin</lemma>
+							<dtype>bet</dtype>
+							<desc>1.0 - vrouwelijke kat</desc>
+							<pid>196532</pid>
+						</link>
+						<link>
+							<lemma>poes</lemma>
+							<dtype>bet</dtype>
+							<desc>1.0 - huisdier dat miauwt en spint</desc>
+							<pid>123218</pid>
+						</link>
+						<link>
+							<lemma>vrouwtjeskat</lemma>
+							<dtype>art</dtype>
+							<pid>318835</pid>
+						</link>
+						<link>
+							<lemma>wijfjeskat</lemma>
+							<dtype>art</dtype>
+							<pid>318836</pid>
+						</link>
+					</Feminiem>
+					<Androniem>
+						<link>
+							<lemma>kater</lemma>
+							<dtype>bet</dtype>
+							<desc>1.0 - mannelijke kat; mannetjeskat</desc>
+							<pid>78357</pid>
+						</link>
+					</Androniem>
+				</Woordrelaties>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Bovencategorie>is een dier # gewerveld</Bovencategorie>
+						<Categorie>is een zoogdier # huisdier; roofdier; katachtige</Categorie>
+						<Kenmerkklasse>soort</Kenmerkklasse>
+					</Categorieen>
+					<Kenmerken>
+						<ZintuiglijkeWaarneming>
+							<Geluid>miauwt en spint; blaast, spuwt of gromt soms om ongenoegen te uiten; kan ook janken of schreeuwen, bv. bij krolsheid # mauwen; klagend geluid</Geluid>
+							<Gevoelsindruk>heeft een zachte, meestal glanzende vacht; is kortharig, langharig of heeft halflang haar # kort haar; lang haar</Gevoelsindruk>
+							<Kleur>kan verschillende kleuren en vachtpatronen hebben; is eenkleurig of meerkleurig gestreept of gevlekt, bv. een schildpadkat of lapjeskat</Kleur>
+							<Uiterlijk>heeft een lange staart, een ronde kop, een korte snuit, grote ogen, puntige, opstaande en naar voren gerichte oren en gevoelige snorharen bij de bek; heeft een ruwe tong; heeft vijf tenen aan beide voorpoten en vier tenen aan de achterpoten; heeft scherpe gebogen nagels die intrekbaar zijn</Uiterlijk>
+						</ZintuiglijkeWaarneming>
+						<Geheel>
+							<Ras>is een huis-tuin-en-keukenkat zonder stamboom of is een raskat</Ras>
+						</Geheel>
+						<Functie_of_doel>
+							<Functie>wordt gehouden als gezelschapsdier of voor het vangen van muizen, ratten en ander ongedierte; wordt ook meegenomen naar shows als het een raskat is # huisdier; ongediertebestrijding</Functie>
+						</Functie_of_doel>
+						<Ontstaan>
+							<Herkomst_of_oorsprong>stamt af van de wilde kat (Felis silvestris)</Herkomst_of_oorsprong>
+							<Voortplanting>is een paar keer per jaar krols</Voortplanting>
+						</Ontstaan>
+						<Ruimte>
+							<Plaats>kan binnenshuis gehouden worden, maar gaat meestal ook graag naar buiten</Plaats>
+						</Ruimte>
+						<Tijd>
+							<Leeftijd>wordt gemiddeld 14 tot 16 jaar, maar kan ook ouder worden dan 20; heet als jong dier [i]kitten[/i]</Leeftijd>
+						</Tijd>
+						<Eigenschap_of_hoedanigheid>
+							<Eigenschap_of_hoedanigheid_algemeen>heeft een goed gezichtsvermogen; kan goed zien in het schemerdonker, maar niet als het helemaal donker is; kan op korte afstand niet zo goed zien, maar heeft zeer goed ontwikkelde snorharen als tastzintuig; heeft ook een zeer goed gehoor en een zeer goed reukvermogen; houdt van melk # horen; ruiken</Eigenschap_of_hoedanigheid_algemeen>
+							<Beweegbaarheid>is zeer lenig; kan zich bij een val zodanig keren dat zij op haar pootjes terechtkomt</Beweegbaarheid>
+						</Eigenschap_of_hoedanigheid>
+						<Handeling_of_werking>
+							<Beweging>gebruikt haar lange staart om in evenwicht te blijven en ook als communicatiemiddel; is snel en kan goed klimmen; beweegt zich soms sluipend voort, bv. bij het besluipen van een prooi; kan ook goed sprinten, maar heeft een beperkt uithoudingsvermogen</Beweging>
+							<Gedrag>is een vleeseter en is van nature een roofdier; jaagt op muizen en ander ongedierte, maar houdt ook van luieren, zonnen en slapen; is een zindelijk dier en besteedt ook veel tijd aan het wassen van zichzelf; scherpt geregeld haar nagels op een ruw oppervlak, bv. aan een krabpaal; kan alleen gehouden worden, maar leeft ook graag in kleine groepjes; houdt er doorgaans van om aangehaald en geaaid te worden # solitair; sociaal</Gedrag>
+						</Handeling_of_werking>
+						<Waardering_of_belang>
+							<Waardering>werd bij ons in de middeleeuwen niet gewaardeerd en werd in verband gebracht met hekserij en duistere machten; wordt in het volksgeloof nog beschouwd als ongeluksbrenger of geluksbrenger, bv. wanneer een zwarte kat je pad kruist, van je wegloopt of naar je toe komt; stond in sommige culturen wel in hoog aanzien, bv. in het oude Egypte, en werd in oosterse culturen zelfs als heilig dier beschouwd; beschikt volgens het volksgeloof over zeven of negen levens # tempeldier</Waardering>
+						</Waardering_of_belang>
+					</Kenmerken>
+					<Wetenschap>
+						<Wetenschappelijke_naam>Felis catus</Wetenschappelijke_naam>
+						<Rijk>Animalia; Dieren</Rijk>
+						<Stam>Chordata; Chordadieren</Stam>
+						<Klasse>Mammalia; Zoogdieren</Klasse>
+						<Orde>Carnivora; Roofdieren</Orde>
+						<Familie>Felidae; Katachtigen</Familie>
+						<Geslacht>Felis</Geslacht>
+						<Soort>Felis catus</Soort>
+					</Wetenschap>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="193586">
+						<Tekst>Na wekenlange speculatie is het zeker. De Britse premier David Cameron neemt een kat in zijn ambtswoning aan Downing Street 10 in Londen. Kat Larry krijgt als Chef Muizenjager als voornaamste taak om ratten te vangen.</Tekst>
+						<URL>http://www.volkskrant.nl/vk/nl/2690/Opmerkelijk/article/detail/1835006/2011/02/15/Downing-Street-benoemt-na-14-jaar-weer-kat-als-rattenvanger.dhtml</URL>
+					</Voorbeeld>
+					<Voorbeeld pid="194397">
+						<Tekst>Katten zijn ook goed om muizen of spinnen te vangen.</Tekst>
+						<BronID>47043</BronID>
+						<URL>http://www.bop.vgc.be/tijdschriften/wablieft/wab440/Wa40sam1.txt</URL>
+					</Voorbeeld>
+					<Voorbeeld pid="194744">
+						<Tekst>Katten scherpen geregeld hun nagels. Ze doen dit instictief, je kan dit je kat niet afleren. Kittens zullen geregeld hun nageltjes aan het bankstel of een deurstijl willen scherpen. U moet ze natuurlijk hier wel van weerhouden, U kunt dit een kitten niet kwalijk nemen. Katten zijn nu éénmaal dieren en die kennen de waarde van uw spullen niet. U zorgt er het best voor dat uw kat een eigen krabpaal of sisal of kokosdeurmatje heeft.</Tekst>
+						<BronID>3031</BronID>
+						<URL>http://users.skynet.be/bk234002/huiscat.htm</URL>
+					</Voorbeeld>
+					<Voorbeeld pid="194745">
+						<Tekst>Katten zijn propere dieren en ze wassen zich meermaals per dag, omdat de kat kleine weerhaakjes op zijn tong heeft die naar achteren buigen, kan de kat niks anders doen dan de losse haren uit de vacht inslikken.</Tekst>
+						<BronID>3031</BronID>
+						<URL>http://users.skynet.be/bk234002/huiscat.htm</URL>
+					</Voorbeeld>
+					<Voorbeeld pid="194746">
+						<Tekst>In Egypte word al van af ongeveer 5000 jaar voor Christus de Nubische kat gehouden. Eeuwen later gingen ze in dat land katten als heilige dieren beschouwen.</Tekst>
+						<BronID>3033</BronID>
+						<URL>http://users.pandora.be/ggjv/Honden/kInfo.htm</URL>
+					</Voorbeeld>
+					<Voorbeeld pid="194765">
+						<Tekst>Konijnen zijn, net als katten, zeer zindelijk.</Tekst>
+						<BronID>3128</BronID>
+						<URL>http://www.konijnen.be/</URL>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<combinatiesBody>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>met adjectief ervoor</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>een [felle, jonge, krolse, kortharige, langharige, mooie, oude, oudere, rode, volwassen, witte, zwarte] kat</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="194407">
+										<Tekst>Krolse katten doen er alles aan om weg te komen en dat lukt ook altijd. Juist omdat krolsheid vaak net te laat wordt opgemerkt. Overigens geeft het binnenhouden van krolse katten vaak veel overlast.</Tekst>
+										<BronID>71432</BronID>
+										<URL>http://vpgo.isCool.net/</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194408">
+										<Tekst>Hoewel er duidelijk verschil in vachtlengte bij langharige katten is waar te nemen, kan men stellen, dat de erfelijke aanleg voor langhaar (l) recessief is ten opzichte van die voor een kortharige vacht.</Tekst>
+										<BronID>72693</BronID>
+										<URL>http://www.absmid.demon.nl/mainpage.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194410">
+										<Tekst>Schrik je als een zwarte kat je pad kruist en loop je nooit onder een ladder door?</Tekst>
+										<BronID>61936</BronID>
+										<Datering>2000</Datering>
+										<URL>http://www.misc.hro.nl/profielen/archief/1201/recensies.html</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194411">
+										<Tekst>Een volwassen kat moet ongeveer 3 tot 4 keer per jaar worden ontwormd.</Tekst>
+										<BronID>3033</BronID>
+										<URL>http://users.pandora.be/ggjv/Honden/kInfo.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194412">
+										<Tekst>Bij de oudere kat gaan de nieren, die door het eiwitrijke voedsel altijd hard hebben moeten werken, langzaam achteruit.</Tekst>
+										<BronID>72693</BronID>
+										<URL>http://www.absmid.demon.nl/mainpage.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194413">
+										<Tekst>Ik wil geen nest met jonge katten in huis.</Tekst>
+										<BronID>61463</BronID>
+										<Datering>1996</Datering>
+										<URL>http://www.xs4all.nl/~pjbrink/boek/pagina41.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194414">
+										<Tekst>Dan kookte hij zijn potje en zat aan het raam, samen met zijn rode kat die het liefst tussen de planten in de vensterbank lag en die hij daarom zijn geranium noemde.</Tekst>
+										<Auteur>Keulen, Mensje van</Auteur>
+										<Bron>De gelukkige</Bron>
+										<BronID>69617</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="194415">
+										<Tekst>Mooie kat, fraai vlekkenpatroon.</Tekst>
+										<Auteur>Hart, Maarten 't</Auteur>
+										<Bron>De zonnewijzer</Bron>
+										<BronID>87</BronID>
+										<Datering>2002</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="194416">
+										<Tekst>Zijn vrienden deden al het werk en hij zat in het gras, hij had zich ontfermd over een kleine kat die daar rondhing.</Tekst>
+										<Auteur>Olyslaegers, Jeroen</Auteur>
+										<Bron>Open gelijk een mond</Bron>
+										<BronID>155</BronID>
+										<Datering>1999</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="194776">
+										<Tekst>Het is een felle kat. Altijd haantje de voorste. Ze is al vaak behandeld voor bijtabcessen. Ze vecht wat af in de buurt. Vreemd voor deze kat is dat ze niet van melk houdt.</Tekst>
+										<BronID>72257</BronID>
+										<URL>http://home.wish.net/~homeopat/inhoud-2.htm</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>met adjectivisch voltooid deelwoord</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>een [gecastreerde, gesteriliseerde, verwilderde] kat</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="194459">
+										<Tekst>Dat gecastreerde katten dikker zouden worden heeft voornamelijk met voeding te maken en ligt niet alleen aan het feit dat ze gecastreerd zijn.</Tekst>
+										<BronID>71432</BronID>
+										<URL>http://vpgo.isCool.net/</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="194464">
+										<Tekst>Smit stelt dat uit onderzoek is gebleken dat één verwilderde kat dagelijks minstens één vogel of dier moet verorberen om te kunnen overleven.</Tekst>
+										<Bron>NRC</Bron>
+										<BronID>9061</BronID>
+										<Datering>1995</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>met adjectivisch tegenwoordig deelwoord</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>een spinnende kat</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="195085">
+										<Tekst>Boenders streelt de spinnende kat die de klauwen van zijn voorpootjes uit puur genot door de jurk van glimmende organza in zijn knieën plant.</Tekst>
+										<Auteur>Conrad, Patrick</Auteur>
+										<Bron>Cargo</Bron>
+										<BronID>137</BronID>
+										<Datering>2000</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>met ander, nevengeschikt substantief</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>katten en honden; honden en katten</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="194497">
+										<Tekst>Katten en honden zijn de meest geliefde huisdieren.</Tekst>
+										<BronID>47043</BronID>
+										<URL>http://www.bop.vgc.be/tijdschriften/wablieft/wab440/Wa40sam1.txt</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>als subject bij een werkwoord</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>aanvallen; blazen; kopjes geven; krabben; mauwen; miauwen; spinnen; spuwen</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="194762">
+										<Tekst>De kat zal furieus reageren: blazen en spuwen wanneer de pup haar nadert, maar zal zelden zelf aanvallen.</Tekst>
+										<BronID>3034</BronID>
+										<URL>http://www.vvd-dierenkliniek.be/medische_info/kat_opvoeden.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="195086">
+										<Tekst>Dan mauwt de zwarte kat die Pap als zijn eigendom beschouwt, alsof hij bij zijn buik wordt opgetild.</Tekst>
+										<Auteur>Karr, Mary</Auteur>
+										<Bron>Cherry</Bron>
+										<BronID>184</BronID>
+										<Datering>2001</Datering>
+									</Voorbeeld>
+									<Voorbeeld pid="195091">
+										<Tekst>De andere kat gaf kopjes tegen haar heup.</Tekst>
+										<Auteur>Keulen, Mensje van</Auteur>
+										<Bron>Overspel</Bron>
+										<BronID>239</BronID>
+										<Datering>1982</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>als object bij een werkwoord</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>een kat [aaien, eten geven, castreren, steriliseren, strelen]</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="194773">
+										<Tekst>Vanaf welke leeftijd kan een kat worden gecastreerd? In Nederland gebeurt dat op een leeftijd van 7 tot 9 maanden. De Dierenbescherming zou graag zien dat castratie al op jongere leeftijd plaatsvindt.</Tekst>
+										<BronID>71432</BronID>
+										<URL>http://vpgo.isCool.net/</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="195088">
+										<Tekst>Hij kan niet eens een fles wijn openmaken, hij kan niet eens mijn katten eten geven als ik er eens een keer niet ben.</Tekst>
+										<Auteur>Keuls, Yvonne</Auteur>
+										<Bron>Annie Berber en het verdriet van een tedere crimineel</Bron>
+										<BronID>205</BronID>
+										<Datering>1985</Datering>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+				</combinatiesBody>
+				<verbindingenBody>
+					<Verbindingen pid="195039">
+						<Vorm>als een kat in het nauw (gedreven)</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>erg bedreigd of in moeilijkheden, zoals een kat die in het nauw is gedreven</Definitie>
+								<Definitieaanvulling>
+									<Opmerking>Zie ook de spreekwoorden.</Opmerking>
+								</Definitieaanvulling>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195040">
+									<Tekst>Hij vergeet dat Maria, met haar noodgedwongen onderdanigheid, haar aangekweekte nette manieren, de volksvrouw gebleven is, die niet met zich laat sollen en van zich afbijt tegen gelijk wie, wanneer zij als een kat in het nauw is gedreven.</Tekst>
+									<Auteur>Schouwenaars, Clem</Auteur>
+									<Bron>Emily Beyns, of Het heilig zwijgen. Dl. 1: Verwanten</Bron>
+									<BronID>285</BronID>
+									<Datering>1983</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195145">
+						<Vorm>als een kat om de hete brij heen draaien; als een kat om de hete brij heen lopen</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>niet terzake komen of geen actie ondernemen</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>om de brij heen draaien</lemma>
+										<dtype>art</dtype>
+										<pid>318837</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195146">
+									<Tekst>&quot;Men loopt heel lang als een kat om de hete brij van meningsverschillen heen en je hebt te maken met veel gevestigde posities&quot;, zegt Rutten.</Tekst>
+									<Bron>NRC</Bron>
+									<BronID>42654</BronID>
+									<Datering>1993</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194508">
+						<Vorm>als kat en hond leven</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>in voortdurende vijandschap leven; vaak ruziën</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194513">
+									<Tekst>Het zou wel weer op vechten uitdraaien. Die twee leefden al jaren als kat en hond.</Tekst>
+									<Auteur>Baantjer, Appie</Auteur>
+									<Bron>De Cock en de dode harlekijn</Bron>
+									<BronID>219</BronID>
+									<Datering>1978</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195228">
+						<Vorm>als katten muizen, mauwen ze niet</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>als men eet, praat men minder; als mensen te eten hebben, klagen ze niet</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195229">
+									<Tekst>Na een heerlijk glaasje bier (piepke), wijn of fris werden we uitgenodigd om aan tafel te gaan. Voor 't eerst die dag was het stil. Je kent het gezegde, als katten muizen mauwen ze niet. Daaruit mag ik concluderen dat het iedereen gesmaakt heeft. Martin, Irene, Nathalie en Dave verlieten als eerste het gezelschap.</Tekst>
+									<URL>http://www.aandachtdoetspreken.nl/verslagen/OVVerslag2008/26-apr-08-Steijl-Venlo.asp</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194729">
+						<Vorm>andere katten te geselen hebben</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>andere, grotere en dringender problemen aan zijn hoofd hebben</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194730">
+									<Tekst>De federale regeringsploeg heeft nog andere katten te geselen, en niet van de minste: de hervorming van de sociale zekerheid en de begroting.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9163</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195184">
+						<Vorm>bij nacht zijn alle katten grauw; in het donker zijn alle katten grauw</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>in het donker ziet men niet het verschil tussen mooi of lelijk; ook: als het erop aankomt, zijn we allemaal hetzelfde</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195198">
+									<Tekst>In het verleden is ook geen verzet geboden tegen ministers van neo-fascistische signatuur in Italië. Haider had herhaaldelijk afstand genomen van zijn eigen woorden. En - zo hield André Spoor ons voor onder verwijzing naar Haider, Kohl en Kok - niemand is smetteloos: in het donker zijn alle katten grauw.</Tekst>
+									<URL>http://www.clingendael.nl/media/?id=4364</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194666">
+						<Vorm>cyperse kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zwartbruin-grijsgestreepte kortharige huiskat</Definitie>
+							</definitieBody>
+							<Semagram>
+								<Semagramaanhef>Een cyperse kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+									<Kenmerkklasse>uiterlijk</Kenmerkklasse>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194668">
+									<Tekst>Het record staat op naam van een cyperse kat, die 36 jaar en 1 dag oud werd, alhoewel er een oncontroleerbaar gerucht is over een kat die 43 jaar oud geworden zou zijn.</Tekst>
+									<BronID>3031</BronID>
+									<URL>http://users.skynet.be/bk234002/huiscat.htm</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195281">
+						<Vorm>dan komt de kat op de koord</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>dan wordt het pas moeilijk; dan heb je de poppen aan het dansen</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195282">
+									<Tekst>&quot;De eerste herverdeling van het aantal manschappen zou er pas komen na een evaluatie na twee of drie jaar werken. Dat zal veranderen. We zullen evalueren op basis van het niveau van de criminaliteit&quot;, zegt Jacobs. &quot;Dan komt de kat op de koord, want alle grote steden willen meer agenten.&quot;</Tekst>
+									<BronID>1444</BronID>
+									<Datering>2003</Datering>
+									<URL>http://www.gva.be/dossiers/-c/crimiant/dossier.asp</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194735">
+						<Vorm>de Gelaarsde Kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>sprookjesfiguur uit de vertellingen van Moeder de Gans van de Franse schrijver Charles Perrault</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194736">
+									<Tekst>Hettie had hem zijn nieuwe naam gegeven omdat hij haar deed denken aan de gelaarsde kat uit het sprookje, die de arme molenaarszoon helpt door de koning met de beeldschone dochter steeds uit zijn naam dode muizen en konijnen aan te bieden. 'De Markies van Carabas' noemt hij zijn straatarme meester, om indruk te maken op de koning.</Tekst>
+									<Auteur>Slot, Pauline</Auteur>
+									<Bron>Blauwbaard</Bron>
+									<BronID>107</BronID>
+									<Datering>2000</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195592">
+						<Vorm>de kat aan de kaas laten komen</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zich zwanger laten maken</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195591">
+									<Tekst>Weer een dagdag in ons bedrijf. Het is een eigenaardige plaats. Bijna niemand praat met elkaar maar iedereen weet alles over de anderen. Maar meestal hoor je alleen geruchten. Zoals van die vrolijke schoonmaakster die altijd jazz zong en die de kat aan de kaas had laten
+komen. Ze werkt hier niet meer. Jammer!</Tekst>
+									<URL>taalunieversum.org/onderwijs/schrijfprijs_nt2_winnende_teksten.pdf</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195279">
+						<Vorm>de kat bij de melk zetten</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>iemand in verleiding brengen</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>de kat op het spek binden</lemma>
+										<dtype>art</dtype>
+										<pid>318838</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195280">
+									<Tekst>Een psychiater gaf hem de raad &quot;de konfrontatie met de werkelijkheid&quot; niet te ontwijken en geregeld naar een warenhuis te gaan om te zien of hij al aan de verleiding kon weerstaan. De man kon zich niet beheersen en liep vier keer tegen de lamp [...]. De korrektionele rechtbank van Brugge verleende uitstel van strafuitvoering, omdat de rechter vond dat de psychiater eigenlijk &quot;de kat bij de melk zette&quot;.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9174</BronID>
+									<Datering>1995</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194518">
+						<Vorm>de kat de bel aanbinden</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>als eerste of in het algemeen belang een netelige kwestie ter sprake brengen</Definitie>
+								<Definitieaanvulling>
+									<Opmerking>Naar een fabel van Aesopus waarin muizen afspreken de kat een bel aan te binden.</Opmerking>
+								</Definitieaanvulling>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194522">
+									<Tekst>Maar de krant Libération bond de kat de bel aan, met volle steun van een prof aan de Sorbonne, die stelt dat er een direkt verband tussen ongeletterdheid en werkloosheid bestaat.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9215</BronID>
+									<Datering>1995</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195631">
+						<Vorm>de kat (zit) in de gordijnen</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>er is ruzie; er is onenigheid</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195632">
+									<Tekst>De negenjarige Erwin Hellegering schoot de bal gewoon door het gat tussen de pupillenlat en de gewone lat. De bal lag in het doel, de scheidsrechter had niets gezien dus een doelpunt en de kat in de gordijnen. Het gaf me een heisa bij al die fanatieke pupillenouders.</Tekst>
+									<BronID>63553</BronID>
+									<URL>http://www.skv-voetbal.nl/historie-56.htm</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195167">
+						<Vorm>de kat in de kelder metselen; de kat in de kelder sluiten</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>een ziekte of probleem slechts oppervlakkig genezen of verhelpen, zodat een uitbarsting wel voorkomen wordt, maar het kwaad blijft bestaan</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195168">
+									<Tekst>Een gaatje is meestal een bron van allemaal bacteriën en dit middel is niet bacterie-dodend. Je wilt natuurlijk niet de kat in de kelder metselen.</Tekst>
+									<URL>http://www.nujij.nl/gel-laat-gaatjes-in-tanden-dichtgroeien.9089819.lynkx</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195220">
+						<Vorm>de kat in het donker knijpen</Vorm>
+						<Info>
+							<VormvariantBody>
+								<Vormvariant>de katjes in het donker knijpen</Vormvariant>
+							</VormvariantBody>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>schijnheilig zijn en alleen stiekem dingen doen die niet mogen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195219">
+									<Tekst>De vriendschap tussen deze drugsdealer en de onzekere Tony is redelijk goed uitgewerkt door de twee acteurs [...]. Maar meestal zijn de twee milieus waar Tony tussen dwaalt nogal zwart-wit uitgetekend. Zijn welgestelde ouders knijpen de kat in het donker, en ook de Vlaamse kleinburgerij komt er ongenadig vanaf.</Tekst>
+									<URL>http://www.filmkrant.nl/av/org/filmkran/archief/fk180/video180.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195114">
+						<Vorm>de kat krabt de krullen van de trap; de kat krabt de krollen van de trap</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zinnetje dat men gebruikt om de uitspraak van de r te oefenen, of dat men iemand herhaaldelijk snel laat uitspreken om hem over zijn tong te laten struikelen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195117">
+									<Tekst>Hij leerde haar Vlaamse zinnetjes. 'Tot in der eeuwigheid.' En 'niet warm, niet willen'. En ook moeilijke dingen zoals 'als het regent, dan sneeuwt het niet'. En 'de kat krabt de krollen van de trap'.</Tekst>
+									<Auteur>Vlaminck, Erik</Auteur>
+									<Bron>Dekherinneringen</Bron>
+									<BronID>171</BronID>
+									<Datering>2000</Datering>
+								</Voorbeeld>
+								<Voorbeeld pid="195118">
+									<Tekst>Van een Nederlandse toerist had ik geleerd: 'de kat krabt de krullen van de trap'.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9258</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194535">
+						<Vorm>de kat op het spek binden</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>iemand in verleiding brengen</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>de kat bij de melk zetten</lemma>
+										<dtype>art</dtype>
+										<pid>318839</pid>
+									</link>
+								</Synoniem>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194540">
+									<Tekst>Behalve de poging tot schikking met de NMa spraken ze af dat er met onmiddellijke ingang geen reisjes meer met de branchegenoten zouden worden gemaakt. Klef. &quot;Dat soort reisjes biedt de mogelijkheid tot klef gedrag&quot;, aldus Van den Hoven, die meent dat de bouwers &quot;de kat niet op 't spek moeten binden&quot;.</Tekst>
+									<Bron>De Telegraaf</Bron>
+									<BronID>10878</BronID>
+									<Datering>2002</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194541">
+						<Vorm>de kat uit de boom kijken</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>een afwachtende houding aannemen om te zien hoe de gang van zaken zal zijn, alvorens men zich daarin mengt; afwachten</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>afwachten</lemma>
+										<dtype>art</dtype>
+										<pid>5108</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194546">
+									<Tekst>Vandaag kijkt iedereen de kat uit de boom. Er wordt ook geen opslag gevraagd. Wie een job heeft, is blij die te hebben.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9124</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195227">
+						<Vorm>de kat van de bakker heeft het gedaan</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>het is niemands schuld</Definitie>
+								<Definitieaanvulling>
+									<Opmerking>Als smoes om de schuld van zich af te schuiven.</Opmerking>
+								</Definitieaanvulling>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195226">
+									<Tekst>Hypocriet, schijnvroom, armezondaar, farizeeër, mystificateur, schijnchristen, van buiten kareel van binnen bordeel (kareel, vierkante gebakken steen, gew.), heeft farizeeërsstreken [...], bij hem heeft de kat van de bakker het gedaan (schuift de schuld van iets af).</Tekst>
+									<URL>http://members.upc.nl/m.otter7/handschriftontwikkeling/Big5/Idioticon.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195097">
+						<Vorm>een kat een kat noemen</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>de dingen bij hun naam noemen en er geen doekjes om winden</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195098">
+									<Tekst>&quot;Een definitieve breuk, zoals dat heet. En waarom? Omdat zij nu en dan ook eens met mij slaapt. Jij slaapt toch ook met Christine? We kunnen nu rustig een kat een kat noemen, Paul.&quot;</Tekst>
+									<Auteur>Schouwenaars, Clem</Auteur>
+									<Bron>Liliane, of De spiegelingen van leugen en liefde</Bron>
+									<BronID>287</BronID>
+									<Datering>1983</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194740">
+						<Vorm>een kat in de zak kopen</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>iets kopen zonder het goed te bekijken of te testen en dan bedrogen uitkomen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194741">
+									<Tekst>De aankoop van commerciële educatieve software komt in de praktijk vaak overeen met het kopen van de spreekwoordelijke kat in de zak: je koopt een doos met wat summiere uitleg aan de buitenkant, maar de kwaliteit en tekortkomingen van de software kan je pas echt naar waarde schatten als je het product een tijdlang hebt gebruikt.</Tekst>
+									<BronID>2674</BronID>
+									<Datering>2002</Datering>
+									<URL>http://people.mech.kuleuven.ac.be/~bruyninc/ictvisie.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="204684">
+						<Vorm>een kat met negen levens</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>iemand die gedoemd is ten onder te gaan, maar niet kapot te krijgen is en na elke tegenslag weer een nieuw leven begint</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="204683">
+									<Tekst>De motie van wantrouwen was ook een verlate reaktie tegen de spectaculaire Campo-coup eind 1994. Toen leek hij al de aftocht te zullen moeten blazen, maar bewees een kat met negen levens te zijn.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9455</BronID>
+									<Datering>1995</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194664">
+						<Vorm>een vogel voor de kat zijn</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>verloren zijn; ten dode opgeschreven zijn</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194665">
+									<Tekst>In geen geval gaan we aan de staart van de auto voor ons hangen. Dat geeft een vals gevoel van veiligheid en we zijn een vogel voor de kat als zich een kettingbotsing voordoet.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9162</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194465">
+						<Vorm>(eruitzien) als een verzopen kat; als verzopen katten</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>door en door nat (zijn)</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194469">
+									<Tekst>Geke Faber (Landbouw) en Johan Remkes (Volkshuisvesting) waren na alle regen kennelijk nog niet nat genoeg, want zij sloegen tijdens een kanotochtje om en kwamen als verzopen katten weer aan wal.</Tekst>
+									<Bron>De Telegraaf</Bron>
+									<BronID>10838</BronID>
+									<Datering>2002</Datering>
+								</Voorbeeld>
+								<Voorbeeld pid="194470">
+									<Tekst>Ze hebben een flinke hoosbui gehad onderweg. Iedereen is nog koud en verkleumd. Inmiddels komen Sonia en Max er ook bij. Zoals Sonia eruitziet heb ik haar deze week niet eerder gezien. Ze ziet eruit als een verzopen kat.</Tekst>
+									<Auteur>Sambeek, Liza van</Auteur>
+									<Bron>Zadelpijn en ander damesleed</Bron>
+									<BronID>104</BronID>
+									<Datering>2003</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195269">
+						<Vorm>er zoveel van weten als de kat van saffraan</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>er helemaal niets van weten</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195268">
+									<Tekst>Toen ik vastberaden zei dat ik een boek zou schrijven, mompelden sommigen: &quot;Maak dat de kat wijs&quot;, je weet er zoveel van als de kat van saffraan!</Tekst>
+									<URL>http://david.dursin.com/</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194737">
+						<Vorm>geen kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>niemand</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>geen hond</lemma>
+										<dtype>art</dtype>
+										<pid>318840</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194738">
+									<Tekst>Dag in, dag uit moet hij hier de wacht houden en geen kat die het monument komt bezoeken.</Tekst>
+									<BronID>47142</BronID>
+									<Datering>2000</Datering>
+									<URL>http://users.telenet.be/tomtorfs/egypte/egypte.html</URL>
+								</Voorbeeld>
+								<Voorbeeld pid="195037">
+									<Tekst>Er is geen kat die ons hier kan zien.</Tekst>
+									<Auteur>Auwera, Fernand</Auteur>
+									<Bron>Vliegen in een spinnenweb</Bron>
+									<BronID>124</BronID>
+									<Datering>2001</Datering>
+								</Voorbeeld>
+								<Voorbeeld pid="194739">
+									<Tekst>Nu het hier zo fantastisch mooi is, zie je geen kat.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9132</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195151">
+						<Vorm>geen kat om zonder handschoenen aan te pakken; geen katje om zonder handschoenen aan te pakken</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>een fel persoon die van zich afbijt; iemand die men behoedzaam moet benaderen of aanpakken</Definitie>
+								<Definitieaanvulling>
+									<SemantischeCollocator>
+										<Aanloopzin>Gezegd van ...</Aanloopzin>
+										<Restrictie>vrouwen vooral, maar ook wel van mannen</Restrictie>
+									</SemantischeCollocator>
+								</Definitieaanvulling>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195165">
+									<Tekst>Die gazellenogen konden heel onschuldig kijken, maar dat was maar schijn, want Tanja was helemaal geen katje om zonder handschoenen aan te pakken.</Tekst>
+									<BronID>69797</BronID>
+									<URL>http://www.seksgids.com/verhalen/index.htm</URL>
+								</Voorbeeld>
+								<Voorbeeld pid="195164">
+									<Tekst>Hij is nu nog altijd geen kat om zonder handschoenen aan te pakken, uwe va.</Tekst>
+									<Auteur>Pleysier, Leo</Auteur>
+									<Bron>Volgend jaar in Berchem</Bron>
+									<BronID>161</BronID>
+									<Datering>2000</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194478">
+						<Vorm>kat en muis; een spel van kat en muis; een strijd van kat en muis</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>spel of strijd waarbij iemand met overmacht probeert een ander in het nauw te drijven</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194494">
+									<Tekst>De Polen, dat waren mensen als Zbigniew Bujak, de Poolse Robin Hood, de leider van de ondergrondse Solidariteit die jarenlang kat en muis speelde met het zogenaamd almachtige bewind.</Tekst>
+									<BronID>6210</BronID>
+									<Datering>1999</Datering>
+									<URL>http://www.nrc.nl/W2/Lab/Profiel/Communisme/tekenen.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194732">
+						<Vorm>kat in het bakkie; kat in bakkie</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>gemakkelijke klus; fluitje van een cent</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in Nederland</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194733">
+									<Tekst>Van der Haar dacht 'kat in bakkie' maar voordat hij het wist werd het in de tweede game 13-21 en moest hij dus in de derde game alle zeilen bijzetten, maar hier kwam hij steeds iets te kort zodat de winst ging naar Gerard Anholts met 18-21.</Tekst>
+									<Bron>Meppeler Courant</Bron>
+									<BronID>19882</BronID>
+									<Datering>1994</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+						<Info>
+							<Betekenisletter>b</Betekenisletter>
+							<definitieBody>
+								<Definitie>iets wat loopt zoals het hoort; iets wat precies is zoals men wil</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194734">
+									<Tekst>De bui arriveert en - inderdaad - de eerste sneeuwvlokken beginnen te vallen. De temperatuur begint langzaam de dalen, dus &quot;kat in het bakkie&quot;, denkt de sneeuwliefhebber.</Tekst>
+									<BronID>8874</BronID>
+									<Datering>2000</Datering>
+									<URL>http://www.meteonet.nl/index.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195272">
+						<Vorm>maak dat de kat wijs!</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>mij kan je zoiets niet wijsmaken; daar geloof ik niets van</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195273">
+									<Tekst>'Mama, hoe vaak moet ik het je nog zeggen ... ik heb geen meisje.' 'Kom nou ... een knappe kerel als jij, met van die interessante ogen! Maak dat de kat wijs.'</Tekst>
+									<Auteur>Heijden, A.F.Th. van der</Auteur>
+									<Bron>De tandeloze tijd. Dl. 1: Vallende ouders</Bron>
+									<BronID>233</BronID>
+									<Datering>1983</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194749">
+						<Vorm>Nubische kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>wilde kat uit Afrika en het Midden-Oosten, die waarschijnlijk de voorouder is van onze huiskat; Afrikaanse wilde kat (Felis silvestris libyca)</Definitie>
+							</definitieBody>
+							<Semagram>
+								<Semagramaanhef>Een Nubische kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+									<Kenmerkklasse>soort</Kenmerkklasse>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194751">
+									<Tekst>De Nubische kat beschouwen ze als stamvader van alle huiskatten. De meeste wilde katten kun je niet temmen, maar de Nubische kat is van nature al niet bang voor mensen.</Tekst>
+									<BronID>3033</BronID>
+									<URL>http://users.pandora.be/ggjv/Honden/kInfo.htm</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194742">
+						<Vorm>Perzische kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>kat met een langharige pels en een stomp snuitje, die oorspronkelijk uit de Perzische regio zou stammen; pers</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>Pers</lemma>
+										<dtype>art</dtype>
+										<pid>120480</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<Semagram>
+								<Semagramaanhef>Een Perzische kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+								</Categorieen>
+								<Semagramlink>
+									<link>
+										<lemma>Pers</lemma>
+										<dtype>art</dtype>
+										<pid>120480</pid>
+									</link>
+								</Semagramlink>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194743">
+									<Tekst>Er zijn nog steeds mensen die denken dat Perzische katten uitsluitend fraaie huiskatten zijn en dat ze geen goede jagers zouden zijn.</Tekst>
+									<BronID>3028</BronID>
+									<URL>http://home2.pi.be/denoo/angorakonijnen,cavia,perzische-katten,aanschaf-perzische-katten.htm</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194777">
+						<Vorm>Siamese kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>oosterse, kortharige raskat uit Siam (het huidige Thailand), met een lichtbeige of lichtgrijs gekleurd lijf en donker gekleurde kop, oren, poten en staart; siamees</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>Siamees</lemma>
+										<dtype>art</dtype>
+										<pid>140889</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<Semagram>
+								<Semagramaanhef>Een Siamese kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194788">
+									<Tekst>In de werkkamer van Verschaeve had ze de erkerramen opengezet en Elodie was er, onder haar toezicht, de hoge boekenkast en het massieve bureau aan het schoonwrijven. De grijze Siamese kat lag het laatdunkend te bekijken.</Tekst>
+									<Auteur>Ureel, Lut</Auteur>
+									<Bron>De lange geboorte</Bron>
+									<BronID>291</BronID>
+									<Datering>1977</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="225376">
+						<Vorm>Siberische kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>halflangharige raskat uit Siberië en Rusland</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>sibeer</lemma>
+										<dtype>art</dtype>
+										<pid>225381</pid>
+									</link>
+									<link>
+										<lemma>siberia</lemma>
+										<dtype>art</dtype>
+										<pid>225378</pid>
+									</link>
+									<link>
+										<lemma>Siberische boskat</lemma>
+										<dtype>art</dtype>
+										<pid>318841</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<Semagram>
+								<Semagramaanhef>Een Siberische kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="225377">
+									<Tekst>De Siberische kat (ook wel Siberische boskat genoemd) is een hypoallergene kat die verwant is aan de Noorse boskat.</Tekst>
+									<URL>http://nl.wikipedia.org/wiki/Siberische_kat</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195181">
+						<Vorm>van alle katten kwaad weten</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>op iedereen en alles wat aan te merken hebben</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195183">
+									<Tekst>Kwaaddenkend gifzuiger (ergdenkend mens), neemt anderen gauw iets kwalijk, legt alles ten kwade uit, weet van alle katten kwaad.</Tekst>
+									<URL>http://members.upc.nl/m.otter7/handschriftontwikkeling/Big5/Idioticon.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195041">
+						<Vorm>voor de kat zijn [kloten, kont, kut, staart, viool]</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>voor niets</Definitie>
+								<BijzonderhedenGebruik>
+									<Noot>Uitdrukkingen als [i]voor de kat z'n kut[/i] zijn vulgair. Varianten daarop, zoals [i]voor de kat zijn viool[/i], zijn eufemistisch.</Noot>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>voor de k z'n k</lemma>
+										<dtype>art</dtype>
+										<pid>318842</pid>
+									</link>
+								</Synoniem>
+								<BijzonderhedenGebruik>
+									<Stijl>zeer informeel</Stijl>
+									<Houding>eufemistisch</Houding>
+								</BijzonderhedenGebruik>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195083">
+									<Tekst>Zo’n volkomen overbodige instantie gaat natuurlijk niet eens een keertje gul ja zeggen. Nee hoor, lekker moeilijk en ingewikkeld doen, anders valt het helemaal zo op dat je daar voor de kat z'n kut zit.</Tekst>
+									<URL>http://machielvanderschoot.web-log.nl/alphenaandenrijn/2010/06/de-lullos-van-de-provincie-zuidholland.html</URL>
+								</Voorbeeld>
+								<Voorbeeld pid="195075">
+									<Tekst>Aan de andere kant is het ook moeilijk voorstelbaar dat Karpov en Kamsky bereid zullen zijn om voor de kat z'n staart te spelen, in plaats van om een echt wereldkampioenschap.</Tekst>
+									<Bron>NRC</Bron>
+									<BronID>9062</BronID>
+									<Datering>1995</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194560">
+						<Vorm>wilde kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>verwilderde huiskat; zwerfkat</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>zwerfkat</lemma>
+										<dtype>art</dtype>
+										<pid>190151</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<Semagram>
+								<Semagramaanhef>Een wilde kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194564">
+									<Tekst>Ans gaf ons instructies over de katten: niets doen, alleen elke avond melk klaar zetten en vlees uit het blik. Het waren wilde katten, vertelde ze. Ze had ze wel 's op bed, maar nog nooit binnen handbereik gehad. Schuw, maar trouw. Vreselijk lieve dieren.</Tekst>
+									<Bron>NRC</Bron>
+									<BronID>9061</BronID>
+									<Datering>1995</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+						<Info>
+							<Betekenisletter>b</Betekenisletter>
+							<definitieBody>
+								<Definitie>roofdier uit de familie der katachtigen, dat lijkt op een cyperse huiskat, maar groter is, zwaarder en meer gedrongen (Felis silvestris)</Definitie>
+								<Definitieaanvulling>
+									<Opmerking>Er zijn verschillende ondersoorten, bv. de Europese wilde kat, de Afrikaanse wilde kat en de Aziatische wilde kat. Tegenwoordig wordt ook de huiskat (Felis silvestris catus) beschouwd als een ondersoort van de wilde kat (Felis silvestris).</Opmerking>
+								</Definitieaanvulling>
+							</definitieBody>
+							<Semagram>
+								<Semagramaanhef>Een wilde kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een kat</Categorie>
+									<Kenmerkklasse>soort</Kenmerkklasse>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194638">
+									<Tekst>De wilde kat lijkt op een cyperse huiskat, maar is iets groter en bezit een langere, zachtere vacht. Hij heeft zwarte of grijze strepen over het lichaam en een volle, stompe staart met 3 à 5 donkere ringen. Een cyperse kat is meer gevlekt en een wilde kat zuiver gestreept, maar er komen ook kruisingen voor. Een wilde kat heeft een stompe staart en die van een huiskat eindigt puntig.</Tekst>
+									<BronID>3032</BronID>
+									<URL>http://www.natuurbeleving.be/zoogdieren/Wilde_Kat_Felis-sylvestris.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+						<Info>
+							<Betekenisletter>c</Betekenisletter>
+							<definitieBody>
+								<Definitie>katachtig roofdier in het algemeen, bv. een lynx of een tijger; katachtige</Definitie>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>katachtige</lemma>
+										<dtype>art</dtype>
+										<pid>78341</pid>
+									</link>
+								</Synoniem>
+							</SynoniemBody>
+							<Semagram>
+								<Semagramaanhef>Een wilde kat</Semagramaanhef>
+								<Categorieen>
+									<Categorie>is een katachtige # kat</Categorie>
+								</Categorieen>
+							</Semagram>
+							<voorbeeldBody>
+								<Voorbeeld pid="194651">
+									<Tekst>Het aantal wilde katten in de vrije natuur daalt dramatisch. Niet alleen de Iberische lynx maar ook de tijger en de sneeuwluipaard zijn bedreigd.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9141</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195035">
+						<Vorm>zich voelen als een kat in een vreemd pakhuis</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zich ergens niet thuis voelen; zich ergens niet op zijn gemak voelen omdat men er onbekend is</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195036">
+									<Tekst>Eenmaal in de kerk voelde ik mij als een kat in een vreemd pakhuis, met al die vreugdeloos zingende mensen in hun zondagse goed.</Tekst>
+									<Auteur>Bernlef, J.</Auteur>
+									<Bron>Buiten is het maandag</Bron>
+									<BronID>66</BronID>
+									<Datering>2003</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="194547">
+						<Vorm>zijn kat sturen</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>niet komen opdagen; wegblijven</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<SynoniemBody>
+								<Synoniem>
+									<link>
+										<lemma>de poes sturen</lemma>
+										<dtype>art</dtype>
+										<pid>318843</pid>
+									</link>
+									<link>
+										<lemma>zijn poes sturen</lemma>
+										<dtype>art</dtype>
+										<pid>318844</pid>
+									</link>
+								</Synoniem>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</SynoniemBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194559">
+									<Tekst>Zijn manager zou in Imola een doorbraak forceren bij Ligier, maar Olivier Monseu stuurde zijn kat.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9140</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195143">
+						<Vorm>zo lenig als een kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zeer lenig</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195144">
+									<Tekst>Ben jij zo lenig als een kat en klim je zonder problemen in de hoogste boom? Dan is het Nationaal Boomklimkampioenschap iets voor jou.</Tekst>
+									<URL>http://www.sevendays.nl/artikel/176746</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195270">
+						<Vorm>zo misselijk als een kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zeer misselijk</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195271">
+									<Tekst>Toen ik medio 1997 eensklaps zo misselijk werd als een kat en men heel gestaag rondtastte in het ongewisse dacht ik: - Ik ben een vogel voor de kat! - Ik besloot de kat uit de boom te kijken, doch een kat in het nauw maakt rare sprongen.</Tekst>
+									<URL>http://david.dursin.com/</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195142">
+						<Vorm>zo snel als een kat; zo vlug als een kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zeer snel; zeer vlug</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195141">
+									<Tekst>Midden in de bezettingstijd toen ik met de waanzin van de overmoed snel als een kat door de straat rende waar de kogels uit een vliegtuig op de keien ketsten, alleen om voor mijn bijna verlopen bonnen nog een broodje te kunnen kopen, zat ik een uur later rustig op mijn kleine schrijfmachine een romantisch spookverhaal te tikken.</Tekst>
+									<Auteur>Bulthuis, Rico</Auteur>
+									<Bron>De koorddanseres en andere herinneringen</Bron>
+									<BronID>192</BronID>
+									<Datering>1985</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195119">
+						<Vorm>zo vals zijn als een kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zeer vals zijn; een gemeen, vals karakter hebben</Definitie>
+								<Definitieaanvulling>
+									<SemantischeCollocator>
+										<Aanloopzin>Gezegd van ...</Aanloopzin>
+										<Restrictie>vrouwen</Restrictie>
+									</SemantischeCollocator>
+								</Definitieaanvulling>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195121">
+									<Tekst>Dat mens liegt, en is zo vals als een kat.</Tekst>
+									<URL>http://webcache.googleusercontent.com/search?q=cache:j5Lyta1toIMJ:knack.rnews.be/nl/actualiteit/nieuws/belgie/milquet-heb-geen-schrik-voor-de-wever/article-1194742959196.htm+%22is+zo+vals+als+een+kat%22&amp;cd=12&amp;hl=nl&amp;ct=clnk&amp;gl=nl&amp;source=www.google.nl</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195122">
+						<Vorm>zo vals zingen als een kat; zo vals spelen als een kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>zeer vals zingen of spelen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195123">
+									<Tekst>Helaas zing ik zo vals als een kat.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9301</BronID>
+									<Datering>1997</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195670">
+						<Vorm>(zoveel, zo ingewikkeld, enz.) dat een kat er haar jongen niet meer in terug zou vinden</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>erg veel; erg ingewikkeld, enz.</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195675">
+									<Tekst>Tenslotte verwijst wat je ziet en hoort naar andere dingen: bestaande teksten van Cortazar, Vargas Llosa en anderen, en beelden uit vroegere voorstellingen van Vandekeybus zelf. Zoveel materiaal dat een kat er haar jongen niet meer in terug zou vinden.</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9079</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+					<Verbindingen pid="195233">
+						<Vorm>zo wijs als Salomo's kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>in de waan dat men zeer wijs is, maar eigenlijk erg dom</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195267">
+									<Tekst>De meest voor de hand liggende is: Hij is zo wijs als Salomo's kat. Je kan ook deels het volgende spreekwoord hanteren: Nooit hoort men wijzen hun eigen prijzen. Ik houd het liever bij de eerste.</Tekst>
+									<URL>http://www.pp2g.com/forum/General/217352/1</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+				</verbindingenBody>
+				<spreekwoordenBody>
+					<Spreekwoorden pid="195199">
+						<Vorm>Als de kat van huis is, dansen de muizen op tafel</Vorm>
+						<Info>
+							<VormvariantBody>
+								<Vormvariant>Als de kat van huis is, piepen de muizen</Vormvariant>
+								<Vormvariant>Als de kat van huis is, vieren de muizen feest</Vormvariant>
+							</VormvariantBody>
+							<definitieBody>
+								<Definitie>als er geen toezicht is, gaat iedereen zijn zin doen en gebeuren er dingen die niet horen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195204">
+									<Tekst>Als de kat van huis is... dansen de muizen op tafel? Dit is een spreekwoord dat in het Spaans ook gebruikt wordt. Vlak voor onze reis naar Nederland werd het vaak gebruikt als grapje over hoe het eraan toe zou gaan als ik een tijdje weg zou zijn. En eerlijk gezegd was ik ook wel erg benieuwd naar hoe de zaken ervoor zouden staan wanneer we weer uit Nederland terug zouden komen.</Tekst>
+									<URL>http://marleenwietse.blogspot.com/2009/05/als-de-kat-van-huis-is-dansen-de-muizen.html</URL>
+								</Voorbeeld>
+								<Voorbeeld pid="509913">
+									<Tekst>Overbevissing zou de belangrijkste veroorzaker van de verschuiving in de oceanen zijn. &quot;Overbevissing heeft absoluut het effect van 'als de kat van huis is, dansen de muizen op tafel' op de oceanen,&quot; stelt onderzoeker Villy Christensen. &quot;Door de grote, roofdierachtige vissen uit de oceaan te halen, floreren de kleinere vissen.&quot;</Tekst>
+									<URL>http://www.seafirst.be/index.php?option=com_content&amp;view=article&amp;id=339&amp;catid=59&amp;Itemid=28</URL>
+								</Voorbeeld>
+								<Voorbeeld pid="509914">
+									<Tekst>Welke Nederlander wil het niet? Voor een dubbeltje op de eerste rang? Koopjes, we zijn er dol op. De Beverwijkse Bazaar is een soort vrijstaat in Nederland. Politie knijpt een oogje dicht, Belastingdienst heeft geen capaciteit, dus ... als de kat van huis is .... dansen de muizen op tafel.</Tekst>
+									<URL>http://dekoopjesjager.blogspot.com/</URL>
+								</Voorbeeld>
+								<Voorbeeld pid="509915">
+									<Tekst>Als de kat van huis is piepen de muizen: met het verdwijnen van de snoek kreeg de witvis (brasem, blei, blankvoorn) de overhand.</Tekst>
+									<Bron>Meppeler Courant</Bron>
+									<BronID>34051</BronID>
+									<Datering>1995</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="195109">
+						<Vorm>Als een kat zich wast, komt er gewis een gast</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>een kat die zich wast, zou volgens een oud volksgeloof de voorbode zijn van een onverwachte gast</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195108">
+									<Tekst>Ik vraag me af hoe men erbij komt: 'als de kat zich wast komt er een gast'. Zo’n beest wast zich toch elke dag, dan zou je alle dagen visite krijgen… onzin!</Tekst>
+									<URL>http://jeugdsentimenten.net/2006/01/13/vrijdag-de-13e/</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="194766">
+						<Vorm>Een kat in het nauw maakt rare sprongen</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>iemand die in het nauw gedreven wordt, kan onverwachte dingen doen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="194770">
+									<Tekst>&quot;De Fransen, die in het tornooi tot nu toe een bijzonder degelijke indruk nalaten, werden voor deze kwartfinale prompt tot overgroot favoriet gebombardeerd. &quot;Gevaarlijk&quot;, zegt bondscoach Jacquet. &quot;De Nederlanders zullen tijdens de kwartfinale ongetwijfeld uit een ander vaatje tappen. En bovendien, een kat in het nauw maakt rare sprongen.&quot;</Tekst>
+									<Bron>De Standaard</Bron>
+									<BronID>9367</BronID>
+									<Datering>1996</Datering>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="195583">
+						<Vorm>Een kat komt altijd op [haar, zijn] pootjes terecht</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>iemand zal zich wel uit de moeilijkheden redden; het komt wel goed met iemand</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195584">
+									<Tekst>Ik heb als een gek zitten typen en om 18.40 uur ging ik richting school met mijn werkstuk in de hoop dat de balie nog open was. En tja, een kat komt altijd op zijn pootjes terecht, want de balie was toevallig iets langer open omdat hij ergens mee bezig was.</Tekst>
+									<URL>http://nathalie1978.web-log.nl/nathalie1978/2006/06/een_vos_verlies.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="195150">
+						<Vorm>Of je nu van de kat gebeten wordt, of van de hond, gebeten word je toch</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>het maakt allemaal niet uit; als je toch slachtoffer wordt, maakt het niet uit door wie of waardoor</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195149">
+									<Tekst>En waar moet je op stemmen of je nu van de kat gebeten wordt, of van de hond, gebeten word je toch.</Tekst>
+									<URL>http://www.skodaforum.nl/board/showthread.php?11183-Poll-2e-kamer-verkiezingen-wie-zou-je-nu-stemmen/page2</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="195275">
+						<Vorm>Omwille van de smeer likt de kat de kandeleer</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>men is vaak alleen vriendelijk om er voordeel mee te behalen</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="195277">
+									<Tekst>'Omwille van de smeer, likt de kat de kandeleer'. Dat spreekwoord schoot me te binnen toen ik in Trouw van 22 februari 2005 het artikel las waarin door enkele organisaties werd gereageerd op vragen van de Trouwverslaggever naar aanleiding van de geplande invoering van Lumpsum in het primair onderwijs.</Tekst>
+									<URL>http://www.pcso.nl/html/lumpsum/childpages/omwillevandesmeerverkort.htm</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="509960">
+						<Vorm>Als (de) [katjes, katten] muizen, (dan) mauwen ze niet</Vorm>
+						<ArtikelRef>
+							<link>
+								<lemma>mauwen</lemma>
+								<dtype>spr</dtype>
+								<desc>Als (de) [katjes, katten] muizen, (dan) mauwen ze niet</desc>
+								<pid>96041</pid>
+							</link>
+						</ArtikelRef>
+					</Spreekwoorden>
+					<Spreekwoorden pid="509963">
+						<Vorm>De kat muist het best als hij jongen heeft</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>wie kinderen heeft, zorgt dat er voldoende inkomsten zijn</Definitie>
+								<BijzonderhedenGebruik>
+									<Taalvarieteit>(vooral) in België</Taalvarieteit>
+								</BijzonderhedenGebruik>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="509964">
+									<Tekst>De kat muist het best als ze jongen heeft. (Vlaams) Die kinderen heeft, zorgt dat er flink wat verdiend wordt.</Tekst>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+					<Spreekwoorden pid="509961">
+						<Vorm>Het muist al wat van katten komt</Vorm>
+						<Info>
+							<definitieBody>
+								<Definitie>de jongen vertonen de aard van de ouden; ieder volgt zijn aangeboren aard</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="509962">
+									<Tekst>In een familie waarin het muist al wat van katten komt, zijn flinke spanningen natuurlijk aan de orde van de dag.</Tekst>
+									<URL>http://gat.mysites.nl/mypages/gat/531481.html</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Spreekwoorden>
+				</spreekwoordenBody>
+				<Woordfamilie>
+					<Afleidingen>katachtig; katje; kattendom; katterig; kattig; kattin</Afleidingen>
+					<SamenstellingenMetTrefwoordAlsRechterlid>angorakat; asielkat; binnenkat; boskat; buitenkat; buurkat; buurtkat; civetkat; dakgootkat; fokkat; genetkat; gootkat; himalayakat; huiskat; huis-en-tuinkat; huis-tuin-en-keukenkat; karakterkat; kelderkat; kerkhofkat; kladderkat; klauterkat; knijpkat; korthaarkat; laboratoriumkat; langhaarkat; lapjeskat; lievelingskat; mannetjeskat; meerkat; moederkat; naaktkat; proefkat; raskat; reclamekat; robotkat; roofkat; rotkat; schootkat; showkat; sierkat; sluipkat; snertkat; straatkat; tekenfilmkat; tempelkat; tijgerkat; tuinkat; werkkat; zeekat; zwerfkat</SamenstellingenMetTrefwoordAlsRechterlid>
+					<SamenstellingenMetTrefwoordAlsLinkerlid>katarend; katbeer; katknuppelen; katoog; katschip; kattenaids; kattenallergeen; kattenbaasje; kattenbabbel; kattenbak; kattenbal; kattenbandje; kattenbedrog; kattenbeest; kattenbeet; kattenbek; kattenbeul; kattenbewonderaar; kattenbezit; kattenbezitter; kattenblik; kattenbont; kattenbot; kattenbranche; kattenbrein; kattenbril; kattenbrokken; kattenbuik; kattenbult; kattendarm; kattendrek; kattendrol; kattendrug; katteneigenaar; katteneten; kattenfamilie; kattenfobie; kattenfokker; kattenfokkerij; kattengedrag; kattengejammer; kattengejank; kattengeluid; kattengemiauw; kattengespin; kattengeur; kattengevecht; kattengezicht; kattengodin; kattengras; kattengrit; kattenhaar; kattenhandel; kattenhandschoen; kattenhater; kattenhersenen; kattenhoofd; kattenhotel; kattenjong; kattenkennel; kattenkenner; kattenkerkhof; kattenkeurmeester; kattenklauw; kattenkop; kattenkorrels; kattenkrabziekte; kattenkruid; kattenkussen; kattenkwaad; kattenkweker; kattenkwekerij; kattenleed; kattenleucose; kattenleukemie; kattenleven; kattenliefde; kattenliefhebber; kattenliefhebster; kattenlijf; kattenlucht; kattenluik; kattenmand; kattenmanieren; kattenmelk; kattenmepper; kattenmuil; kattenmuts; kattenmuziek; kattennagel; kattenneus; kattennummer; kattenoog; kattenoor; kattenoverschot; kattenpaal; kattenpels; kattenpension; kattenpies; kattenpil; kattenpis; kattenplaag; kattenpoot; kattenpopulatie; kattenprikpil; kattenprobleem; kattenpsychologie; kattenpupil; kattenras; kattenregistratie; kattenren; kattenrestaurant; kattenreuk; kattenrug; kattensalon; kattenschedel; kattenshow; kattensilhouet; kattensnoep; kattensnoepje; kattensnor; kattensoort; kattenspeelgoed; kattenspeeltje; kattensprong; kattenstaart; Kattenstoet; kattententoonstelling; kattentong; kattentrainster; kattentunnel; kattenuitwerpselen; kattenvangstok; kattenvel; kattenverblijf; kattenverkoop; kattenverlamming; kattenversnapering; kattenvervoer; kattenvlees; kattenvlo; kattenvoeder; kattenvoeding; kattenvoer; kattenvoet; kattenvriend; kattenvrij; kattenvrouwtje; kattenvulling; kattenwas; kattenwedstrijd; kattenwereld; kattenwijf; kattenworp; kattenziekte; katuil; katvanger; katvijandig; katvis; katvrouw; katwilg; katzwijm</SamenstellingenMetTrefwoordAlsLinkerlid>
+					<OverigeWoordFamilieLeden>kat-en-muis; kat-in't-bakkie</OverigeWoordFamilieLeden>
+				</Woordfamilie>
+				<Media>
+					<AfbeeldingBody>
+						<Bron>Toyah</Bron>
+						<Licentie>Publiek domein</Licentie>
+						<URL>https://lh3.googleusercontent.com/-NDjCvxfxIfg/Vlb2J6u3N4I/AAAAAAAAZu8/nwJ8Lys2TkQ/s800-Ic42/kat%2525201.0.JPG</URL>
+					</AfbeeldingBody>
+					<GeluidBody>
+						<URL>http://www.kessels.nl/CatSounds/cat1.wav</URL>
+					</GeluidBody>
+				</Media>
+			</betekenisInfo>
+			<Subbetekenis pid="195644">
+				<betekenisInfo>
+					<Betekenisnummer>1.1</Betekenisnummer>
+					<Lemma>
+						<Lemmavorm>kat</Lemmavorm>
+						<Lemmatype>woord</Lemmatype>
+					</Lemma>
+					<Woordsoort>
+						<Type>substantief</Type>
+						<Substantief>
+							<Naamtype>soortnaam</Naamtype>
+							<GeslachtBody>
+								<Geslacht>mannelijk of vrouwelijk</Geslacht>
+							</GeslachtBody>
+							<Lidwoord>
+								<AardLidwoord>de</AardLidwoord>
+							</Lidwoord>
+							<Betekenisklasse>zaaknaam</Betekenisklasse>
+						</Substantief>
+					</Woordsoort>
+					<SpellingEnFlexie>
+						<SubstantiefVormen>
+							<Enkelvoud>
+								<Woordvorm>kat</Woordvorm>
+								<Afbreking>kat</Afbreking>
+							</Enkelvoud>
+							<meervoudBody>
+								<Meervoud>
+									<Woordvorm>katten</Woordvorm>
+									<Afbreking>kat.ten</Afbreking>
+								</Meervoud>
+							</meervoudBody>
+							<Verkleiningsvorm>
+								<Woordvorm>katje</Woordvorm>
+								<Afbreking>kat.je</Afbreking>
+							</Verkleiningsvorm>
+						</SubstantiefVormen>
+					</SpellingEnFlexie>
+					<Uitspraak>
+						<AantalLettergrepenBody>
+							<AantalLettergrepen>1</AantalLettergrepen>
+						</AantalLettergrepenBody>
+						<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+					</Uitspraak>
+					<Woordvorming>
+						<WoordvormingType>ongeleed</WoordvormingType>
+					</Woordvorming>
+					<definitieBody>
+						<Definitie>beeld of afbeelding van een kat, bv. in de kunst</Definitie>
+						<Minidefinitie>beeld van een kat</Minidefinitie>
+					</definitieBody>
+					<Woordrelaties>
+						<Hyperoniem>
+							<link>
+								<lemma>afbeelding</lemma>
+								<dtype>art</dtype>
+								<pid>3749</pid>
+							</link>
+							<link>
+								<lemma>beeld</lemma>
+								<dtype>art</dtype>
+								<pid>14344</pid>
+							</link>
+						</Hyperoniem>
+					</Woordrelaties>
+					<Betekenisbetrekking>
+						<AardBody>
+							<Algemeen>metonymie</Algemeen>
+						</AardBody>
+						<BetrokkenBetekenissen>1.0 : 1.1</BetrokkenBetekenissen>
+					</Betekenisbetrekking>
+					<voorbeeldBody>
+						<Voorbeeld pid="195723">
+							<Tekst>In 1982 heeft CV Oranjebuurt een bronzen kat aan de gemeente Helmond aangeboden. Dit bronzen sculptuur was het kunstwerk in onze buurt.</Tekst>
+							<URL>http://oranjebuurt.creationpoint.nl/nl/ontstaan-putter</URL>
+						</Voorbeeld>
+						<Voorbeeld pid="195681">
+							<Tekst>De reprodukties maken duidelijk waarom je bepaalde schilderijen nauwelijks kan restaureren zonder de perfekte illuzie van het beeld te verstoren, terwijl een beschadigde Madonna in albast er nog vervoerend mooi uitziet. Of waarom je een kat van een vroege Italiaanse meester anders moet retoucheren dan het keffertje op een paneel van Rogier Van der Weyden.</Tekst>
+							<Bron>De Standaard</Bron>
+							<BronID>9161</BronID>
+							<Datering>1995</Datering>
+						</Voorbeeld>
+					</voorbeeldBody>
+				</betekenisInfo>
+			</Subbetekenis>
+		</Kernbetekenis>
+		<Kernbetekenis pid="78334">
+			<betekenisInfo>
+				<Betekenisnummer>2.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>diernaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>katje</Woordvorm>
+							<Afbreking>kat.je</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<definitieBody>
+					<Definitie>roofdier dat behoort tot de familie van de katachtigen (Felidae), bv. een tijger, leeuw of huiskat; katachtige</Definitie>
+					<Definitieaanvulling>
+						<Opmerking>Vaak in het meervoud.</Opmerking>
+					</Definitieaanvulling>
+					<Minidefinitie>katachtige</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>zoogdier</lemma>
+							<dtype>art</dtype>
+							<pid>188698</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>katachtige</lemma>
+								<dtype>art</dtype>
+								<pid>78341</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Bovencategorie>is een dier</Bovencategorie>
+						<Categorie>is een zoogdier # roofdier</Categorie>
+					</Categorieen>
+					<Kenmerken>
+						<ZintuiglijkeWaarneming>
+							<Afmeting>is een kleine kat, bv. een huiskat of wilde kat, of behoort tot de subfamilie der grote katten, bv. een tijger of leeuw</Afmeting>
+							<Geluid>brult (grote katten) of mauwt (kleine katten); kan blazen en grommen; spint (kleine katten)</Geluid>
+							<Kleur>heeft een effen, gevlekte of gestreepte vacht # getijgerd</Kleur>
+							<Uiterlijk>heeft vijf tenen aan de voorpoten en vier aan de achterpoten; heeft scherpe kromme klauwen die bij de meeste soorten intrekbaar zijn; heeft een gespierd en lenig lichaam; heeft een min of meer ronde kop met lange snorharen; heeft doorgaans spleetvormige pupillen; heeft scherpe tanden en grote hoektanden</Uiterlijk>
+						</ZintuiglijkeWaarneming>
+						<Geheel>
+							<Groep>behoort tot de orde der carnivoren # vleeseter</Groep>
+						</Geheel>
+						<Ruimte>
+							<Plaats>leeft meestal in bosgebieden, maar kan ook in andersoortige gebieden voorkomen, bv. savanne of bergachtig gebied</Plaats>
+						</Ruimte>
+						<Eigenschap_of_hoedanigheid>
+							<Eigenschap_of_hoedanigheid_algemeen>is lenig, behendig en snel</Eigenschap_of_hoedanigheid_algemeen>
+						</Eigenschap_of_hoedanigheid>
+						<Handeling_of_werking>
+							<Gedrag>is een roofdier; leeft meestal solitair, maar leeuwen leven in groepjes; is een nachtdier en kan goed bij schemer zien; kan goed jagen en klimmen # vleeseter; carnivoor</Gedrag>
+						</Handeling_of_werking>
+						<Restgroep>
+							<Voorbeeld_of_specimen>is bv. een leeuw, tijger, panter, wilde kat, huiskat</Voorbeeld_of_specimen>
+						</Restgroep>
+					</Kenmerken>
+					<Wetenschap>
+						<Rijk>Animalia; Dieren</Rijk>
+						<Stam>Chordata; Chordadieren</Stam>
+						<Klasse>Mammalia; Zoogdieren</Klasse>
+						<Orde>Carnivora; Roofdieren</Orde>
+						<Familie>Felidae; Katachtigen</Familie>
+					</Wetenschap>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204557">
+						<Tekst>De gevlekte katten van de panter tot aan de kleine wilde katten, zoals de Ocelot en de Bengaalse kat zullen niet te redden zijn, ook al zal de een of andere dierentuin een poging daartoe doen.</Tekst>
+						<BronID>72691</BronID>
+						<URL>http://www.absmid.demon.nl/mainpage.htm</URL>
+					</Voorbeeld>
+					<Voorbeeld pid="204559">
+						<Tekst>Van alle katten is de leeuw de enige die echt in groepen leeft, waarvan het aantal varieert van twee tot dertig stuks.</Tekst>
+						<URL>http://www.worldexplorer.be/de_grote_katten.htm</URL>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<combinatiesBody>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>met adjectief ervoor</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>[grote, kleine, middelgrote] katten</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="204516">
+										<Tekst>Felidae is de verzamelnaam voor alle grote en kleine katten.</Tekst>
+										<URL>http://www.tijgeritorium.net/general/onderverdeling/felidae_NL.html</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="204517">
+										<Tekst>In het geval van de Felidae-familie worden ze elk nog eens onderverdeeld in twee subfamilies: de familie van de grote katten (Pantherinae) en de familie van de kleine (en middelgrote) katten (Felinae).</Tekst>
+										<URL>http://www.tijgeritorium.net/general/onderverdeling/felidae_NL.html</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="204514">
+										<Tekst>Grote katten brullen. Kleine katten kunnen niet brullen. Dat komt doordat hun strottehoofd anders gebouwd is.</Tekst>
+										<BronID>3033</BronID>
+										<URL>http://users.pandora.be/ggjv/Honden/kInfo.htm</URL>
+									</Voorbeeld>
+									<Voorbeeld pid="204515">
+										<Tekst>Dus, ja, haaien verzorgen een broodnodige dienst. Aasetende vogels evenzo. Wellicht zullen leeuwen en tijgers en andere grote katten een gelijksoortige &quot;karkasverwerkingsdienst&quot; voor ons verzorgen op het vaste land.</Tekst>
+										<BronID>55883</BronID>
+										<Datering>2003</Datering>
+										<URL>http://www.e-watchman.be/postzakken/2003_25_29_juni_5_juli.html</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+				</combinatiesBody>
+				<Woordfamilie>
+					<Afleidingen>katje</Afleidingen>
+					<SamenstellingenMetTrefwoordAlsRechterlid>boskat; goudkat; himalayakat; roofkat; sabeltandkat; sluipkat; tijgerkat; zwartvoetkat</SamenstellingenMetTrefwoordAlsRechterlid>
+					<SamenstellingenMetTrefwoordAlsLinkerlid>kattensoort</SamenstellingenMetTrefwoordAlsLinkerlid>
+				</Woordfamilie>
+			</betekenisInfo>
+		</Kernbetekenis>
+		<Kernbetekenis pid="78335">
+			<betekenisInfo>
+				<Betekenisnummer>3.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>persoonsnaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>katje</Woordvorm>
+							<Afbreking>kat.je</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<BijzonderhedenGebruik>
+					<Houding>pejoratief</Houding>
+				</BijzonderhedenGebruik>
+				<definitieBody>
+					<Definitie>bitse, vinnige vrouw; bits of vinnig meisje</Definitie>
+					<Minidefinitie>bitse vrouw</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>vrouw</lemma>
+							<dtype>art</dtype>
+							<pid>176556</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>kattenkop</lemma>
+								<dtype>art</dtype>
+								<pid>470758</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Betekenisbetrekking>
+					<AardBody>
+						<Algemeen>metafoor</Algemeen>
+					</AardBody>
+					<BetrokkenBetekenissen>1.0 : 2.0</BetrokkenBetekenissen>
+				</Betekenisbetrekking>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Bovencategorie>is een persoon # iemand; mens</Bovencategorie>
+						<Categorie>is een vrouw # meisje</Categorie>
+						<Kenmerkklasse>gedrag</Kenmerkklasse>
+					</Categorieen>
+					<Kenmerken>
+						<Handeling_of_werking>
+							<Gedrag>is vinnig, snibbig, bitsig als een kat</Gedrag>
+						</Handeling_of_werking>
+					</Kenmerken>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204672">
+						<Tekst>En de moeder? De moeder is de spil, het hart, de ziel van de familie. Dianne Krijnen speelt haar krachtig en roerend. Een kat, een zeur, een kreng, vol vergeefse burgermanstrots en valse schaamte.</Tekst>
+						<Bron>NRC</Bron>
+						<BronID>9063</BronID>
+						<Datering>1995</Datering>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<verbindingenBody>
+					<Verbindingen pid="204670">
+						<Vorm>valse kat</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>valse, onbetrouwbare vrouw; vals, onbetrouwbaar meisje</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="204686">
+									<Tekst>Die kattige vrouw was een valse kat, eerst vleien, dan krabben.</Tekst>
+									<URL>http://www.kovandijkvertelt.nl/2011/04/succes-is-geen-garantie-voor-de-toekomst/</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+				</verbindingenBody>
+			</betekenisInfo>
+		</Kernbetekenis>
+		<Kernbetekenis pid="78336">
+			<betekenisInfo>
+				<Betekenisnummer>4.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>abstractum</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>-</Woordvorm>
+							<Afbreking>-</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<definitieBody>
+					<Definitie>bitse opmerking; snauw</Definitie>
+					<Minidefinitie>bitse opmerking</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>opmerking</lemma>
+							<dtype>art</dtype>
+							<pid>114010</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>snauw</lemma>
+								<dtype>art</dtype>
+								<pid>143373</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Categorie>is een taaluiting # opmerking</Categorie>
+					</Categorieen>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204685">
+						<Tekst>Voorlopig is er binnen de club echter niemand die hardop over een kampioenschap durft te filosoferen. 'Want daarvoor heb je geluk nodig', aldus Gritter. 'En voldoende spelers'. De laatste opmerking was een kat in de richting van scheidsrechter S. van Wijk, die de Meppelers in de gordijnen joeg met een aantal discutabele beslissingen.</Tekst>
+						<Bron>Meppeler Courant</Bron>
+						<BronID>17115</BronID>
+						<Datering>1993</Datering>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<combinatiesBody>
+					<Combinaties>
+						<TrefwoordType>substantief</TrefwoordType>
+						<SubstantiefCombi>
+							<SubstantiefRol>als object bij een werkwoord</SubstantiefRol>
+							<CombinatieInfo>
+								<RealisatieBody>
+									<Realisatie>iemand een kat geven</Realisatie>
+								</RealisatieBody>
+								<voorbeeldBody>
+									<Voorbeeld pid="204671">
+										<Tekst>Mensen die van plan waren een onaardige opmerking te maken, of je een kat wilden geven, zullen stuiten op dit aura vol bloemetjes, waardoor hun houding tegenover jou verandert.</Tekst>
+										<BronID>69080</BronID>
+										<URL>http://www.webtarot.nl/info/grondings.html</URL>
+									</Voorbeeld>
+								</voorbeeldBody>
+							</CombinatieInfo>
+						</SubstantiefCombi>
+					</Combinaties>
+				</combinatiesBody>
+				<Woordfamilie>
+					<Afleidingen>katten</Afleidingen>
+				</Woordfamilie>
+			</betekenisInfo>
+		</Kernbetekenis>
+		<Kernbetekenis pid="204707">
+			<betekenisInfo>
+				<Betekenisnummer>5.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>zaaknaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>-</Woordvorm>
+							<Afbreking>-</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<BijzonderhedenGebruik>
+					<domeinBody>
+						<Domein>militaire geschiedenis [militaire geschiedenis]</Domein>
+						<Domeinklasse>militaire geschiedenis</Domeinklasse>
+						<Koepeldomein>geschiedenis</Koepeldomein>
+					</domeinBody>
+				</BijzonderhedenGebruik>
+				<definitieBody>
+					<Definitie>middeleeuws belegeringswerktuig in de vorm van een lage, langwerpige houten constructie op rollen, die de aanvallers tegen een vestingmuur plaatsten om beschut en ongehinderd een bres in de muur te slaan, een muur te ondergraven of een vestinggracht te dempen</Definitie>
+					<Definitieaanvulling>
+						<Opmerking>Alleen in historiserend taalgebruik.</Opmerking>
+					</Definitieaanvulling>
+					<Minidefinitie>belegeringswerktuig</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>werktuig</lemma>
+							<dtype>art</dtype>
+							<pid>181298</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>schildpad</lemma>
+								<dtype>art</dtype>
+								<pid>137925</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Betekenisbetrekking>
+					<AardBody>
+						<Algemeen>metafoor</Algemeen>
+					</AardBody>
+					<BetrokkenBetekenissen>1.0 : 5.0</BetrokkenBetekenissen>
+				</Betekenisbetrekking>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Categorie>is een werktuig # wapen; constructie; belegeringswerktuig</Categorie>
+					</Categorieen>
+					<Kenmerken>
+						<ZintuiglijkeWaarneming>
+							<Uiterlijk>was een lage, langwerpige, houten constructie op rollen</Uiterlijk>
+						</ZintuiglijkeWaarneming>
+						<Functie_of_doel>
+							<Functie>was een belegeringswerktuig dat aanvallers beschermde tegen schutters boven op de vesting</Functie>
+						</Functie_of_doel>
+						<Tijd>
+							<Tijd>werd o.a. in de middeleeuwen gebruikt</Tijd>
+						</Tijd>
+						<Handeling_of_werking>
+							<Gebruikswijze>werd tegen een vestingmuur geplaatst, zodat de belegeraars beschut en ongehinderd een bres in de muur konden slaan, een muur konden ondergraven of een gracht konden dempen</Gebruikswijze>
+						</Handeling_of_werking>
+						<Betrokken_personen_of_zaken>
+							<Gebruiker>werd gebruikt door aanvallers van een in te nemen vesting # belegeraars; leger</Gebruiker>
+						</Betrokken_personen_of_zaken>
+					</Kenmerken>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204720">
+						<Tekst>Evenmin niet te onderschatten is het ondergraven van de muren. Ter bescherming van de gravers worden katten gebruikt. Deze  bestaan uit lichte lage en langwerpige constructies, die aan alle kanten meestal uit hout of gevlochten twijgen bestaan. De enige  verdediging hiertegen is het in brand schieten.</Tekst>
+						<URL>http://www.bertsgeschiedenissite.nl/middeleeuwen/eeuw8/belegeringswerktuigen.htm</URL>
+					</Voorbeeld>
+				</voorbeeldBody>
+			</betekenisInfo>
+		</Kernbetekenis>
+		<Kernbetekenis pid="204722">
+			<betekenisInfo>
+				<Betekenisnummer>6.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>zaaknaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>-</Woordvorm>
+							<Afbreking>-</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<BijzonderhedenGebruik>
+					<domeinBody>
+						<Domein>militaire geschiedenis [militaire geschiedenis]</Domein>
+						<Domeinklasse>militaire geschiedenis</Domeinklasse>
+						<Koepeldomein>geschiedenis</Koepeldomein>
+					</domeinBody>
+				</BijzonderhedenGebruik>
+				<definitieBody>
+					<Definitie>hoog boven de wal uitstekende opstellingsplaats voor geschut, op een bastion of elders in een verdedigingswerk</Definitie>
+					<Definitieaanvulling>
+						<Opmerking>Alleen in historiserend taalgebruik.</Opmerking>
+					</Definitieaanvulling>
+					<Minidefinitie>opstelplaats voor geschut</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>opstelplaats</lemma>
+							<dtype>art</dtype>
+							<pid>318846</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>cavalier</lemma>
+								<dtype>art</dtype>
+								<pid>28975</pid>
+							</link>
+							<link>
+								<lemma>schietkat</lemma>
+								<dtype>art</dtype>
+								<pid>318847</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Betekenisbetrekking>
+					<AardBody>
+						<Algemeen>metafoor</Algemeen>
+					</AardBody>
+					<BetrokkenBetekenissen>1.0 : 6.0</BetrokkenBetekenissen>
+				</Betekenisbetrekking>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Categorie>is een opstelplaats # bouwsel; constructie</Categorie>
+					</Categorieen>
+					<Kenmerken>
+						<ZintuiglijkeWaarneming>
+							<Vorm>varieert van een eenvoudig platform tot een volledig bastion</Vorm>
+						</ZintuiglijkeWaarneming>
+						<Geheel>
+							<Geheel>maakt deel uit van een vesting</Geheel>
+						</Geheel>
+						<Functie_of_doel>
+							<Functie>is een opstellingsplaats voor geschut en dient om de buitenwerken van een vestingstad te dekken # opstelplaats</Functie>
+						</Functie_of_doel>
+						<Ruimte>
+							<Plaats>ligt op een bastion, halve maan of ravelijn</Plaats>
+						</Ruimte>
+					</Kenmerken>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204762">
+						<Tekst>Bij het middelste bastion is het middenterrein opgevuld en verhoogd tot een zogenaamde kat. Het bastion ontleent er zijn naam aan: Katten. Zo'n kat is een (aarden) verhoging vanwaar men met geschut de omgeving kon beheersen en nog steeds is deze kat het hoogste punt van de vestingwerken.</Tekst>
+						<URL>http://c3c.nl/Webpags/Achtergronden_02/Achtergronden_02.html</URL>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<Woordfamilie>
+					<SamenstellingenMetTrefwoordAlsRechterlid>schietkat</SamenstellingenMetTrefwoordAlsRechterlid>
+				</Woordfamilie>
+				<Media>
+					<AfbeeldingBody>
+						<URL>j</URL>
+					</AfbeeldingBody>
+				</Media>
+			</betekenisInfo>
+		</Kernbetekenis>
+		<Kernbetekenis pid="204817">
+			<betekenisInfo>
+				<Betekenisnummer>7.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>zaaknaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>-</Woordvorm>
+							<Afbreking>-</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<BijzonderhedenGebruik>
+					<domeinBody>
+						<Domein>technische wetenschappen energie [techniek]</Domein>
+						<Domeinklasse>techniek</Domeinklasse>
+						<Koepeldomein>techniek en technologie</Koepeldomein>
+					</domeinBody>
+				</BijzonderhedenGebruik>
+				<definitieBody>
+					<Definitie>toestel waaraan een takel hangt en dat langs een geleidingsbaan wordt voortbewogen om lasten tussen vaste punten te vervoeren; loopkat</Definitie>
+					<Minidefinitie>takeltoestel</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>toestel</lemma>
+							<dtype>art</dtype>
+							<pid>157389</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>loopkat</lemma>
+								<dtype>art</dtype>
+								<pid>193270</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Bovencategorie>is een voorwerp # gebruiksvoorwerp</Bovencategorie>
+						<Categorie>is een toestel # installatie</Categorie>
+					</Categorieen>
+					<Semagramlink>
+						<link>
+							<lemma>loopkat</lemma>
+							<dtype>bet</dtype>
+							<desc>1.0 - takeltoestel</desc>
+							<pid>193271</pid>
+						</link>
+					</Semagramlink>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204818">
+						<Tekst>Aan de hijsbalken wordt meestal een loopkat bevestigd. Loopkatten zijn buiten niet continu aanwezig. Haal voor het uitvoeren van een klus de juiste kat uit het magazijn. De eenvoudigste loopkat bestaat uit vier wielen.</Tekst>
+						<URL>www.rendeuro.nl/download/hijsen-kettingtakels.pdf</URL>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<Woordfamilie>
+					<SamenstellingenMetTrefwoordAlsRechterlid>loopkat</SamenstellingenMetTrefwoordAlsRechterlid>
+				</Woordfamilie>
+				<Media>
+					<AfbeeldingBody>
+						<Bron>Rijksdienst voor het Cultureel Erfgoed</Bron>
+						<Licentie>CC BY-SA 3.0</Licentie>
+						<URL>https://lh5.googleusercontent.com/-589soZonhFU/U3HtWXYCPsI/AAAAAAAAKwQ/m6MPAoQ9_48/s576/kat%25207.0.jpg</URL>
+					</AfbeeldingBody>
+				</Media>
+			</betekenisInfo>
+		</Kernbetekenis>
+		<Kernbetekenis pid="204831">
+			<betekenisInfo>
+				<Betekenisnummer>8.0</Betekenisnummer>
+				<Lemma>
+					<Lemmavorm>kat</Lemmavorm>
+					<Lemmatype>woord</Lemmatype>
+				</Lemma>
+				<Woordsoort>
+					<Type>substantief</Type>
+					<Substantief>
+						<Naamtype>soortnaam</Naamtype>
+						<GeslachtBody>
+							<Geslacht>mannelijk of vrouwelijk</Geslacht>
+						</GeslachtBody>
+						<Lidwoord>
+							<AardLidwoord>de</AardLidwoord>
+						</Lidwoord>
+						<Betekenisklasse>zaaknaam</Betekenisklasse>
+					</Substantief>
+				</Woordsoort>
+				<SpellingEnFlexie>
+					<SubstantiefVormen>
+						<Enkelvoud>
+							<Woordvorm>kat</Woordvorm>
+							<Afbreking>kat</Afbreking>
+						</Enkelvoud>
+						<meervoudBody>
+							<Meervoud>
+								<Woordvorm>katten</Woordvorm>
+								<Afbreking>kat.ten</Afbreking>
+							</Meervoud>
+						</meervoudBody>
+						<Verkleiningsvorm>
+							<Woordvorm>-</Woordvorm>
+							<Afbreking>-</Afbreking>
+						</Verkleiningsvorm>
+					</SubstantiefVormen>
+				</SpellingEnFlexie>
+				<Uitspraak>
+					<AantalLettergrepenBody>
+						<AantalLettergrepen>1</AantalLettergrepen>
+					</AantalLettergrepenBody>
+					<FonetischeSchrijfwijze>*k ɑ t</FonetischeSchrijfwijze>
+				</Uitspraak>
+				<Woordvorming>
+					<WoordvormingType>ongeleed</WoordvormingType>
+				</Woordvorming>
+				<definitieBody>
+					<Definitie>gesel van touwen met geknoopte uiteinden waarmee men vroeger misdadige matrozen of slaven strafte; geselkat</Definitie>
+					<Definitieaanvulling>
+						<Opmerking>Alleen in historiserend taalgebruik en meestal in de verbinding [i]kat met de negen (of zeven) staarten[/i].</Opmerking>
+					</Definitieaanvulling>
+					<Minidefinitie>gesel</Minidefinitie>
+				</definitieBody>
+				<Woordrelaties>
+					<Hyperoniem>
+						<link>
+							<lemma>strafwerktuig</lemma>
+							<dtype>art</dtype>
+							<pid>318848</pid>
+						</link>
+					</Hyperoniem>
+					<SynoniemBody>
+						<Synoniem>
+							<link>
+								<lemma>geselkat</lemma>
+								<dtype>art</dtype>
+								<pid>318849</pid>
+							</link>
+						</Synoniem>
+					</SynoniemBody>
+				</Woordrelaties>
+				<Semagram>
+					<Semagramaanhef>Een kat</Semagramaanhef>
+					<Categorieen>
+						<Categorie>is een strafwerktuig # zweep; gesel</Categorie>
+					</Categorieen>
+					<Kenmerken>
+						<Samenstelling>
+							<Deel>bestaat uit negen of zeven touwen of leren strengen met geknoopte uiteinden</Deel>
+						</Samenstelling>
+						<Ruimte>
+							<Plaats>werd gebruikt op zeilschepen en in strafkolonies</Plaats>
+						</Ruimte>
+						<Tijd>
+							<Tijd>werd gebruikt tot in de eerste helft van de negentiende eeuw</Tijd>
+						</Tijd>
+						<Betrokken_personen_of_zaken>
+							<Ondervinder>werd gebruikt om misdadige matrozen of slaven te straffen</Ondervinder>
+						</Betrokken_personen_of_zaken>
+					</Kenmerken>
+				</Semagram>
+				<voorbeeldBody>
+					<Voorbeeld pid="204849">
+						<Tekst>Een lederen uitvoering van de kat was in zwang bij sommige landlegers en in strafkolonies.</Tekst>
+						<URL>http://nl.wikipedia.org/wiki/Zweep</URL>
+					</Voorbeeld>
+				</voorbeeldBody>
+				<verbindingenBody>
+					<Verbindingen pid="204852">
+						<Vorm>de kat met de negen staarten</Vorm>
+						<Info>
+							<Betekenisletter>a</Betekenisletter>
+							<definitieBody>
+								<Definitie>geselkat</Definitie>
+							</definitieBody>
+							<voorbeeldBody>
+								<Voorbeeld pid="204853">
+									<Tekst>De straf werd vaak uitgevoerd met de kat met de negen staarten (cat o' nine tails). Deze gesel had negen koordstrengen met geknoopte uiteinden. Bij een typische uitvoering van zo'n straf moest iedereen aan boord aanwezig zijn om de geseling bij te wonen.</Tekst>
+									<URL>http://nl.wikipedia.org/wiki/Zweep</URL>
+								</Voorbeeld>
+							</voorbeeldBody>
+						</Info>
+					</Verbindingen>
+				</verbindingenBody>
+				<Woordfamilie>
+					<SamenstellingenMetTrefwoordAlsRechterlid>geselkat</SamenstellingenMetTrefwoordAlsRechterlid>
+				</Woordfamilie>
+				<Media>
+					<AfbeeldingBody>
+						<Bron>Pearson Scott Foresman</Bron>
+						<Licentie>Publiek domein</Licentie>
+						<URL>https://lh5.googleusercontent.com/-FvOBmxVcpWM/U3HvWMU_CJI/AAAAAAAAKws/NA1Utz_a5-g/s568/kat%25208.0.jpg</URL>
+					</AfbeeldingBody>
+				</Media>
+			</betekenisInfo>
+		</Kernbetekenis>
+	</BetekenisEnGebruik>
+	<Leescommentaar>WV: plaatsing samenstellingen is vaak problematisch. Bv. boskat kan sub bet. 1 en 2; civetkat, genetkat e.d. horen semantisch eigenlijk nergens bij. Vergelijk hetzelfde probleem bij nijlpaard sub paard, zeepaard(je) en zeekoe sub koe. Voorlopig bij bet. 1.0 laten staan. Een knijpkat is ook geen kat. Loopkat staat dan weer wel bij de betekenis 'hijstoestel'.</Leescommentaar>
+</artikel>

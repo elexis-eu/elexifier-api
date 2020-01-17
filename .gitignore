@@ -1,0 +1,9 @@
+.idea/
+__pycache__/
+venv/
+app.db
+*.pyc
+app/media/*
+app/media/.gitkeep
+.env
+app/transformator/pdftoxml
