@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+  <!-- <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css"/> -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.css"/>
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"/>
+
+  <script src="https://unpkg.com/vue"></script>
+  <!-- <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script> -->
+  <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
+
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"/>
+
+  <title>Elexis XML Harmonizator</title>
+
+</head>
+<body>
+
+<b-container id="login_wrapper">
+  <b-row>
+    <b-col>
+      <form action="/do_login" method='post'>
+	<input type="text" id="login" name="login" placeholder="login">
+	<input type="password" id="password" name="password" placeholder="password">
+	<input type="submit" value="Log in">
+      </form>
+    </b-col>
+  </b-row>
+</b-container>
+
+</body>
+</html>
