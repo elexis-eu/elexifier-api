@@ -7,7 +7,7 @@ services:
     command: bash /var/www/elexifier-api/start.sh
     volumes:
       - /var/elexifier_data/media:/var/www/elexifier-api/app/media
-      - /<PATH_TO_YOUR_LOCAL_DB_VERSIONS>:/var/www/elexifier-api/migrations/versions
+      - /home/jgradisar/elexifier_data/db_versions:/var/www/elexifier-api/migrations/versions
     networks:
       elexifier-network:
           aliases:
