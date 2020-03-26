@@ -15,6 +15,8 @@ class User(db.Model):
     authenticated = db.Column(db.Boolean, default=False)
     registered_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     sketch_engine_uid = db.Column(db.Integer)
+    admin = db.Column(db.Boolean, default=False)
+
 
     def is_active(self):
         """True, as all users are active."""
@@ -131,6 +133,8 @@ class Datasets(db.Model):
     xpaths_for_validation = db.Column(db.String, server_default=None)
     root_element = db.Column(db.String, server_default=None)
     dictionary_metadata = db.Column(db.String, server_default=None)
+    xml_tags = db.Column(db.JSON, server_default=None)
+    character_map = db.Column(db.JSON, server_default=None)
 
 
 class Datasets_single_entry(db.Model):
@@ -162,3 +166,15 @@ class Transformer(db.Model):
     file_download_status = db.Column(db.String, server_default=None)
 
 
+class Error_log(db.Model):
+    __tablename__ = 'error_log'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    dsid = db.Column(db.Integer, db.ForeignKey('datasets.id'))
+    message = db.Column(db.String, server_default=None)
+
+    def __init__(self, dsid, message=None):
+        self.dsid = dsid
+        if message is not None:
+            self.message = message

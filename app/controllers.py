@@ -10,6 +10,7 @@ from app.models import *
 import re
 import os
 import sqlalchemy
+from app.transformator import dictTransformations3 as Transformator
 
 
 
@@ -104,6 +105,8 @@ def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
         result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, xml_lex, xml_ml_out, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
                                     ", lexonomy_ml_access, lexonomy_ml_delete, lexonomy_ml_edit, lexonomy_ml_status "+
                                     "FROM datasets WHERE uid='{0:s}' and upload_mimetype='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), mimetype, order))
+    elif uid is None:
+        result = connection.execute("SELECT id, file_path, xml_file_path from datasets WHERE id='{0:s}'".format(str(dsid)))
     else:
         result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, xml_lex, xml_ml_out, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
                                     ", lexonomy_ml_access, lexonomy_ml_delete, lexonomy_ml_edit, lexonomy_ml_status " +
@@ -266,13 +269,21 @@ def describe_transform(db, uid, xfid, page):
     return {'transform': transform, 'entities': entities_page, 'pages': len(pages)}
 
 
-def new_transform(db, uid, uuid, xfname, dsid, xpath, saved):
+def new_transform(db, uid, uuid, xfname, dsid, xpath, headword, saved):
     
     print('new transform')
 
     # Create
     #print(dzcontent.stream.read())
-    transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath, saved=saved)
+    dummy = {"entry": {"expr": ".//"+xpath, "type": "xpath"},
+             "sense": {"expr": "dummy", "type": "xpath"},
+             "hw": {"attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerText",
+                    "type": "simple",
+                    "selector": {"expr": ".//"+headword, "type": "xpath"}
+                    }
+             }
+
+    transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath, transform=dummy, saved=saved)
     db.session.add(transformer)
     db.session.commit()
     return transformer.id
@@ -283,12 +294,44 @@ def update_transform(db, uid, xfid, xfspec, name, saved):
     print('update transformer')
 
     transformer = db.session.query(Transformer).get(xfid)
+
+    # if headword changed
+    if xfspec['hw'] != transformer.transform['hw']:
+        transformer.entity_spec = xfspec['entry']['expr'][3:]
+        # update datasets single entry
+        print("Updating Datasets_single_entry XFID: {0:d}".format(xfid))
+        update_single_entries(db, xfid, xfspec)
+
     transformer.transform = xfspec
     transformer.saved = saved
     if name:
         transformer.name = name
     db.session.commit()
     return 1
+
+
+def update_single_entries(db, xfid, transform):
+    entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid))
+
+    parserLookup = lxml.etree.ElementDefaultClassLookup(element=Transformator.TMyElement)
+    myParser = lxml.etree.XMLParser()
+    myParser.set_element_class_lookup(parserLookup)
+    mapping = Transformator.TMapping(transform)
+    mapper = Transformator.TMapper()
+
+    counter = 0
+    for e in entries:
+        entity_xml = lxml.etree.fromstring(e.contents, parser=myParser)
+        out_TEI, _aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripHeader=True, stripDictScrap=True)
+        try:
+            headword = out_TEI.findall('.//orth', namespaces=out_TEI.nsmap)[0].text.strip()
+        except:
+            headword = "Entry {}".format(counter)
+        e.entry_text = headword.strip()
+        counter += 1
+
+    db.session.commit()
+    return
 
 
 def get_entity_and_spec(db, uid, xfid, entityid):
@@ -382,6 +425,41 @@ def clean_tag(xml_tag):
             return m.group(0)[1:]
     else:
         return xml_tag
+
+
+def map_xml_tags(db, dsid):
+    def xml_walk(node, acc={}):
+        tag = node.tag
+        if tag not in acc:
+            acc[tag] = {'parent': [], 'child': []}
+        # add parent to accumulator
+        try:
+            parent_tag = node.getparent().tag
+            if parent_tag not in acc[tag]['parent']:
+                acc[tag]['parent'].append(parent_tag)
+        except:
+            pass  # root node has no parent
+        # search children
+        for child in node:
+            child_tag = child.tag
+            if child_tag not in acc[tag]['child']:
+                acc[tag]['child'].append(child_tag)
+            acc = xml_walk(child, acc=acc)
+        return acc
+
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+    db.session.commit()
+    print(dataset.file_path, "<----------")
+    tree = lxml.etree.parse(dataset.file_path)
+    tags_json = xml_walk(tree.getroot())
+    dataset.xml_tags = tags_json
+    db.session.commit()
+    return
+
+
+def get_xml_tags(db, dsid):
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+    return dataset.xml_tags
 
 
 def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
@@ -571,3 +649,38 @@ def get_ds_metadata(db, dsid):
         return json.loads(ds_metadata)
     else:
         return {}
+
+
+def dataset_character_map(db, dsid, set=False, character_map=None):
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+    if set:
+        dataset.character_map = character_map
+    else:
+        character_map = dataset.character_map
+    db.session.commit()
+    return character_map
+
+
+def add_error_log(db, dsid, msg=None):
+    err_log = Error_log(dsid, msg)
+    db.session.add(err_log)
+    db.session.commit()
+    return
+
+
+def get_error_log(db, e_id=None):
+    if e_id is None:
+        logs = db.session.query(Error_log).order_by(sqlalchemy.desc(Error_log.created_ts)).limit(100).all()
+    else:
+        logs = db.session.query(Error_log).filter(Error_log.id == e_id).first()
+    db.session.commit()
+    return logs
+
+
+def delete_error_log(db, e_id, dsid=None):
+    if dsid is None:
+        db.session.query(Error_log).filter(Error_log.id == e_id).delete()
+    else:
+        db.session.query(Error_log).filter(Error_log.dsid == dsid).delete()
+    db.session.commit()
+    return

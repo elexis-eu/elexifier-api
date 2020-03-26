@@ -6,27 +6,19 @@ services:
       dockerfile: Dockerfile
     command: bash /var/www/elexifier-api/start.sh
     volumes:
-      - /<PATH_TO_YOUR_MEDIA_VOLUME>:/var/www/elexifier-api/app/media
+      - /home/jgradisar/elexifier_data/media:/var/www/elexifier-api/app/media
+    extra_hosts:
+      - "host:10.10.1.8"
     networks:
       elexifier-network:
           aliases:
               - flask-app
     ports:
       - 5000:8080
-    depends_on:
-      - db
-  db:
-    image: postgres:latest
-    restart: always
-    env_file: .env
-    networks:
-      elexifier-network:
-          aliases:
-              - db
-    ports:
-      - 5431:5432
   redis:
     image: redis
+    extra_hosts:
+      - "host:10.10.1.8"
     networks:
       elexifier-network:
         aliases:
@@ -35,7 +27,9 @@ services:
     build: .
     command: celery -A app.views:celery worker --loglevel=info
     volumes:
-      - /<PATH_TO_YOUR_MEDIA_VOLUME>:/var/www/elexifier-api/app/media
+      - /home/jgradisar/elexifier_data/media:/var/www/elexifier-api/app/media
+    extra_hosts:
+      - "host:10.10.1.8"
     networks:
       elexifier-network:
         aliases:
@@ -45,6 +39,3 @@ services:
 
 networks:
     elexifier-network:
-
-
-

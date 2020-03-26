@@ -17,6 +17,7 @@ from app.transformator import dictTransformations3 as transformator
 from app.pdf2lex_ml.xml2json_ML import xml2json
 from app.pdf2lex_ml.train_ML import train_ML
 from app.pdf2lex_ml.json2xml_ML import json2xml
+from app.pdf2lex_ml.tokenized2TEI import tokenized2TEI
 from functools import partial
 import json, collections
 from flask_bcrypt import Bcrypt
@@ -35,6 +36,7 @@ from celery.result import AsyncResult
 import random
 import string
 import requests
+import traceback
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -120,10 +122,11 @@ def user_data():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     user = controllers.user_data(db, id)
-    if user != None:
+    if user is not None:
         response = {
-                'username' : user.username,
-                'email' : user.email,
+                'username': user.username,
+                'email': user.email,
+                'admin': user.admin
                 }
         return flask.make_response(jsonify(response),200)
     else:
@@ -262,6 +265,8 @@ def ds_upload_new_dataset():
             result = controllers.list_datasets(engine, id, dsid=dsid)
             if "pdf" in result['upload_mimetype']:
                 transform_pdf2xml(result)
+            else:
+                controllers.map_xml_tags(db, dsid)
 
         return _j(result)
     else:
@@ -279,24 +284,168 @@ def ds_rename_dataset(dsid):
     pass
 
 
+@app.route('/api/dataset/<int:dsid>/tags', methods=['GET'])
+def get_dataset_tags(dsid):
+    return controllers.get_xml_tags(db, dsid)
+
+
+@celery.task
+@app.route('/api/dataset/<int:dsid>/validate-path', methods=['POST'])
+def validate_path(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    paths = flask.request.json.get('paths', [])
+
+    dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+    tree = lxml.etree.parse(dataset['file_path'])
+    namespaces = tree.getroot().nsmap
+    out = []
+
+    for path in paths:
+        _path = ".//" + "/".join(path)
+        if len(tree.xpath(_path, namespaces=namespaces)) > 0:
+            out.append(path)
+
+    return _j({'paths': out})
+
+
 # -- lexonomy
+def first_n_pages(original_file, out_file, n):
+    # Create root element and add attributes
+    root_element = lxml.etree.fromstring('<DOCUMENT></DOCUMENT>')
+    root_element.attrib['filename'] = original_file.split("/")[-1]
+    # Create body and metadata
+    body = lxml.etree.fromstring('<BODY></BODY>')
+    metadata = lxml.etree.fromstring('<METADATA/>')
+    metadata.text = 'pages 1-{0}'.format(n)
+    body.append(metadata)
+
+    # Parse original file and get BODY
+    tree = lxml.etree.parse(original_file).getroot()
+    tree = tree.xpath('.//BODY')[0]
+
+    # Extract tokens from body
+    for token in tree:
+        if token.tag == 'METADATA':
+            # Skip metadata, because we have a new one
+            continue
+        page_num = int(token.attrib['page'])
+        if page_num <= n:
+            body.append(token)
+
+    root_element.append(body)
+    out_xml = lxml.etree.tostring(root_element, pretty_print=True, encoding='unicode')
+    file = open(out_file, 'w')
+    file.write(out_xml)
+    file.close()
+    return
+
+
+def additional_n_pages(original_file, lex_file, out_file, n):
+    # Parse Lexonomy file and count bodies
+    lex_tree = lxml.etree.parse(lex_file).getroot()
+    last_page_num = len(lex_tree) * n
+    # Insert metadata into lexonomy bodies
+    c = 1
+    for body in lex_tree:
+        metadata = lxml.etree.fromstring('<METADATA/>')
+        metadata.text = 'pages {0}-{1}'.format(c, c + n - 1)
+        body.insert(0, metadata)
+        c += n
+
+    # Create root element and add attributes
+    root_element = lxml.etree.fromstring('<DOCUMENT></DOCUMENT>')
+    root_element.attrib['filename'] = original_file.split("/")[-1]
+    # Create body and metadata
+    body = lxml.etree.fromstring('<BODY></BODY>')
+    metadata = lxml.etree.fromstring('<METADATA/>')
+    metadata.text = 'pages {0}-{1}'.format(last_page_num + 1, last_page_num + n)
+    body.append(metadata)
+
+    # Parse original file and get BODY
+    tree = lxml.etree.parse(original_file).getroot()
+    tree = tree.xpath('.//BODY')[0]
+
+    # Extract tokens from body
+    for token in tree:
+        if token.tag == 'METADATA':
+            # Skip metadata, because we have a new one
+            continue
+        page_num = int(token.attrib['page'])
+        if last_page_num < page_num <= (last_page_num + n):
+            body.append(token)
+
+    # Add lexonomy BODY-ies to root_element
+    for lex_entry in lex_tree:
+        root_element.append(lex_entry)
+
+    root_element.append(body)
+    out_xml = lxml.etree.tostring(root_element, pretty_print=True, encoding='unicode')
+    file = open(out_file, 'w')
+    file.write(out_xml)
+    file.close()
+
+
+def split_preview(anno_file, out_file, n):
+    anno_tree = lxml.etree.parse(anno_file).getroot()
+    new_root = lxml.etree.Element('DOCUMENT')
+    body = lxml.etree.Element('BODY')
+    metadata = lxml.etree.Element('METADATA')
+    count = 0
+    metadata.text = 'Entries 1 - {}'.format(n)
+    body.append(metadata)
+
+    for child in anno_tree:
+        body.append(child)
+        count += 1
+        if count % n == 0 and count != 0:
+            new_root.append(body)
+            body = lxml.etree.Element('BODY')
+            metadata = lxml.etree.Element('METADATA')
+            metadata.text = 'Entries {0} - {1}'.format(count+1, count+n)
+            body.append(metadata)
+
+    new_root.append(body)
+    out_xml = lxml.etree.tostring(new_root, pretty_print=True, encoding='unicode')
+    file = open(out_file, 'w')
+    file.write(out_xml)
+    file.close()
+    return
+
+
 @app.route('/api/lexonomy/<int:uid>/download/<int:dsid>', methods=['GET'])
 def lexonomy_download(uid, dsid):
     if flask.request.headers.get('Authorization') != app.config['LEXONOMY_AUTH_KEY']:
         raise InvalidUsage("Shared secret is not valid!", status_code=401, enum='UNAUTHORIZED')
 
     ml = flask.request.args.get('ml', default="False", type=str) == "True"
-    if ml:
+    additional_pages = flask.request.args.get('add_pages', default="False", type=str) == "True"
+    if ml:  # Set datasets status
         controllers.set_dataset_status(engine, uid, dsid, 'preview_Processing')
     else:
         controllers.set_dataset_status(engine, uid, dsid, 'annotate_Processing')
 
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+    temp_fname = dataset['xml_file_path'].split(".xml")[0] + "-tmp.xml"
+
+    @after_this_request
+    def remove_file(response):
+        os.remove(temp_fname)
+        return response
 
     if ml:
-        flask.send_file(dataset['xml_ml_out'], attachment_filename=dataset['xml_ml_out'].split('/')[-1], as_attachment=True)
+        # Send ml file
+        split_preview(dataset['xml_ml_out'], temp_fname, 100)
+        return flask.send_file(temp_fname, attachment_filename=dataset['xml_ml_out'].split('/')[-1], as_attachment=True)
 
-    return flask.send_file(dataset['xml_file_path'], attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+    elif not additional_pages:
+        # Send first 20 pages file
+        first_n_pages(dataset['xml_file_path'], temp_fname, 20)
+        return flask.send_file(temp_fname, attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+    else:
+        # Send additional 20 pages file
+        additional_n_pages(dataset['xml_file_path'], dataset['xml_lex'], temp_fname, 20)
+        return flask.send_file(temp_fname, attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
 
 
 @celery.task
@@ -305,20 +454,22 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
     response = requests.post('https://lexonomy.elex.is/elexifier/new',
                              headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']},
                              data=json.dumps(request_data))
-
     if ml:
         status_prepend = "preview_"
     else:
         status_prepend = "annotate_"
 
-    try:
-        resp_js = json.loads(response.text)
-        if ml:
-            controllers.dataset_add_ml_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+    resp_js = json.loads(response.text)
+    if resp_js['error'] == 'email not found':
+        controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_Error")
+        return
 
+    try:
+        if ml:
+            controllers.dataset_add_ml_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
         else:
             # Update dataset in db
-            controllers.dataset_add_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['delete_link'], resp_js['edit_link'], resp_js['status_link'])
+            controllers.dataset_add_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
     except:
         controllers.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_Error")
 
@@ -334,6 +485,12 @@ def ds_send_to_lexonomy(dsid):
     user = controllers.user_data(db, uid)
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
 
+    additional_pages = flask.request.args.get('add_pages', default='false', type=str).lower() == 'true'
+    if additional_pages:
+        # get file from lexonomy and save it
+        get_lex_xml(uid, dsid)
+        #return _j({'message': 'test_ok', 'dsid': dsid})
+
     if dataset['lexonomy_delete'] is not None:
         requests.post(dataset['lexonomy_delete'],
                       headers={"Content-Type": 'application/json',
@@ -342,10 +499,18 @@ def ds_send_to_lexonomy(dsid):
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
-        'filename': dataset['name'],
+        'filename': dataset['name'] + ' - annotate',
         'type': 'edit',
         'return_to': ""  # remove if no longer required
     }
+
+    if additional_pages:
+        request_data['xml_file'] += "?add_pages=True"
+
+    if user.password_hash is None:  # ske user
+        request_data['ske_user'] = True
+    else:
+        request_data['ske_user'] = False
 
     print('Starting asynchronous request to Lexonomy')
     task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], countdown=0)
@@ -383,10 +548,10 @@ def get_lex_xml(uid, dsid):
     request_headers = { "Authorization": app.config['LEXONOMY_AUTH_KEY'], "Content-Type": 'application/json' }
     response = requests.get(dataset['lexonomy_access'], headers=request_headers)
 
-    data = re.search("<BODY.*<\/BODY>", response.text).group()
+    #data = re.search("<BODY.*<\/BODY>", response.text).group()
 
     f = open(xml_lex, "w")
-    f.write(data)
+    f.write(response.text)
     f.close()
     return
 
@@ -403,10 +568,15 @@ def ds_sendML_to_lexonomy(uid, dsid):
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid) + "?ml=True",
         'email': user.email,
-        'filename': dataset['name'],
+        'filename': dataset['name'] + ' - preview',
         'type': 'preview',
         'return_to': ""  # remove if no longer required
     }
+
+    if user.password_hash is None:  # ske user
+        request_data['ske_user'] = True
+    else:
+        request_data['ske_user'] = False
 
     print('Starting asynchronous request to Lexonomy')
     task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], kwargs={"ml": True}, countdown=0)
@@ -421,8 +591,9 @@ def ds_sendML_to_lexonomy(uid, dsid):
 
 @celery.task
 def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
-    json_ml_in = '/var/www/elexifier-api/app/media/ML-IN-{}.json'.format(str(dsid))
-    json_ml_out = '/var/www/elexifier-api/app/media/ML-OUT-{}.json'.format(str(dsid))
+    temp_fname = xml_raw.split('.xml')[0]
+    json_ml_in = temp_fname + '-ML-IN.json'
+    json_ml_out = temp_fname + '-ML-OUT.json'
 
     # Create files
     open(json_ml_in, 'a').close()
@@ -434,27 +605,41 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     try:
         xml2json(xml_raw, xml_lex, json_ml_in)
         controllers.set_dataset_status(engine, uid, dsid, "ML_Format")
-    except:
+    except Exception as e:
         controllers.set_dataset_status(engine, uid, dsid, "Lex2ML_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        print(traceback.format_exc())
+        controllers.add_error_log(db, dsid, traceback.format_exc())
         return
 
     print("train_ML")
     try:
-        train_ML(json_ml_in, json_ml_out)
+        jdata, report = train_ML(json_ml_in, json_ml_out, '')
+
+        jdata_file = temp_fname + '-jdata.txt'
+        report_file = temp_fname + '-report.txt'
+        with open(jdata_file, 'w') as f:
+            f.write(str(jdata))
+        with open(report_file, 'w') as f:
+            f.write(report)
+
         controllers.set_dataset_status(engine, uid, dsid, "ML_Annotated")
-    except:
+    except Exception as e:
         controllers.set_dataset_status(engine, uid, dsid, "ML_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        print(traceback.format_exc())
+        controllers.add_error_log(db, dsid, traceback.format_exc())
         return
 
     print("json2xml_ML")
     try:
         json2xml(json_ml_out, xml_raw, xml_out)
         controllers.set_dataset_status(engine, uid, dsid, "Lex_Format")
-    except:
+    except Exception as e:
         controllers.set_dataset_status(engine, uid, dsid, "ML2Lex_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        print(traceback.format_exc())
+        controllers.add_error_log(db, dsid, traceback.format_exc())
         return
 
     controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
@@ -462,7 +647,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     os.remove(json_ml_out)
     return
 
-
+@celery.task
 @app.route('/api/ml/<int:dsid>', methods=['GET'])
 def ds_machine_learning(dsid):
     token = flask.request.headers.get('Authorization')
@@ -501,8 +686,18 @@ def ds_machine_learning(dsid):
         return _j({"message": "File is still processing.", "dsid": dsid, "Status": status})
 
     # Check if user wants file and then return it
-    if xml_format and status is not "Lex_Format":
-        return flask.send_file(xml_ml_out, attachment_filename=xml_ml_out.split('/')[-1], as_attachment=True)
+    if xml_format and status not in ['Starting_ML', 'ML_Format', 'ML_Annotated', 'Lex2ML_Error', 'ML_Error', 'ML2Lex_Error']:
+        # TODO: get the latest annotated version from Lexonomy
+        tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
+        character_map = controllers.dataset_character_map(db, dsid)
+        tokenized2TEI(xml_ml_out, tmp_file, character_map)
+
+        @after_this_request
+        def after(response):
+            os.remove(tmp_file)
+            return response
+
+        return flask.send_file(tmp_file, attachment_filename=dataset['name'], as_attachment=True)
     elif xml_format:
         raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
 
@@ -560,6 +755,23 @@ def delete_ml(dsid):
     return _j({'message': 'OK'})
 
 
+@app.route('/api/ml/<int:dsid>/character_map', methods=['POST'])
+def char_map(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    character_map = flask.request.json.get('character_map', None)
+    controllers.dataset_character_map(db, dsid, set=True, character_map=character_map)
+    return _j({'msg': 'ok'})
+
+
+@app.route('/api/ml/<int:dsid>/character_map', methods=['GET'])
+def get_char_map(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    character_map = controllers.dataset_character_map(db, dsid)
+    return _j({'character_map': character_map})
+
+
 # -- transforms
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
 def xf_list_transforms(dsid):
@@ -596,8 +808,10 @@ def xf_new_transform():
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
         #return flask.make_response(('Invalid API call'), 422)
-    xfid = controllers.new_transform(db, id, dsuuid, xfname, dsid, entry_spec, saved)
+
+    xfid = controllers.new_transform(db, id, dsuuid, xfname, dsid, entry_spec, headword, saved)
     isok, retmsg = controllers.prepare_dataset(db, id, dsid, xfid, entry_spec, headword)
+
     if not isok:
         raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
         #return flask.make_response(retmsg, 422)
@@ -626,6 +840,7 @@ def xf_delete_transform(xfid):
         return _j({'deleted': xfid})
 
 
+@celery.task
 @app.route('/api/transform/<int:xfid>', methods=['POST'])
 def xf_update_transform(xfid):
     token = flask.request.headers.get('Authorization')
@@ -938,6 +1153,57 @@ def logout():
     else:
         raise InvalidUsage('Provide a valid auth token.', status_code=409, enum="INVALID_AUTH_TOKEN")
     return flask.render_template('login.html')
+
+
+# --- support ---
+@app.route('/api/support/list', methods=['GET'])
+def list_error_logs():
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    user = controllers.user_data(db, id)
+    if not user.admin:
+        raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
+
+    logs = controllers.get_error_log(db)
+    logs = [{'id': log.id, 'dsid': log.dsid, 'message': log.message, 'time': log.created_ts } for log in logs]
+    return _j({'logs': logs})
+
+
+@app.route('/api/support/<int:e_id>', methods=['GET'])
+def get_error_log(e_id):
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    user = controllers.user_data(db, id)
+    if not user.admin:
+        raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
+
+    log = controllers.get_error_log(db, e_id=e_id)
+
+    dataset = controllers.list_datasets(engine, None, dsid=log.dsid)
+    xml_lex = flask.request.args.get('xml_lex', default=0, type=int) == 1
+    xml_raw = flask.request.args.get('xml_raw', default=0, type=int) == 1
+
+    if xml_raw:
+        return flask.send_file(dataset['xml_file_path'], attachment_filename='{0}_xml_raw.xml'.format(dataset['id']), as_attachment=True)
+
+    elif xml_lex:
+        file_path = dataset['xml_file_path'].split('.xml')[0] + '-LEX.xml'
+        return flask.send_file(file_path, attachment_filename='{0}_xml_lex.xml'.format(dataset['id']), as_attachment=True)
+
+    # If no params, return log
+    return _j({'id': log.id, 'dsid': log.dsid, 'message': log.message, 'time': log.created_ts})
+
+
+@app.route('/api/support/<int:e_id>', methods=['DELETE'])
+def delete_error_log(e_id):
+    token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
+    user = controllers.user_data(db, id)
+    if not user.admin:
+        raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
+
+    controllers.delete_error_log(db, e_id)
+    return _j({'message': 'ok'})
 
 
 # --- error handling ---
