@@ -1,0 +1,27 @@
+name: Staging Deployment
+on:
+  push:
+    branches: [ develop ]
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: deploying via ssh to staging environment
+      uses: appleboy/ssh-action@master
+      with:
+        proxy_host: ${{ secrets.PROXY_HOST }}
+        proxy_username: ${{ secrets.PROXY_USERNAME }}
+        proxy_password: ${{ secrets.PROXY_PASSWORD }}
+        proxy_port: ${{ secrets.PROXY_PORT }}
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd ${{ secrets.PROJECT_PATH }}
+          git checkout develop
+          git reset --hard
+          git pull
+          echo "Upping docker container"
+          docker-compose -f docker-compose.staging.yml -p elexifier up -d --build
