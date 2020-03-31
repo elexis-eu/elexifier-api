@@ -611,26 +611,19 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         controllers.set_dataset_status(engine, uid, dsid, "Lex2ML_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
-        controllers.add_error_log(db, dsid, traceback.format_exc())
+        controllers.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
     print("train_ML")
     try:
-        jdata, report = train_ML(json_ml_in, json_ml_out, '')
-
-        jdata_file = temp_fname + '-jdata.txt'
-        report_file = temp_fname + '-report.txt'
-        with open(jdata_file, 'w') as f:
-            f.write(str(jdata))
-        with open(report_file, 'w') as f:
-            f.write(report)
-
+        _, report = train_ML(json_ml_in, json_ml_out, '')
+        controllers.add_error_log(db, dsid, tag='ml_finished', message=report)
         controllers.set_dataset_status(engine, uid, dsid, "ML_Annotated")
     except Exception as e:
         controllers.set_dataset_status(engine, uid, dsid, "ML_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
-        controllers.add_error_log(db, dsid, traceback.format_exc())
+        controllers.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
     print("json2xml_ML")
@@ -641,7 +634,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         controllers.set_dataset_status(engine, uid, dsid, "ML2Lex_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
-        controllers.add_error_log(db, dsid, traceback.format_exc())
+        controllers.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
     controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")

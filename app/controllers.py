@@ -661,8 +661,8 @@ def dataset_character_map(db, dsid, set=False, character_map=None):
     return character_map
 
 
-def add_error_log(db, dsid, msg=None):
-    err_log = Error_log(dsid, msg)
+def add_error_log(db, dsid, tag=None, message=None):
+    err_log = Error_log(dsid, tag=tag, message=message)
     db.session.add(err_log)
     db.session.commit()
     return

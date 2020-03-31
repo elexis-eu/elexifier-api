@@ -172,9 +172,12 @@ class Error_log(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_ts = db.Column(db.DateTime(timezone=True), server_default=func.now())
     dsid = db.Column(db.Integer, db.ForeignKey('datasets.id'))
+    tag = db.Column(db.String, server_default=None)
     message = db.Column(db.String, server_default=None)
 
-    def __init__(self, dsid, message=None):
+    def __init__(self, dsid, tag=None, message=None):
         self.dsid = dsid
         if message is not None:
             self.message = message
+        if tag is not None:
+            self.tag = tag
