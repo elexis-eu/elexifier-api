@@ -501,6 +501,7 @@ def ds_send_to_lexonomy(dsid):
         'email': user.email,
         'filename': dataset['name'] + ' - annotate',
         'type': 'edit',
+        'url': app.config['URL'],
         'return_to': ""  # remove if no longer required
     }
 
@@ -570,6 +571,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
         'email': user.email,
         'filename': dataset['name'] + ' - preview',
         'type': 'preview',
+        'url': app.config['URL'],
         'return_to': ""  # remove if no longer required
     }
 
