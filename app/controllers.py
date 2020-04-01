@@ -670,7 +670,7 @@ def add_error_log(db, dsid, tag=None, message=None):
 
 def get_error_log(db, e_id=None):
     if e_id is None:
-        logs = db.session.query(Error_log).order_by(sqlalchemy.desc(Error_log.created_ts)).limit(100).all()
+        logs = db.session.query(Error_log).order_by(sqlalchemy.desc(Error_log.created_ts)).all()
     else:
         logs = db.session.query(Error_log).filter(Error_log.id == e_id).first()
     db.session.commit()
