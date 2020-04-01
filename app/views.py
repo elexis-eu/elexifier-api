@@ -1175,6 +1175,7 @@ def get_error_log(e_id):
     log = controllers.get_error_log(db, e_id=e_id)
 
     dataset = controllers.list_datasets(engine, None, dsid=log.dsid)
+    pdf = flask.request.args.get('pdf', default=0, type=int) == 1
     xml_lex = flask.request.args.get('xml_lex', default=0, type=int) == 1
     xml_raw = flask.request.args.get('xml_raw', default=0, type=int) == 1
 
@@ -1184,6 +1185,10 @@ def get_error_log(e_id):
     elif xml_lex:
         file_path = dataset['xml_file_path'].split('.xml')[0] + '-LEX.xml'
         return flask.send_file(file_path, attachment_filename='{0}_xml_lex.xml'.format(dataset['id']), as_attachment=True)
+
+    elif pdf:
+        file_path = dataset['file_path']
+        return flask.send_file(file_path, attachment_filename='{0}_dictionary.pdf'.format(dataset['id']), as_attachment=True)
 
     # If no params, return log
     return _j({'id': log.id, 'dsid': log.dsid, 'message': log.message, 'time': log.created_ts})
