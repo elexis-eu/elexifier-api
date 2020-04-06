@@ -661,8 +661,8 @@ def dataset_character_map(db, dsid, set=False, character_map=None):
     return character_map
 
 
-def add_error_log(db, dsid, msg=None):
-    err_log = Error_log(dsid, msg)
+def add_error_log(db, dsid, tag=None, message=None):
+    err_log = Error_log(dsid, tag=tag, message=message)
     db.session.add(err_log)
     db.session.commit()
     return
@@ -670,7 +670,7 @@ def add_error_log(db, dsid, msg=None):
 
 def get_error_log(db, e_id=None):
     if e_id is None:
-        logs = db.session.query(Error_log).order_by(sqlalchemy.desc(Error_log.created_ts)).limit(100).all()
+        logs = db.session.query(Error_log).order_by(sqlalchemy.desc(Error_log.created_ts)).all()
     else:
         logs = db.session.query(Error_log).filter(Error_log.id == e_id).first()
     db.session.commit()

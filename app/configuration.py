@@ -9,6 +9,7 @@ manage api configuration via .env file.
 """
 class Config(object):
     DEBUG = os.environ['DEBUG']
+    URL = os.environ['URL']
     SECRET_KEY = os.environ['SECRET_KEY']
     # CSRF_ENABLED - remove in the future
     # CSRF_ENABLED = os.environ['CSRF_ENABLED']

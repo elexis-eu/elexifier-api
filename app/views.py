@@ -501,6 +501,7 @@ def ds_send_to_lexonomy(dsid):
         'email': user.email,
         'filename': dataset['name'] + ' - annotate',
         'type': 'edit',
+        'url': app.config['URL'],
         'return_to': ""  # remove if no longer required
     }
 
@@ -570,6 +571,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
         'email': user.email,
         'filename': dataset['name'] + ' - preview',
         'type': 'preview',
+        'url': app.config['URL'],
         'return_to': ""  # remove if no longer required
     }
 
@@ -609,26 +611,19 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         controllers.set_dataset_status(engine, uid, dsid, "Lex2ML_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
-        controllers.add_error_log(db, dsid, traceback.format_exc())
+        controllers.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
     print("train_ML")
     try:
-        jdata, report = train_ML(json_ml_in, json_ml_out, '')
-
-        jdata_file = temp_fname + '-jdata.txt'
-        report_file = temp_fname + '-report.txt'
-        with open(jdata_file, 'w') as f:
-            f.write(str(jdata))
-        with open(report_file, 'w') as f:
-            f.write(report)
-
+        _, report = train_ML(json_ml_in, json_ml_out, '')
+        controllers.add_error_log(db, dsid, tag='ml_finished', message=report)
         controllers.set_dataset_status(engine, uid, dsid, "ML_Annotated")
     except Exception as e:
         controllers.set_dataset_status(engine, uid, dsid, "ML_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
-        controllers.add_error_log(db, dsid, traceback.format_exc())
+        controllers.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
     print("json2xml_ML")
@@ -639,7 +634,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         controllers.set_dataset_status(engine, uid, dsid, "ML2Lex_Error")
         controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
-        controllers.add_error_log(db, dsid, traceback.format_exc())
+        controllers.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
     controllers.dataset_ml_task_id(engine, dsid, set=True, task_id="")
@@ -1165,7 +1160,7 @@ def list_error_logs():
         raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
 
     logs = controllers.get_error_log(db)
-    logs = [{'id': log.id, 'dsid': log.dsid, 'message': log.message, 'time': log.created_ts } for log in logs]
+    logs = [{'id': log.id, 'dsid': log.dsid, 'tag': log.tag, 'message': log.message, 'time': log.created_ts} for log in logs]
     return _j({'logs': logs})
 
 
@@ -1180,6 +1175,7 @@ def get_error_log(e_id):
     log = controllers.get_error_log(db, e_id=e_id)
 
     dataset = controllers.list_datasets(engine, None, dsid=log.dsid)
+    pdf = flask.request.args.get('pdf', default=0, type=int) == 1
     xml_lex = flask.request.args.get('xml_lex', default=0, type=int) == 1
     xml_raw = flask.request.args.get('xml_raw', default=0, type=int) == 1
 
@@ -1190,8 +1186,12 @@ def get_error_log(e_id):
         file_path = dataset['xml_file_path'].split('.xml')[0] + '-LEX.xml'
         return flask.send_file(file_path, attachment_filename='{0}_xml_lex.xml'.format(dataset['id']), as_attachment=True)
 
+    elif pdf:
+        file_path = dataset['file_path']
+        return flask.send_file(file_path, attachment_filename='{0}_dictionary.pdf'.format(dataset['id']), as_attachment=True)
+
     # If no params, return log
-    return _j({'id': log.id, 'dsid': log.dsid, 'message': log.message, 'time': log.created_ts})
+    return _j({'id': log.id, 'dsid': log.dsid, 'tag': log.tag, 'message': log.message, 'time': log.created_ts})
 
 
 @app.route('/api/support/<int:e_id>', methods=['DELETE'])
