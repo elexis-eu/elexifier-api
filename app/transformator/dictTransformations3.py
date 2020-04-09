@@ -1686,8 +1686,6 @@ class TMapper:
         parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
         self.parser = etree.XMLParser()
         self.parser.set_element_class_lookup(parserLookup)
-        sys.stdout.write(str(os.getcwd()) + ' <------------------------------------------------------\n')
-        sys.stdout.flush()
         with open("app/transformator/TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
             relaxNgDoc = etree.parse(f)
         self.relaxNg = etree.RelaxNG(relaxNgDoc)

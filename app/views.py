@@ -1164,6 +1164,7 @@ def list_error_logs():
     return _j({'logs': logs})
 
 
+@celery.task
 @app.route('/api/support/<int:e_id>', methods=['GET'])
 def get_error_log(e_id):
     token = flask.request.headers.get('Authorization')
