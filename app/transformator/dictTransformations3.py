@@ -505,7 +505,7 @@ allowedParentHash = {
     ELT_def: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_gram: set([ELT_sense, ELT_dictScrap, ELT_entry]),
-    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit]),
+    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg]),
     ELT_sense: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_entry: set([ELT_entry]),
     ELT_ENTRY_PLACEHOLDER: set([ELT_entry]),
@@ -695,8 +695,10 @@ class TEntryMapper:
         # Returns this ancestor, plus the next one on the path from that ancestor to 'elt'.
         eltTag = elt.tag; allowedParents = allowedParentHash[eltTag]
         cur = elt; parent = cur.getparent()
+        #print("FindSuitableParent for %s" % elt)
         while not (parent is None):
             parentTag = parent.tag
+            #print("- Considering %s, allowed = %s" % (parent.tag, allowedParents))
             # Check if this is a suitable parent for 'elt'.
             if parentTag in allowedParents: return (parent, cur)
             # Special case: a <seg> just below the <entry> can and will become a <dictScrap>,
@@ -1684,7 +1686,9 @@ class TMapper:
         parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
         self.parser = etree.XMLParser()
         self.parser.set_element_class_lookup(parserLookup)
-        with open("./app/transformator/TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
+        sys.stdout.write(str(os.getcwd()) + ' <------------------------------------------------------\n')
+        sys.stdout.flush()
+        with open("app/transformator/TEILex0-ODD.rng", "rt", encoding = "utf8") as f:
             relaxNgDoc = etree.parse(f)
         self.relaxNg = etree.RelaxNG(relaxNgDoc)
     def E(self, tag, attrib_ = {}, children = [], text = None, tail = None):
