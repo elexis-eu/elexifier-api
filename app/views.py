@@ -683,12 +683,14 @@ def ds_machine_learning(dsid):
     # Check if user wants file and then return it
     if xml_format and status not in ['Starting_ML', 'ML_Format', 'ML_Annotated', 'Lex2ML_Error', 'ML_Error', 'ML2Lex_Error']:
         # TODO: get the latest annotated version from Lexonomy
+        controllers.set_dataset_status(engine, uid, dsid, 'Preparing_download')
         tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
         character_map = controllers.dataset_character_map(db, dsid)
         tokenized2TEI(xml_ml_out, tmp_file, character_map)
 
         @after_this_request
         def after(response):
+            controllers.set_dataset_status(engine, uid, dsid, 'Lex_Format')
             os.remove(tmp_file)
             return response
 
