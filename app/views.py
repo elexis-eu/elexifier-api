@@ -692,7 +692,8 @@ def ds_machine_learning(dsid):
             os.remove(tmp_file)
             return response
 
-        return flask.send_file(tmp_file, attachment_filename=dataset['name'], as_attachment=True)
+        filename = dataset['name'].split('.')[0] + '-transformed.xml'
+        return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
     elif xml_format:
         raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
 
@@ -1052,7 +1053,10 @@ def ds_download2(xfid, dsid):
             return response
 
         controllers.transformer_download_status(db, xfid, set=True)  # reset status
-        return flask.send_file(target_path, attachment_filename=target_path.split("/")[-1], as_attachment=True)
+        dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+        transform_name = controllers.describe_transform(engine, uid, xfid, 1)['transform'][0]['name']
+        out_name = dataset['name'][:-4] + '-' + transform_name + '.xml'
+        return flask.send_file(target_path, attachment_filename=out_name, as_attachment=True)
 
     return _j({'message': 'ok', 'status': status})
 
