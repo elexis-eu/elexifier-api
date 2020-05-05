@@ -1200,6 +1200,7 @@ def get_error_log(e_id):
         return flask.send_file(file_path, attachment_filename='{0}_dictionary.pdf'.format(dataset['id']), as_attachment=True)
 
     # If no params, return log
+    log.message = re.sub('\n', '<br/>', log.message)
     return _j({'id': log.id, 'dsid': log.dsid, 'tag': log.tag, 'message': log.message, 'time': log.created_ts})
 
 
