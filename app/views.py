@@ -691,6 +691,7 @@ def ds_machine_learning(dsid):
         @after_this_request
         def after(response):
             response.headers['x-suggested-filename'] = filename
+            response.headers.add('Access-Control-Expose-Headers', '*')
             controllers.set_dataset_status(engine, uid, dsid, 'Lex_Format')
             os.remove(tmp_file)
             return response
@@ -1051,6 +1052,7 @@ def ds_download2(xfid, dsid):
         @after_this_request
         def remove_file(response):
             response.headers['x-suggested-filename'] = out_name
+            response.headers.add('Access-Control-Expose-Headers', '*')
             if status is None:
                 print("Deleting :" + str(target_path))
                 os.remove(target_path)
