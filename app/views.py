@@ -683,16 +683,21 @@ def ds_machine_learning(dsid):
     # Check if user wants file and then return it
     if xml_format and status not in ['Starting_ML', 'ML_Format', 'ML_Annotated', 'Lex2ML_Error', 'ML_Error', 'ML2Lex_Error']:
         # TODO: get the latest annotated version from Lexonomy
+        controllers.set_dataset_status(engine, uid, dsid, 'Preparing_download')
         tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
         character_map = controllers.dataset_character_map(db, dsid)
         tokenized2TEI(xml_ml_out, tmp_file, character_map)
 
         @after_this_request
         def after(response):
+            response.headers['x-suggested-filename'] = filename
+            response.headers.add('Access-Control-Expose-Headers', '*')
+            controllers.set_dataset_status(engine, uid, dsid, 'Lex_Format')
             os.remove(tmp_file)
             return response
 
-        return flask.send_file(tmp_file, attachment_filename=dataset['name'], as_attachment=True)
+        filename = dataset['name'].split('.')[0] + '-transformed.xml'
+        return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
     elif xml_format:
         raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
 
@@ -1046,13 +1051,18 @@ def ds_download2(xfid, dsid):
 
         @after_this_request
         def remove_file(response):
+            response.headers['x-suggested-filename'] = out_name
+            response.headers.add('Access-Control-Expose-Headers', '*')
             if status is None:
                 print("Deleting :" + str(target_path))
                 os.remove(target_path)
             return response
 
         controllers.transformer_download_status(db, xfid, set=True)  # reset status
-        return flask.send_file(target_path, attachment_filename=target_path.split("/")[-1], as_attachment=True)
+        dataset = controllers.list_datasets(engine, uid, dsid=dsid)
+        transform_name = controllers.describe_transform(engine, uid, xfid, 1)['transform'][0]['name']
+        out_name = dataset['name'][:-4] + '-' + transform_name + '.xml'
+        return flask.send_file(target_path, attachment_filename=out_name, as_attachment=True)
 
     return _j({'message': 'ok', 'status': status})
 
@@ -1192,6 +1202,7 @@ def get_error_log(e_id):
         return flask.send_file(file_path, attachment_filename='{0}_dictionary.pdf'.format(dataset['id']), as_attachment=True)
 
     # If no params, return log
+    log.message = re.sub('\n', '<br/>', log.message)
     return _j({'id': log.id, 'dsid': log.dsid, 'tag': log.tag, 'message': log.message, 'time': log.created_ts})
 
 
