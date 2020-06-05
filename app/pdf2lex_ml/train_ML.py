@@ -419,19 +419,23 @@ def train_ML( data_packed_file, json_out_file, logdir ):
     # train on third level data
     if len( data['level_3'][0][0] ) > 0:
         
-        model_senses, senses_infos, report3 = train_on_data( data['level_3'], n_rounds=4, verbose=True, logdir=logdir, batch_size=8 )
+        if len(set([item for sublist in [e[1] for e in data['level_3']] for item in sublist]))<2:
+            report3='no annotations given'
+            level3_tokens=[]
+        else:
+            model_senses, senses_infos, report3 = train_on_data( data['level_3'], n_rounds=4, verbose=True, logdir=logdir, batch_size=8 )
 
-        # prepare new data
-        x_new = level3_tokens
-        x_new_oh, x_new_chars, _ = one_hot_and_chars( x_new, senses_infos['idx'], senses_infos['idx_c'] )
-        x_new_oh = sequence.pad_sequences( x_new_oh, senses_infos['max_sequence_len'] )
-        x_new_chars_pad = [sequence.pad_sequences( seq, senses_infos['max_carray_len'] ) for seq in x_new_chars]
-        x_new_chars = sequence.pad_sequences( x_new_chars_pad, senses_infos['max_sequence_len'] )
-        X_new = [x_new_oh, x_new_chars]
-        rev_idx_label_senses = {v: k for k, v in senses_infos['idx_label'].items()}
+            # prepare new data
+            x_new = level3_tokens
+            x_new_oh, x_new_chars, _ = one_hot_and_chars( x_new, senses_infos['idx'], senses_infos['idx_c'] )
+            x_new_oh = sequence.pad_sequences( x_new_oh, senses_infos['max_sequence_len'] )
+            x_new_chars_pad = [sequence.pad_sequences( seq, senses_infos['max_carray_len'] ) for seq in x_new_chars]
+            x_new_chars = sequence.pad_sequences( x_new_chars_pad, senses_infos['max_sequence_len'] )
+            X_new = [x_new_oh, x_new_chars]
+            rev_idx_label_senses = {v: k for k, v in senses_infos['idx_label'].items()}
 
-        # predict
-        y_pred_senses = model_senses.predict( X_new )
+            # predict
+            y_pred_senses = model_senses.predict( X_new )
 
     else:
         report3='no annotations given'
