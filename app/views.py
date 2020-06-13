@@ -11,6 +11,7 @@ import werkzeug.debug
 import pendulum
 import json
 import lxml
+import lxml.etree
 import subprocess
 
 from app.transformator import dictTransformations3 as transformator
@@ -37,6 +38,7 @@ import random
 import string
 import requests
 import traceback
+import copy
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -202,6 +204,7 @@ def generate_filename(filename,stringLength=20):
     return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
 
 
+@celery.task
 def transform_pdf2xml(dataset):
     print("Converting PDF to XML")
     bashCommands = ['./app/transformator/pdftoxml -noImage -readingOrder {0:s}'.format(dataset['file_path'])]
@@ -210,7 +213,40 @@ def transform_pdf2xml(dataset):
         print("Command:", command)
         subprocess.run(command.split(" "))
 
+    punctuation_types = ['.', ',', ';', '!', '?']
+    punctiation_counter = 0
+    curr_line = '1'
 
+    xml_file_path = dataset['file_path'][:-4] + '.xml'
+
+    root = lxml.etree.parse(xml_file_path).getroot()
+    body = root.xpath('.//BODY')[0]
+
+    for token in body[1:]:
+        # if new line -> reset the punctuation counter
+        if token.attrib['line'] != curr_line:
+            curr_line = token.attrib['line']
+            punctiation_counter = 0
+
+        # add number of punctuations to word number
+        token.attrib['word'] = str(int(token.attrib['word']) + punctiation_counter)
+
+        # if punctuation is at the end of the word
+        if len(token.text) > 1 and token.text[-1] in punctuation_types:
+            punctiation_counter += 1
+            token_pun = copy.copy(token)
+            token_pun.text = token.text[-1]
+            token.text = token.text[:-1]
+            token_pun.attrib['word'] = str(int(token.attrib['word']) + 1)
+            body.insert(body.index(token) + 1, token_pun)
+
+    file = open(xml_file_path, 'w')
+    new_xml = lxml.etree.tostring(root, pretty_print=True, encoding='utf8').decode('utf8')
+    file.write(new_xml)
+    file.close()
+
+
+@celery.task
 @app.route('/api/dataset/upload', methods=['POST'])
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
