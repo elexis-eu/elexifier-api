@@ -213,11 +213,11 @@ def transform_pdf2xml(dataset):
         print("Command:", command)
         subprocess.run(command.split(" "))
 
-    punctuation_types = ['.', ',', ';', '!', '?']
+    xml_file_path = dataset['file_path'][:-4] + '.xml'
+
+    punctuation_types = ['.', ',', ';', ':', '!', '?', '’']
     punctiation_counter = 0
     curr_line = '1'
-
-    xml_file_path = dataset['file_path'][:-4] + '.xml'
 
     root = lxml.etree.parse(xml_file_path).getroot()
     body = root.xpath('.//BODY')[0]
@@ -228,17 +228,30 @@ def transform_pdf2xml(dataset):
             curr_line = token.attrib['line']
             punctiation_counter = 0
 
-        # add number of punctuations to word number
+        # add number of punctuations to token word number
         token.attrib['word'] = str(int(token.attrib['word']) + punctiation_counter)
 
-        # if punctuation is at the end of the word
+        # if punctuation is at the end of word
         if len(token.text) > 1 and token.text[-1] in punctuation_types:
-            punctiation_counter += 1
-            token_pun = copy.copy(token)
-            token_pun.text = token.text[-1]
-            token.text = token.text[:-1]
-            token_pun.attrib['word'] = str(int(token.attrib['word']) + 1)
-            body.insert(body.index(token) + 1, token_pun)
+            # split all punctuations in separate tokens
+            pun_tokens = [token]
+            for char in token.text[::-1]:
+                if char in punctuation_types:
+                    pun_token = copy.copy(token)
+                    pun_token.text = char
+                    pun_tokens.append(pun_token)
+                    pun_tokens[-1].attrib['word'] = str(int(pun_tokens[-2].attrib['word']) + 1)
+                else:
+                    pun_tokens.pop(0)
+                    break
+
+            # delete punctuations from original text
+            token.text = token.text[:len(pun_tokens)]
+            punctiation_counter += len(pun_tokens)
+
+            # insert punctuations
+            for i in range(len(pun_tokens)):
+                body.insert(body.index(token) + i + 1, pun_tokens[i])
 
     file = open(xml_file_path, 'w')
     new_xml = lxml.etree.tostring(root, pretty_print=True, encoding='utf8').decode('utf8')
