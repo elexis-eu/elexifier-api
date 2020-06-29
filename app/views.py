@@ -11,6 +11,7 @@ import werkzeug.debug
 import pendulum
 import json
 import lxml
+import lxml.etree
 import subprocess
 
 from app.transformator import dictTransformations3 as transformator
@@ -37,6 +38,7 @@ import random
 import string
 import requests
 import traceback
+import copy
 
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -202,6 +204,7 @@ def generate_filename(filename,stringLength=20):
     return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
 
 
+@celery.task
 def transform_pdf2xml(dataset):
     print("Converting PDF to XML")
     bashCommands = ['./app/transformator/pdftoxml -noImage -readingOrder {0:s}'.format(dataset['file_path'])]
@@ -210,7 +213,53 @@ def transform_pdf2xml(dataset):
         print("Command:", command)
         subprocess.run(command.split(" "))
 
+    xml_file_path = dataset['file_path'][:-4] + '.xml'
 
+    punctuation_types = ['.', ',', ';', ':', '!', '?', '’']
+    punctiation_counter = 0
+    curr_line = '1'
+
+    root = lxml.etree.parse(xml_file_path).getroot()
+    body = root.xpath('.//BODY')[0]
+
+    for token in body[1:]:
+        # if new line -> reset the punctuation counter
+        if token.attrib['line'] != curr_line:
+            curr_line = token.attrib['line']
+            punctiation_counter = 0
+
+        # add number of punctuations to token word number
+        token.attrib['word'] = str(int(token.attrib['word']) + punctiation_counter)
+
+        # if punctuation is at the end of word
+        if len(token.text) > 1 and token.text[-1] in punctuation_types:
+            # split all punctuations in separate tokens
+            pun_tokens = [token]
+            for char in token.text[::-1]:
+                if char in punctuation_types:
+                    pun_token = copy.copy(token)
+                    pun_token.text = char
+                    pun_tokens.append(pun_token)
+                    pun_tokens[-1].attrib['word'] = str(int(pun_tokens[-2].attrib['word']) + 1)
+                else:
+                    pun_tokens.pop(0)
+                    break
+
+            # delete punctuations from original text
+            token.text = token.text[:len(pun_tokens)]
+            punctiation_counter += len(pun_tokens)
+
+            # insert punctuations
+            for i in range(len(pun_tokens)):
+                body.insert(body.index(token) + i + 1, pun_tokens[i])
+
+    file = open(xml_file_path, 'w')
+    new_xml = lxml.etree.tostring(root, pretty_print=True, encoding='utf8').decode('utf8')
+    file.write(new_xml)
+    file.close()
+
+
+@celery.task
 @app.route('/api/dataset/upload', methods=['POST'])
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')

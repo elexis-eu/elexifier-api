@@ -374,6 +374,9 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, header
     xml_path = None
     if mimetype == "application/pdf":
         xml_path = dzfilepath[:-4] + ".xml"
+    elif mimetype == 'text/plain':
+        mimetype = 'text/xml'
+
     # Create
     dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path, header_title=headerTitle, header_publisher=headerPublisher, header_bibl=headerBibl)
     db.session.add(dataset)
