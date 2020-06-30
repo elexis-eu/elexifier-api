@@ -64,12 +64,10 @@ def delete_error_log(db, e_id, dsid=None):
 def list_error_logs():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    #user = controllers.user_data(db, id)
-    user = User.query(User).filer_by(id=id).first()
+    user = User.query.filter_by(id=id).first()
     db.session.close()
     if user is not None and not user.admin:
         raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
-
     logs = get_error_log(db)
     logs = [{'id': log.id, 'dsid': log.dsid, 'tag': log.tag, 'message': log.message, 'time': log.created_ts} for log in logs]
     return flask.make_response({'logs': logs}, 200)
@@ -77,10 +75,9 @@ def list_error_logs():
 
 @celery.task
 @app.route('/api/support/<int:e_id>', methods=['GET'])
-def get_error_log(e_id):
+def view_error_log(e_id):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    #user = controllers.user_data(db, id)
     user = User.query.filter_by(id=id).first()
     db.session.close()
     if user is not None and not user.admin:

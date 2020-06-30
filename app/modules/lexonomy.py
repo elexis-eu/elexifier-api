@@ -210,7 +210,7 @@ def ds_send_to_lexonomy(dsid):
     uid = verify_user(token)
 
     #user = controllers.user_data(db, uid)
-    user = User.query.filter_by(id=uid).first
+    user = User.query.filter_by(id=uid).first()
     db.session.close()
     dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
 

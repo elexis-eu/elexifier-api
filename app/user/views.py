@@ -23,7 +23,6 @@ def add_user():
     password = flask.request.json['password']
 
     # Check if user already exists
-    #user = db.session.query(User).filter_by(email=email).first()
     user = User.query.filter_by(email=email).first()
     if user is not None:
         db.session.close()
@@ -83,7 +82,6 @@ def login():
 
         email = flask.request.json['login']
         password = flask.request.json['password']
-        #user = db.session.query(User).filter_by(email=email).first()
         user = User.query.filter_by(email=email).first()
         db.session.close()
 
