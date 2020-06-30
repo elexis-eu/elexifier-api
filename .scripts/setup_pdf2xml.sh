@@ -13,7 +13,7 @@ echo "Compiling pdf2xml"
 cd pdf2xml; sudo make; cd ..
 
 echo "Copying pdftoxml to directory: elexifier-api/app/transformator/pdftoxml"
-cp pdf2xml/exe/pdftoxml ./app/transformator/
+cp pdf2xml/exe/pdftoxml ./app/modules/transformator/
 
 echo "Cleaning up"
 echo "y" | rm -r pdf2xml.tar.gz
