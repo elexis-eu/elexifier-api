@@ -7,7 +7,7 @@ import lxml.etree
 from app import app, db, celery
 from app.modules.error_handling import InvalidUsage
 import app.transformation.controllers as controllers
-from app.user.models import User
+from app.user.controllers import verify_user
 from app.dataset.controllers import list_datasets, get_ds_metadata
 import app.modules.transformator.dictTransformations3 as DictTransformator
 
@@ -21,7 +21,7 @@ engine = create_engine(db_uri, encoding='utf-8')
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
 def xf_list_transforms(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     order = flask.request.args.get('order')
     if isinstance(order, str):
         order = order.upper()
@@ -32,7 +32,7 @@ def xf_list_transforms(dsid):
 @app.route('/api/transform/saved', methods=['GET'])
 def xf_list_saved_transforms():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     rv = controllers.list_saved_transforms(engine, id)
     rv = flask.jsonify(rv)
     return flask.make_response(rv, 200)
@@ -41,7 +41,7 @@ def xf_list_saved_transforms():
 @app.route('/api/transform/new', methods=['POST'])
 def xf_new_transform():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
 
     dsuuid = flask.request.json.get('dsuuid', None)
     dsid = flask.request.json.get('dsid', None)
@@ -67,8 +67,8 @@ def xf_new_transform():
 @app.route('/api/transform/<int:xfid>', methods=['GET'])
 def xf_get_transform_spec(xfid):
     token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
     page_num = flask.request.args.get('page_num', default='1', type=int)
-    id = User.decode_auth_token(token)
     rv = controllers.describe_transform(engine, id, xfid, page_num)
     return flask.make_response(rv, 200)
 
@@ -76,7 +76,7 @@ def xf_get_transform_spec(xfid):
 @app.route('/api/transform/<int:xfid>', methods=['DELETE'])
 def xf_delete_transform(xfid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     resp = controllers.delete_transform(engine, id, xfid)
     if resp is None:
         raise InvalidUsage("Transformation does not exist.", status_code=404, enum="TRANSFORMATION_DOESNT_EXIST")
@@ -90,7 +90,7 @@ def xf_delete_transform(xfid):
 @app.route('/api/transform/<int:xfid>', methods=['POST'])
 def xf_update_transform(xfid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     xfspec = flask.request.json.get('xfspec', None)
     saved = flask.request.json.get('saved', False)
     name = flask.request.json.get('name', None)
@@ -112,9 +112,9 @@ def xf_entity_transform(xfid, entityid):
     # Keep this conditional until we drop the support for the old app.
 
     if token_header is None:
-        id = User.decode_auth_token(token)
+        id = verify_user(token)
     else:
-        id = User.decode_auth_token(token_header)
+        id = verify_user(token_header)
 
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
     strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
@@ -158,7 +158,7 @@ def xf_entity_transform(xfid, entityid):
 @app.route('/api/transform/<int:xfid>/search/<int:dsid>')
 def entries_search(xfid, dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
 
     pattern = flask.request.args.get('pattern', default='', type=str)
     result = controllers.search_dataset_entries(db, dsid, xfid, pattern)
@@ -212,7 +212,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 @app.route('/api/transform/<int:xfid>/download/<int:dsid>', methods=['GET'])
 def ds_download2(xfid, dsid):
     token = flask.request.headers.get('Authorization')
-    uid = User.decode_auth_token(token)
+    uid = verify_user(token)
     print('Transformed dataset download uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
     status = controllers.transformer_download_status(db, xfid)
 

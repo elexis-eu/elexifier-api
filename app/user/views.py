@@ -1,6 +1,6 @@
 from app import app, db
 from app.user.models import User
-from app.user.controllers import check_auth
+from app.user.controllers import verify_user
 from app.modules.error_handling import InvalidUsage
 import app.modules.log as log
 import flask
@@ -23,7 +23,8 @@ def add_user():
     password = flask.request.json['password']
 
     # Check if user already exists
-    user = db.session.query(User).filter_by(email=email).first()
+    #user = db.session.query(User).filter_by(email=email).first()
+    user = User.query.filter_by(email=email).first()
     if user is not None:
         db.session.close()
         raise InvalidUsage('User already exists', status_code=409, enum='USER_EXISTS')
@@ -43,11 +44,10 @@ def add_user():
 
 
 @app.route('/api/user/logged-in', methods=['GET'])
-@check_auth
 def user_data():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
-    user = db.session.query(User).filter_by(id=id).first()
+    id = verify_user(token)
+    user = User.query.filter_by(id=id).first()
     db.session.close()
 
     if user is not None:
@@ -66,8 +66,9 @@ def login():
     # Sketch-engine login
     if 'sketch_token' in flask.request.json:
         user_data = User.decode_sketch_token(flask.request.json['sketch_token'])
+        user = User.query.filter_by(id=user_data['id']).first()
         # check if ske user exists
-        if db.session.query(User).filter_by(sketch_engine_uid=user_data['id']).first() is None:
+        if user is None:
             user = User(user_data['email'], None, sketch_engine_uid=user_data['id'])
             db.session.add(user)
             db.session.commit()
@@ -82,7 +83,8 @@ def login():
 
         email = flask.request.json['login']
         password = flask.request.json['password']
-        user = db.session.query(User).filter_by(email=email).first()
+        #user = db.session.query(User).filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
         db.session.close()
 
         if user is None or not user.check_password(password):
@@ -113,17 +115,4 @@ def user_delete(userid):
     controllers.delete_user(engine, userid)
     return flask.make_response(jsonify({ 'message': 'OK'}), 200)
 
-
-def verify_user(token):
-    if not token:
-        raise InvalidUsage("No auth token provided.", status_code=401, enum="UNAUTHORIZED")
-    elif "Bearer " in token:
-        token = token.split("Bearer ")[1]
-    resp = User.decode_auth_token(token)
-    if isinstance(resp, str):
-        raise InvalidUsage(resp, status_code=401, enum="UNAUTHORIZED")
-    elif controllers.is_blacklisted(engine, token):
-        raise InvalidUsage('User logged out. Please log in again.', status_code=401, enum="UNAUTHORIZED")
-    else:
-        return resp
 

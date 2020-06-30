@@ -7,6 +7,7 @@ import lxml.etree
 import json
 
 from app.user.models import User
+from app.user.controllers import verify_user
 import app.dataset.controllers as Datasets
 from app.modules.error_handling import InvalidUsage
 from app import app, db, celery
@@ -206,10 +207,10 @@ def lexonomy_download(uid, dsid):
 @app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
 def ds_send_to_lexonomy(dsid):
     token = flask.request.headers.get('Authorization')
-    uid = User.decode_auth_token(token)
+    uid = verify_user(token)
 
     #user = controllers.user_data(db, uid)
-    user = db.session.query(User).filter_by(id=id).first
+    user = User.query.filter_by(id=uid).first
     db.session.close()
     dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
 
@@ -255,7 +256,7 @@ def ds_send_to_lexonomy(dsid):
 @app.route('/api/lexonomy/<int:dsid>', methods=['DELETE'])
 def delete_lexonomy(dsid):
     token = flask.request.headers.get('Authorization')
-    uid = User.decode_auth_token(token)
+    uid = verify_user(token)
     dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
 
     if dataset['lexonomy_delete'] is not None:

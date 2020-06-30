@@ -1,18 +1,18 @@
 from app.user.models import User, BlacklistToken
 from app.modules.error_handling import InvalidUsage
-import flask
 
 
-def check_auth(func):
-    def check_function(*args, **kwargs):
-        auth_token = flask.request.headers.get('Authorization')
-        uid = User.decode_auth_token(auth_token)
-        if type(uid) == str:
-            raise InvalidUsage(uid, status_code=409, enum="INVALID_AUTH_TOKEN")
-        else:
-            result = func(*args, **kwargs)
-            return result
-    return check_function
+def verify_user(token):
+    if not token:
+        raise InvalidUsage("No auth token provided.", status_code=401, enum="UNAUTHORIZED")
+
+    uid = User.decode_auth_token(token)
+    if isinstance(uid, str):
+        raise InvalidUsage(uid, status_code=401, enum="UNAUTHORIZED")
+    #elif is_blacklisted(engine, token):
+    #    raise InvalidUsage('User logged out. Please log in again.', status_code=401, enum="UNAUTHORIZED")
+    else:
+        return uid
 
 
 def blacklist_token(db, auth_token):

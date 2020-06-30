@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 
 from app import app, db, celery
 from app.user.models import User
+from app.user.controllers import verify_user
 from app.dataset.controllers import list_datasets
 from app.modules.error_handling import InvalidUsage
 
@@ -62,9 +63,9 @@ def delete_error_log(db, e_id, dsid=None):
 @app.route('/api/support/list', methods=['GET'])
 def list_error_logs():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     #user = controllers.user_data(db, id)
-    user = db.session.query(User).filer_by(id=id).first()
+    user = User.query(User).filer_by(id=id).first()
     db.session.close()
     if user is not None and not user.admin:
         raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
@@ -78,9 +79,9 @@ def list_error_logs():
 @app.route('/api/support/<int:e_id>', methods=['GET'])
 def get_error_log(e_id):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     #user = controllers.user_data(db, id)
-    user = db.session.query(User).filter_by(id=id).first()
+    user = User.query.filter_by(id=id).first()
     db.session.close()
     if user is not None and not user.admin:
         raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
@@ -111,8 +112,8 @@ def get_error_log(e_id):
 @app.route('/api/support/<int:e_id>', methods=['DELETE'])
 def delete_error_log(e_id):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
-    user = db.session.query(User).filter_by(id=id).first()
+    id = verify_user(token)
+    user = User.query.filter_by(id=id).first()
     db.session.close()
     #user = controllers.user_data(db, id)
     if user is not None and not user.admin:

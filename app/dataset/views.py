@@ -11,8 +11,7 @@ from werkzeug.utils import secure_filename
 import app.dataset.controllers as controllers  # TODO: don't import controllers like this
 from app import app, db, celery
 from app.modules.error_handling import InvalidUsage
-from app.user.controllers import check_auth
-from app.user.models import User
+from app.user.controllers import verify_user
 
 
 # TODO: should this be here?
@@ -20,12 +19,12 @@ from sqlalchemy import create_engine
 db_uri = app.config['SQLALCHEMY_DATABASE_URI']
 engine = create_engine(db_uri, encoding='utf-8')
 
-@check_auth
+
 @app.route('/api/dataset/list', methods=['GET'])
 def ds_list_datasets():
     token = flask.request.headers.get('Authorization')
     mimetype = flask.request.args.get('mimetype')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
 
     order = flask.request.args.get('order')
     if isinstance(order, str):
@@ -38,11 +37,10 @@ def ds_list_datasets():
     return flask.make_response(jsonify(datasets), 200)
 
 
-@check_auth
 @app.route('/api/dataset/<int:dsid>', methods=['GET'])
 def ds_dataset_info(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     datasets = controllers.list_datasets(engine, id, dsid=dsid)
     return flask.make_response(jsonify(datasets), 200)
 
@@ -55,7 +53,7 @@ def delete_dataset_async(id, dsid):
 @app.route('/api/dataset/<int:dsid>', methods=['DELETE'])
 def ds_delete_dataset(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     delete_dataset_async.apply_async(args=[id, dsid])
 
     return flask.make_response(jsonify({'deleted': dsid}), 200)
@@ -70,7 +68,7 @@ def ds_dataset_preview(dsid):
 @app.route('/api/dataset/<int:dsid>/entries', methods=['GET'])
 def ds_list_entries(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
     rv = controllers.list_dataset_entries(engine, id, dsid, headwords)
     return flask.make_response(jsonify(rv), 200)
@@ -79,7 +77,7 @@ def ds_list_entries(dsid):
 @app.route('/api/dataset/<int:dsid>/<int:entryid>', methods=['GET'])
 def ds_fetch_dataset_entry(dsid, entryid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
     rv = controllers.get_entry(engine, id, dsid, entryid, headwords)
     return flask.make_response(jsonify(rv), 200)
@@ -103,7 +101,7 @@ def transform_pdf2xml(dataset):
 @app.route('/api/dataset/upload', methods=['POST'])
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
 
     headerTitle = flask.request.form.get('headerTitle', None)
     headerPublisher = flask.request.form.get('headerPublisher', None)
@@ -169,7 +167,7 @@ def ds_upload_new_dataset():
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
 def ds_rename_dataset(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     raise InvalidUsage('Not implemented', status_code=501)
     pass
 
@@ -183,7 +181,7 @@ def get_dataset_tags(dsid):
 @app.route('/api/dataset/<int:dsid>/validate-path', methods=['POST'])
 def validate_path(dsid):
     token = flask.request.headers.get('Authorization')
-    uid = User.decode_auth_token(token)
+    uid = verify_user(token)
     paths = flask.request.json.get('paths', [])
 
     dataset = controllers.list_datasets(engine, uid, dsid=dsid)
@@ -202,7 +200,7 @@ def validate_path(dsid):
 @app.route('/api/xml_nodes/<int:dsid>', methods=['GET'])
 def ds_list_nodes(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     nodes = controllers.extract_xml_heads(db, dsid)
     return flask.make_response({'nodes': nodes}, 200)
 
@@ -210,7 +208,7 @@ def ds_list_nodes(dsid):
 @app.route('/api/xml_paths/<int:dsid>', methods=['GET'])
 def ds_list_paths(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     nodes = controllers.extract_xpaths(db, dsid)
     return flask.make_response({'paths': nodes}, 200)
 
@@ -218,13 +216,12 @@ def ds_list_paths(dsid):
 @app.route('/api/xml_pos/<int:dsid>', methods=['GET'])
 def ds_pos(dsid):
     token = flask.request.headers.get('Authorization')
+    id = verify_user(token)
     pos_element = flask.request.args.get('pos_element', type=str)
     attribute_name = flask.request.args.get('attribute_name', type=str)
     if len(attribute_name) != 0:
-        id = User.decode_auth_token(token)
         nodes = controllers.extract_pos_elements(db, dsid, pos_element, attribute_name)
     else:
-        id = User.decode_auth_token(token)
         nodes = controllers.extract_pos_elements(db, dsid, pos_element)
     return flask.make_response({'pos': nodes}, 200)
 
@@ -232,7 +229,7 @@ def ds_pos(dsid):
 @app.route('/api/save_metadata/<int:dsid>', methods=['POST'])
 def ds_save_metadata(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     ds_metadata = flask.request.json.get('ds_metadata', None)
     rv = controllers.save_ds_metadata(db, dsid, ds_metadata)
     return flask.make_response({'done': rv}, 200)
@@ -241,6 +238,6 @@ def ds_save_metadata(dsid):
 @app.route('/api/get_metadata/<int:dsid>', methods=['GET'])
 def ds_get_metadata(dsid):
     token = flask.request.headers.get('Authorization')
-    id = User.decode_auth_token(token)
+    id = verify_user(token)
     ds_metadata = controllers.get_ds_metadata(db, dsid)
     return flask.make_response({'metadata': ds_metadata}, 200)
