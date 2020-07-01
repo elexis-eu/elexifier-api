@@ -79,8 +79,8 @@ class Datasets_single_entry(db.Model):
         dse = {'id': entry.id,
                'dsid': entry.dsid,
                'entry_name': entry.entry_name,
-               'entry_head': entry.entry.head,
+               'entry_head': entry.entry_head,
                'entry_text': entry.entry_text,
                'xfid': entry.xfid,
-               'contents': entry.contentry}
+               'contents': entry.contents}
         return dse

@@ -71,24 +71,14 @@ def list_datasets(uid, dsid=None, order='ASC', mimetype='text/xml'):
     return result  # [Datasets.to_dict(i) for i in result]
 
 
-def list_dataset_entries(db, uid, dsid, headwords):
-    connection = db.connect()
-    print('list dataset entries')
-    result = connection.execute("SELECT dse.id, dse.entry_head FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.uid='{1:s}'".format(str(dsid), str(uid)))
-    d = extract_keys(result)#, ('id', 'entry_name'))
-    #print(d)
-    #headwords = lxm.etree.fromstring(entry_head)
-    connection.close()
-    return d
+def list_dataset_entries(dsid, entry_id=None):
+    if entry_id is not None:
+        result = Datasets_single_entry.query.filter_by(id=entry_id).first()
+    else:
+        result = Datasets_single_entry.query.filter_by(dsid=dsid).all()
+    db.session.close()
+    return result
 
-
-def get_entry(db, uid, dsid, entryid, headwords):
-    connection = db.connect()
-    print('get entry')
-    result = connection.execute("SELECT id, entry_head, contents FROM datasets_single_entry dse INNER JOIN datasets ds ON dse.dsid=ds.id WHERE dse.dsid='{0:s}' AND ds.id='{1:s}' AND ds.uid='{2:s}'".format(str(dsid), str(entryid), str(uid)))
-    d = extract_keys(result)#, ('id', 'entry_name', 'contents'))
-    connection.close()
-    return d
 
 
 def save_ds_metadata(db, dsid, ds_metadata):

@@ -71,9 +71,9 @@ def ds_dataset_preview(dsid):
 @app.route('/api/dataset/<int:dsid>/entries', methods=['GET'])
 def ds_list_entries(dsid):
     token = flask.request.headers.get('Authorization')
-    id = verify_user(token)
-    headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
-    rv = controllers.list_dataset_entries(engine, id, dsid, headwords)
+    uid = verify_user(token)
+    headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'  # this is not used
+    rv = [Datasets_single_entry.to_dict(i) for i in controllers.list_dataset_entries(dsid)]
     return flask.make_response(jsonify(rv), 200)
 
 
@@ -82,7 +82,7 @@ def ds_fetch_dataset_entry(dsid, entryid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     headwords = flask.request.args.get('headwords', default='false', type=str) == 'true'
-    rv = controllers.get_entry(engine, id, dsid, entryid, headwords)
+    rv = Datasets_single_entry.to_dict(controllers.list_dataset_entries(dsid, entry_id=entryid))
     return flask.make_response(jsonify(rv), 200)
 
 
