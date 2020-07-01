@@ -61,7 +61,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
     status = 'preview_Starting'
     msg = 'OK'
     # Update dataset status
-    Datasets.set_dataset_status(engine, uid, dsid, status)
+    Datasets.update_dataset_status(dsid, status)
 
     return flask.make_response({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data}, 200)
 
@@ -80,9 +80,9 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     print("xml2json_ML")
     try:
         xml2json(xml_raw, xml_lex, json_ml_in)
-        Datasets.set_dataset_status(engine, uid, dsid, "ML_Format")
+        Datasets.update_dataset_status(dsid, "ML_Format")
     except Exception as e:
-        Datasets.set_dataset_status(engine, uid, dsid, "Lex2ML_Error")
+        Datasets.update_dataset_status(dsid, "Lex2ML_Error")
         Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
@@ -92,9 +92,9 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     try:
         _, report = train_ML(json_ml_in, json_ml_out, '')
         ErrorLog.add_error_log(db, dsid, tag='ml_finished', message=report)
-        Datasets.set_dataset_status(engine, uid, dsid, "ML_Annotated")
+        Datasets.update_dataset_status(dsid, "ML_Annotated")
     except Exception as e:
-        Datasets.set_dataset_status(engine, uid, dsid, "ML_Error")
+        Datasets.update_dataset_status(dsid, "ML_Error")
         Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
@@ -103,9 +103,9 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     print("json2xml_ML")
     try:
         json2xml(json_ml_out, xml_raw, xml_out)
-        Datasets.set_dataset_status(engine, uid, dsid, "Lex_Format")
+        Datasets.update_dataset_status(dsid, "Lex_Format")
     except Exception as e:
-        Datasets.set_dataset_status(engine, uid, dsid, "ML2Lex_Error")
+        Datasets.update_dataset_status(dsid, "ML2Lex_Error")
         Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
         print(traceback.format_exc())
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
@@ -159,7 +159,7 @@ def ds_machine_learning(dsid):
     if xml_format and status not in ['Starting_ML', 'ML_Format', 'ML_Annotated', 'Lex2ML_Error', 'ML_Error',
                                      'ML2Lex_Error']:
         # TODO: get the latest annotated version from Lexonomy
-        Datasets.set_dataset_status(engine, uid, dsid, 'Preparing_download')
+        Datasets.update_dataset_status(dsid, 'Preparing_download')
         tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
         character_map = Datasets.dataset_character_map(db, dsid)
         tokenized2TEI(xml_ml_out, tmp_file, character_map)
@@ -168,7 +168,7 @@ def ds_machine_learning(dsid):
         def after(response):
             response.headers['x-suggested-filename'] = filename
             response.headers.add('Access-Control-Expose-Headers', '*')
-            Datasets.set_dataset_status(engine, uid, dsid, 'Lex_Format')
+            Datasets.update_dataset_status(dsid, 'Lex_Format')
             os.remove(tmp_file)
             return response
 
@@ -181,18 +181,17 @@ def ds_machine_learning(dsid):
     if get_file:  # Get file from Lexonomy
         status = "Lexonomy_Annotated"
         get_lex_xml(uid, dsid)
-        Datasets.set_dataset_status(engine, uid, dsid, status)
+        Datasets.update_dataset_status(dsid, status)
 
     elif run_ml:
         status = "Starting_ML"
-        Datasets.set_dataset_status(engine, uid, dsid, status)
+        Datasets.update_dataset_status(dsid, status)
         task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_ml_out], countdown=0)
         Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
 
     elif send_file:  # Send file to Lexonomy
         # stauts = "ML_Annotated_@Lexonomy"
         ds_sendML_to_lexonomy(uid, dsid)
-        # controllers.set_dataset_status(engine, uid, dsid, status)
 
     return flask.make_response({"message": "OK", "dsid": dsid, "Status": status}, 200)
 

@@ -152,7 +152,7 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
 
     resp_js = json.loads(response.text)
     if resp_js['error'] == 'email not found':
-        Datasets.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_Error")
+        Datasets.update_dataset_status(dsid, status_prepend + 'Lexonomy_Error')
         return
 
     try:
@@ -162,9 +162,9 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
             # Update dataset in db
             Datasets.dataset_add_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
     except:
-        Datasets.set_dataset_status(engine, uid, dsid, status_prepend + "Lexonomy_Error")
+        Datasets.update_dataset_status(dsid, status_prepend + "Lexonomy_Error")
 
-    Datasets.set_dataset_status(engine, uid, dsid, status_prepend + 'Ready')
+    Datasets.update_dataset_status(dsid, status_prepend + 'Ready')
     return
 
 
@@ -177,9 +177,9 @@ def lexonomy_download(uid, dsid):
     ml = flask.request.args.get('ml', default="False", type=str) == "True"
     additional_pages = flask.request.args.get('add_pages', default="False", type=str) == "True"
     if ml:  # Set datasets status
-        Datasets.set_dataset_status(engine, uid, dsid, 'preview_Processing')
+        Datasets.update_dataset_status(dsid, 'preview_Processing')
     else:
-        Datasets.set_dataset_status(engine, uid, dsid, 'annotate_Processing')
+        Datasets.update_dataset_status(dsid, 'annotate_Processing')
 
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     temp_fname = dataset.xml_file_path.split(".xml")[0] + "-tmp.xml"
@@ -248,7 +248,7 @@ def ds_send_to_lexonomy(dsid):
     status = 'annotate_Starting'
     msg = 'OK'
     # Update dataset status
-    Datasets.set_dataset_status(engine, uid, dsid, status)
+    Datasets.update_dataset_status(dsid, status)
 
     return flask.make_response({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data}, 200)
 

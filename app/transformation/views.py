@@ -8,7 +8,7 @@ from app import app, db, celery
 from app.modules.error_handling import InvalidUsage
 import app.transformation.controllers as controllers
 from app.user.controllers import verify_user
-from app.dataset.controllers import list_datasets, get_ds_metadata
+from app.dataset.controllers import list_datasets, dataset_metadata
 import app.modules.transformator.dictTransformations3 as DictTransformator
 
 
@@ -178,7 +178,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
     #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
     #         spec[t] = spec[t]['selector']
 
-    metadata = get_ds_metadata(db, dsid)
+    metadata = dataset_metadata(dsid)
 
     orig_xml = open(ds_path, 'rb').read()
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)

@@ -22,8 +22,6 @@ def extract_keys(cur, single=False):
 
 
 def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, headerTitle, headerPublisher, headerBibl):
-    print('add dataset')
-
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_filename(dzfilepath)
 
@@ -35,6 +33,7 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, header
 
     # Create
     dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path, header_title=headerTitle, header_publisher=headerPublisher, header_bibl=headerBibl)
+    print('Adding dataset: {}'.format(dataset))
     db.session.add(dataset)
     db.session.commit()
     return dataset.id
@@ -87,6 +86,7 @@ def dataset_metadata(dsid, set=False, metadata=None):
         db.session.commit()
     else:
         metadata = dataset.dictionary_metadata
+        metadata = json.loads(metadata)
         db.session.close()
     return metadata
 
@@ -227,13 +227,11 @@ def extract_xml_heads(db, dsid):
         return unique_tags
 
 
-# TODO: don't do it like this
-def set_dataset_status(db, uid, dsid, status):
-    connection = db.connect()
-    query = "UPDATE datasets SET status = '{0:s}' WHERE uid = {1:s} AND id = {2:s}".format(status, str(uid), str(dsid))
-    connection.execute(query)
-    connection.close()
-    return dsid
+def update_dataset_status(dsid, status):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    dataset.status = status
+    db.session.commit()
+    return status
 
 
 # --- lexonomy ---
