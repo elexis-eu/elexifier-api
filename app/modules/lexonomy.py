@@ -126,7 +126,7 @@ def split_preview(anno_file, out_file, n):
 def get_lex_xml(uid, dsid):
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     xml_lex = dataset.xml_file_path[:-4] + "-LEX.xml"
-    Datasets.dataset_add_ml_paths(engine, uid, dsid, xml_lex, dataset.xml_ml_out)
+    Datasets.dataset_add_ml_paths(dsid, xml_lex=xml_lex, xml_ml_out=dataset.xml_ml_out)
 
     request_headers = { "Authorization": app.config['LEXONOMY_AUTH_KEY'], "Content-Type": 'application/json' }
     response = requests.get(dataset.lexonomy_access, headers=request_headers)
@@ -157,10 +157,10 @@ def make_lexonomy_request(uid, dsid, request_data, ml=False):
 
     try:
         if ml:
-            Datasets.dataset_add_ml_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
+            Datasets.dataset_add_ml_lexonomy_access(dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
         else:
             # Update dataset in db
-            Datasets.dataset_add_lexonomy_access(db, dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
+            Datasets.dataset_add_lexonomy_access(dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
     except:
         Datasets.update_dataset_status(dsid, status_prepend + "Lexonomy_Error")
 
@@ -264,6 +264,6 @@ def delete_lexonomy(dsid):
                       headers={"Content-Type": 'application/json',
                                "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
-    Datasets.dataset_add_lexonomy_access(db, dsid)
+    Datasets.dataset_add_lexonomy_access(dsid)
 
     return flask.make_response({'message': 'OK'}, 200)

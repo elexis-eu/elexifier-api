@@ -235,9 +235,8 @@ def update_dataset_status(dsid, status):
 
 
 # --- lexonomy ---
-# TODO: don't do it like this
-def dataset_add_lexonomy_access(db, dsid, lexonomy_access=None, lexonomy_edit=None, lexonomy_delete=None, lexonomy_status=None):
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+def dataset_add_lexonomy_access(dsid, lexonomy_access=None, lexonomy_edit=None, lexonomy_delete=None, lexonomy_status=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
     dataset.lexonomy_access = lexonomy_access
     dataset.lexonomy_edit = lexonomy_edit
     dataset.lexonomy_delete = lexonomy_delete
@@ -247,18 +246,16 @@ def dataset_add_lexonomy_access(db, dsid, lexonomy_access=None, lexonomy_edit=No
 
 
 # --- ml ---
-# TODO: don't do it like this
-def dataset_add_ml_paths(db, uid, dsid, xml_lex, xml_ml_out):
-    connection = db.connect()
-    query = "UPDATE datasets SET xml_lex = '{0:s}', xml_ml_out = '{1:s}' WHERE uid = {2:s} AND id = {3:s}".format(str(xml_lex), str(xml_ml_out), str(uid), str(dsid))
-    connection.execute(query)
-    connection.close()
+def dataset_add_ml_paths(dsid, xml_lex=None, xml_ml_out=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    dataset.xml_lex = xml_lex
+    dataset.xml_out = xml_ml_out
+    db.session.commit()
     return dsid
 
 
-# TODO: don't do it like this
-def dataset_add_ml_lexonomy_access(db, dsid, lexonomy_access=None, lexonomy_edit=None, lexonomy_delete=None, lexonomy_status=None):
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+def dataset_add_ml_lexonomy_access(dsid, lexonomy_access=None, lexonomy_edit=None, lexonomy_delete=None, lexonomy_status=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
     dataset.lexonomy_ml_access = lexonomy_access
     dataset.lexonomy_ml_edit = lexonomy_edit
     dataset.lexonomy_ml_delete = lexonomy_delete
@@ -267,8 +264,8 @@ def dataset_add_ml_lexonomy_access(db, dsid, lexonomy_access=None, lexonomy_edit
     return dsid
 
 
-def dataset_character_map(db, dsid, set=False, character_map=None):
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+def dataset_character_map(dsid, set=False, character_map=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
     if set:
         dataset.character_map = character_map
     else:
@@ -277,14 +274,12 @@ def dataset_character_map(db, dsid, set=False, character_map=None):
     return character_map
 
 
-def dataset_ml_task_id(db, dsid, set=False, task_id=None):
-    connection = db.connect()
-    if not set:
-        query = "SELECT ml_task_id FROM datasets where id={0:s}".format(str(dsid))
-        result = connection.execute(query)
-        task_id = extract_keys(result)[0]['ml_task_id']
+def dataset_ml_task_id(dsid, set=False, task_id=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    if set:
+        dataset.ml_task_id = task_id
+        db.session.commit()
     else:
-        query = "UPDATE datasets SET ml_task_id = '{0:s}' where id = {1:s}".format(task_id, str(dsid))
-        connection.execute(query)
-    connection.close()
-    return task_id
+        db.session.close()
+    return dataset.ml_task_id
+

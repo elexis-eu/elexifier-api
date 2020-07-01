@@ -83,7 +83,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         Datasets.update_dataset_status(dsid, "ML_Format")
     except Exception as e:
         Datasets.update_dataset_status(dsid, "Lex2ML_Error")
-        Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
         print(traceback.format_exc())
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
@@ -95,7 +95,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         Datasets.update_dataset_status(dsid, "ML_Annotated")
     except Exception as e:
         Datasets.update_dataset_status(dsid, "ML_Error")
-        Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
         print(traceback.format_exc())
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
@@ -106,12 +106,12 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         Datasets.update_dataset_status(dsid, "Lex_Format")
     except Exception as e:
         Datasets.update_dataset_status(dsid, "ML2Lex_Error")
-        Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+        Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
         print(traceback.format_exc())
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
-    Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id="")
+    Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
     os.remove(json_ml_in)
     os.remove(json_ml_out)
     return
@@ -139,7 +139,7 @@ def ds_machine_learning(dsid):
         xml_ml_out = None
     else:
         xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
-    Datasets.dataset_add_ml_paths(engine, uid, dsid, dataset.xml_lex, xml_ml_out)
+    Datasets.dataset_add_ml_paths(dsid, xml_lex=dataset.xml_lex, xml_ml_out=xml_ml_out)
 
     # Check if all params are None
     if xml_format is None and get_file is None and run_ml is None and send_file is None:
@@ -148,7 +148,7 @@ def ds_machine_learning(dsid):
     elif xml_format and (get_file or run_ml or send_file):
         raise InvalidUsage("Invalid API call. Can't work on file and send it.", status_code=422, enum="GET_ERROR")
 
-    dataset.ml_task_id = Datasets.dataset_ml_task_id(engine, dsid)
+    dataset.ml_task_id = Datasets.dataset_ml_task_id(dsid)
     status = dataset.status
 
     # Check if dataset has ml_task, then send status
@@ -161,7 +161,7 @@ def ds_machine_learning(dsid):
         # TODO: get the latest annotated version from Lexonomy
         Datasets.update_dataset_status(dsid, 'Preparing_download')
         tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
-        character_map = Datasets.dataset_character_map(db, dsid)
+        character_map = Datasets.dataset_character_map(dsid)
         tokenized2TEI(xml_ml_out, tmp_file, character_map)
 
         @after_this_request
@@ -187,7 +187,7 @@ def ds_machine_learning(dsid):
         status = "Starting_ML"
         Datasets.update_dataset_status(dsid, status)
         task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_ml_out], countdown=0)
-        Datasets.dataset_ml_task_id(engine, dsid, set=True, task_id=task.id)
+        Datasets.dataset_ml_task_id(dsid, set=True, task_id=task.id)
 
     elif send_file:  # Send file to Lexonomy
         # stauts = "ML_Annotated_@Lexonomy"
@@ -217,7 +217,7 @@ def delete_ml(dsid):
                 os.remove(dataset.xml_ml_out)
         except:
             pass
-        Datasets.dataset_add_ml_paths(engine, uid, dsid, '', '')
+        Datasets.dataset_add_ml_paths(dsid)
 
     else:
         if dataset.lexonomy_ml_delete is not None:
@@ -233,11 +233,11 @@ def delete_ml(dsid):
 @app.route('/api/ml/<int:dsid>/character_map', methods=['POST'])
 def char_map(dsid):
     character_map = flask.request.json.get('character_map', None)
-    Datasets.dataset_character_map(db, dsid, set=True, character_map=character_map)
+    Datasets.dataset_character_map(dsid, set=True, character_map=character_map)
     return flask.make_response({'msg': 'ok'}, 200)
 
 
 @app.route('/api/ml/<int:dsid>/character_map', methods=['GET'])
 def get_char_map(dsid):
-    character_map = Datasets.dataset_character_map(db, dsid)
+    character_map = Datasets.dataset_character_map(dsid)
     return flask.make_response({'character_map': character_map}, 200)
