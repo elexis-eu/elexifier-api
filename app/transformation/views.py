@@ -262,9 +262,9 @@ def ds_download2(xfid, dsid):
             return response
 
         controllers.transformer_download_status(db, xfid, set=True)  # reset status
-        dataset = list_datasets(engine, uid, dsid=dsid)
+        dataset = list_datasets(uid, dsid=dsid)
         transform_name = controllers.describe_transform(engine, uid, xfid, 1)['transform'][0]['name']
-        out_name = dataset['name'][:-4] + '-' + transform_name + '.xml'
+        out_name = dataset.name[:-4] + '-' + transform_name + '.xml'
         return flask.send_file(target_path, attachment_filename=out_name, as_attachment=True)
 
     return flask.make_response({'message': 'ok', 'status': status}, 200)

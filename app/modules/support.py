@@ -6,6 +6,7 @@ from sqlalchemy.sql import func
 from app import app, db, celery
 from app.user.models import User
 from app.user.controllers import verify_user
+from app.dataset.models import Datasets
 from app.dataset.controllers import list_datasets
 from app.modules.error_handling import InvalidUsage
 
@@ -85,21 +86,21 @@ def view_error_log(e_id):
 
     log = get_error_log(db, e_id=e_id)
 
-    dataset = list_datasets(engine, None, dsid=log.dsid)
+    dataset = list_datasets(None, dsid=log.dsid)
     pdf = flask.request.args.get('pdf', default=0, type=int) == 1
     xml_lex = flask.request.args.get('xml_lex', default=0, type=int) == 1
     xml_raw = flask.request.args.get('xml_raw', default=0, type=int) == 1
 
     if xml_raw:
-        return flask.send_file(dataset['xml_file_path'], attachment_filename='{0}_xml_raw.xml'.format(dataset['id']), as_attachment=True)
+        return flask.send_file(dataset.xml_file_path, attachment_filename='{0}_xml_raw.xml'.format(dataset.id), as_attachment=True)
 
     elif xml_lex:
-        file_path = dataset['xml_file_path'].split('.xml')[0] + '-LEX.xml'
-        return flask.send_file(file_path, attachment_filename='{0}_xml_lex.xml'.format(dataset['id']), as_attachment=True)
+        file_path = dataset.xml_file_path.split('.xml')[0] + '-LEX.xml'
+        return flask.send_file(file_path, attachment_filename='{0}_xml_lex.xml'.format(dataset.id), as_attachment=True)
 
     elif pdf:
-        file_path = dataset['file_path']
-        return flask.send_file(file_path, attachment_filename='{0}_dictionary.pdf'.format(dataset['id']), as_attachment=True)
+        file_path = dataset.file_path
+        return flask.send_file(file_path, attachment_filename='{0}_dictionary.pdf'.format(dataset.id), as_attachment=True)
 
     # If no params, return log
     log.message = re.sub('\n', '<br/>', log.message)

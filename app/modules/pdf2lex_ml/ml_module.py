@@ -10,6 +10,8 @@ import lxml.etree
 from app import app, db, celery
 from app.user.models import User
 from app.user.controllers import verify_user
+#from app.dataset.controllers import set_dataset_status, dataset_add_ml_lexonomy_access, dataset_add_ml_paths, dataset_ml_task_id, dataset_character_map
+#from app.dataset.models import Datasets
 import app.dataset.controllers as Datasets
 import app.modules.support as ErrorLog
 from app.modules.error_handling import InvalidUsage
@@ -32,17 +34,17 @@ engine = create_engine(db_uri, encoding='utf-8')
 def ds_sendML_to_lexonomy(uid, dsid):
     #user = controllers.user_data(db, uid)
     user = User.query.filter_by(id=uid).first()
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
 
-    if dataset['lexonomy_ml_delete'] is not None:
-        requests.post(dataset['lexonomy_ml_delete'],
+    if dataset.lexonomy_ml_delete is not None:
+        requests.post(dataset.lexonomy_ml_delete,
                       headers={"Content-Type": 'application/json',
                                "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid) + "?ml=True",
         'email': user.email,
-        'filename': dataset['name'] + ' - preview',
+        'filename': dataset.name + ' - preview',
         'type': 'preview',
         'url': app.config['URL'],
         'return_to': ""  # remove if no longer required
@@ -128,16 +130,16 @@ def ds_machine_learning(dsid):
     send_file = flask.request.args.get('send_file', default=None, type=str) == 'True'
 
     # TODO: Save paths to DB
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
-    xml_lex = dataset['xml_lex']
-    xml_raw = dataset['xml_file_path']
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    xml_lex = dataset.xml_lex
+    xml_raw = dataset.xml_file_path
     print('xml_lex:', xml_lex, 'xml_raw:', xml_raw)
 
     if xml_lex == None:
         xml_ml_out = None
     else:
         xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
-    Datasets.dataset_add_ml_paths(engine, uid, dsid, dataset['xml_lex'], xml_ml_out)
+    Datasets.dataset_add_ml_paths(engine, uid, dsid, dataset.xml_lex, xml_ml_out)
 
     # Check if all params are None
     if xml_format is None and get_file is None and run_ml is None and send_file is None:
@@ -146,12 +148,11 @@ def ds_machine_learning(dsid):
     elif xml_format and (get_file or run_ml or send_file):
         raise InvalidUsage("Invalid API call. Can't work on file and send it.", status_code=422, enum="GET_ERROR")
 
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
-    dataset['ml_task_id'] = Datasets.dataset_ml_task_id(engine, dsid)
-    status = dataset['status']
+    dataset.ml_task_id = Datasets.dataset_ml_task_id(engine, dsid)
+    status = dataset.status
 
     # Check if dataset has ml_task, then send status
-    if dataset['ml_task_id']:
+    if dataset.ml_task_id:
         return flask.make_response({"message": "File is still processing.", "dsid": dsid, "Status": status}, 200)
 
     # Check if user wants file and then return it
@@ -171,7 +172,7 @@ def ds_machine_learning(dsid):
             os.remove(tmp_file)
             return response
 
-        filename = dataset['name'].split('.')[0] + '-transformed.xml'
+        filename = dataset.name.split('.')[0] + '-transformed.xml'
         return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
     elif xml_format:
         raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
@@ -200,7 +201,7 @@ def ds_machine_learning(dsid):
 def delete_ml(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
 
     local = flask.request.args.get('local', default=None, type=str) == 'True'
 
@@ -211,17 +212,17 @@ def delete_ml(dsid):
             json_ml_out = '/var/www/elexifier-api/app/media/ML-OUT-{}.json'.format(str(dsid))
             os.remove(json_ml_in)
             os.remove(json_ml_out)
-            if dataset['xml_lex'] != "":
-                os.remove(dataset['xml_lex'])
-            if dataset['xml_ml_out'] != "":
-                os.remove(dataset['xml_ml_out'])
+            if dataset.xml_lex != "":
+                os.remove(dataset.xml_lex)
+            if dataset.xml_ml_out != "":
+                os.remove(dataset.xml_ml_out)
         except:
             pass
         Datasets.dataset_add_ml_paths(engine, uid, dsid, '', '')
 
     else:
-        if dataset['lexonomy_ml_delete'] is not None:
-            requests.post(dataset['lexonomy_ml_delete'],
+        if dataset.lexonomy_ml_delete is not None:
+            requests.post(dataset.lexonomy_ml_delete,
                           headers={"Content-Type": 'application/json',
                                    "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 

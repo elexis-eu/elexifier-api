@@ -36,6 +36,32 @@ class Datasets(db.Model):
     xml_tags = db.Column(db.JSON, server_default=None)
     character_map = db.Column(db.JSON, server_default=None)
 
+    def __repr__(self):
+        return '<Dataset id: {0}, uid: {1}, file: {2}>'.format(self.id, self.uid, self.file_path)
+
+    @staticmethod
+    def to_dict(dataset):
+        ds = {'id': dataset.id,
+              'name': dataset.name,
+              'size': dataset.size,
+              'upload_uuid': dataset.uid,
+              'file_path': dataset.file_path,
+              'xml_file_path': dataset.xml_file_path,
+              'xml_lex': dataset.xml_lex,
+              'xml_ml_out': dataset.xml_ml_out,
+              'uploaded_ts': dataset.uploaded_ts,
+              'upload_mimetype': dataset.upload_mimetype,
+              'lexonomy_access': dataset.lexonomy_access,
+              'lexonomy_delete': dataset.lexonomy_delete,
+              'lexonomy_edit': dataset.lexonomy_edit,
+              'lexonomy_status': dataset.lexonomy_status,
+              'status': dataset.lexonomy_status,
+              'lexonomy_ml_access': dataset.lexonomy_ml_access,
+              'lexonomy_ml_delete': dataset.lexonomy_ml_delete,
+              'lexonomy_ml_edit': dataset.lexonomy_ml_edit,
+              'lexonomy_ml_status': dataset.lexonomy_ml_status
+        }
+        return ds
 
 class Datasets_single_entry(db.Model):
     __tablename__ = 'datasets_single_entry'
@@ -47,3 +73,14 @@ class Datasets_single_entry(db.Model):
     entry_text = db.Column(db.String)
     xfid = db.Column(db.String)
     contents = db.Column(db.String)
+
+    @staticmethod
+    def to_dict(entry):
+        dse = {'id': entry.id,
+               'dsid': entry.dsid,
+               'entry_name': entry.entry_name,
+               'entry_head': entry.entry.head,
+               'entry_text': entry.entry_text,
+               'xfid': entry.xfid,
+               'contents': entry.contentry}
+        return dse

@@ -4,9 +4,21 @@ import magic
 import lxml
 import lxml.etree
 import re
+import sqlalchemy
 
+from app import app, db
 from app.dataset.models import Datasets, Datasets_single_entry
 from app.transformation.models import Transformer
+
+
+def extract_keys(cur, single=False):
+    dataset = list(cur.fetchall())
+    #print(dataset)
+    rv = [ {key:row[key] for key in row.keys()} for row in dataset]
+    if not single:
+        return rv
+    else:
+        return rv[0] if len(rv) > 0 else None
 
 
 def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, headerTitle, headerPublisher, headerBibl):
@@ -46,33 +58,17 @@ def delete_dataset(db, uid, dsid):
     return
 
 
-def extract_keys(cur, single=False):
-    dataset = list(cur.fetchall())
-    #print(dataset)
-    rv = [ {key:row[key] for key in row.keys()} for row in dataset]
-    if not single:
-        return rv
+def list_datasets(uid, dsid=None, order='ASC', mimetype='text/xml'):
+    if dsid is not None:
+        result = Datasets.query.filter_by(id=dsid).first()
+        db.session.close()
+        return result
+    elif order is 'ASC':
+        result = Datasets.query.filter_by(uid=uid, upload_mimetype=mimetype).order_by(sqlalchemy.desc(Datasets.uploaded_ts)).all()
     else:
-        return rv[0] if len(rv) > 0 else None
-
-
-def list_datasets(db, uid, dsid=None, order='ASC', mimetype=None):
-    print('list datasets')
-    connection = db.connect()
-
-    if dsid is None:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, xml_lex, xml_ml_out, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
-                                    ", lexonomy_ml_access, lexonomy_ml_delete, lexonomy_ml_edit, lexonomy_ml_status "+
-                                    "FROM datasets WHERE uid='{0:s}' and upload_mimetype='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), mimetype, order))
-    elif uid is None:
-        result = connection.execute("SELECT id, file_path, xml_file_path from datasets WHERE id='{0:s}'".format(str(dsid)))
-    else:
-        result = connection.execute("SELECT id, name, size, upload_uuid, file_path, xml_file_path, xml_lex, xml_ml_out, uploaded_ts, upload_mimetype, lexonomy_access, lexonomy_delete, lexonomy_edit, lexonomy_status, status "+
-                                    ", lexonomy_ml_access, lexonomy_ml_delete, lexonomy_ml_edit, lexonomy_ml_status " +
-                                    "FROM datasets WHERE uid='{0:s}' AND id='{1:s}' ORDER BY uploaded_ts {2:s}".format(str(uid), str(dsid), order))
-    datasets = extract_keys(result, dsid is not None)
-    connection.close()
-    return datasets
+        result = Datasets.query.filter_by(uid=uid, upload_mimetype=mimetype).order_by(sqlalchemy.desc(Datasets.uploaded_ts)).all()
+    db.session.close()
+    return result  # [Datasets.to_dict(i) for i in result]
 
 
 def list_dataset_entries(db, uid, dsid, headwords):

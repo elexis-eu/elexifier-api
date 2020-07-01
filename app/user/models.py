@@ -31,7 +31,7 @@ class User(db.Model):
             self.set_password(password)
 
     def __str__(self):
-        return '<id: {0}, email: {1}>'.format(self.id, self.email)
+        return '<User id: {0}, email: {1}>'.format(self.id, self.email)
 
     def set_password(self, password):
         self.password_hash = Bcrypt(app).generate_password_hash(password).decode('utf-8')

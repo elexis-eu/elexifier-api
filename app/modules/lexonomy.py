@@ -124,12 +124,12 @@ def split_preview(anno_file, out_file, n):
 
 
 def get_lex_xml(uid, dsid):
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
-    xml_lex = dataset['xml_file_path'][:-4] + "-LEX.xml"
-    Datasets.dataset_add_ml_paths(engine, uid, dsid, xml_lex, dataset['xml_ml_out'])
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    xml_lex = dataset.xml_file_path[:-4] + "-LEX.xml"
+    Datasets.dataset_add_ml_paths(engine, uid, dsid, xml_lex, dataset.xml_ml_out)
 
     request_headers = { "Authorization": app.config['LEXONOMY_AUTH_KEY'], "Content-Type": 'application/json' }
-    response = requests.get(dataset['lexonomy_access'], headers=request_headers)
+    response = requests.get(dataset.lexonomy_access, headers=request_headers)
 
     #data = re.search("<BODY.*<\/BODY>", response.text).group()
 
@@ -181,8 +181,8 @@ def lexonomy_download(uid, dsid):
     else:
         Datasets.set_dataset_status(engine, uid, dsid, 'annotate_Processing')
 
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
-    temp_fname = dataset['xml_file_path'].split(".xml")[0] + "-tmp.xml"
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    temp_fname = dataset.xml_file_path.split(".xml")[0] + "-tmp.xml"
 
     @after_this_request
     def remove_file(response):
@@ -191,17 +191,17 @@ def lexonomy_download(uid, dsid):
 
     if ml:
         # Send ml file
-        split_preview(dataset['xml_ml_out'], temp_fname, 100)
-        return flask.send_file(temp_fname, attachment_filename=dataset['xml_ml_out'].split('/')[-1], as_attachment=True)
+        split_preview(dataset.xml_ml_out, temp_fname, 100)
+        return flask.send_file(temp_fname, attachment_filename=dataset.xml_ml_out.split('/')[-1], as_attachment=True)
 
     elif not additional_pages:
         # Send first 20 pages file
-        first_n_pages(dataset['xml_file_path'], temp_fname, 20)
-        return flask.send_file(temp_fname, attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+        first_n_pages(dataset.xml_file_path, temp_fname, 20)
+        return flask.send_file(temp_fname, attachment_filename=dataset.xml_file_path.split('/')[-1], as_attachment=True)
     else:
         # Send additional 20 pages file
-        additional_n_pages(dataset['xml_file_path'], dataset['xml_lex'], temp_fname, 20)
-        return flask.send_file(temp_fname, attachment_filename=dataset['xml_file_path'].split('/')[-1], as_attachment=True)
+        additional_n_pages(dataset.xml_file_path, dataset.xml_lex, temp_fname, 20)
+        return flask.send_file(temp_fname, attachment_filename=dataset.xml_file_path.split('/')[-1], as_attachment=True)
 
 
 @app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
@@ -212,7 +212,7 @@ def ds_send_to_lexonomy(dsid):
     #user = controllers.user_data(db, uid)
     user = User.query.filter_by(id=uid).first()
     db.session.close()
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
 
     additional_pages = flask.request.args.get('add_pages', default='false', type=str).lower() == 'true'
     if additional_pages:
@@ -220,15 +220,15 @@ def ds_send_to_lexonomy(dsid):
         get_lex_xml(uid, dsid)
         #return _j({'message': 'test_ok', 'dsid': dsid})
 
-    if dataset['lexonomy_delete'] is not None:
-        requests.post(dataset['lexonomy_delete'],
+    if dataset.lexonomy_delete is not None:
+        requests.post(dataset.lexonomy_delete,
                       headers={"Content-Type": 'application/json',
                                "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
     request_data = {
         'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
         'email': user.email,
-        'filename': dataset['name'] + ' - annotate',
+        'filename': dataset.name + ' - annotate',
         'type': 'edit',
         'url': app.config['URL'],
         'return_to': ""  # remove if no longer required
@@ -257,10 +257,10 @@ def ds_send_to_lexonomy(dsid):
 def delete_lexonomy(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-    dataset = Datasets.list_datasets(engine, uid, dsid=dsid)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
 
-    if dataset['lexonomy_delete'] is not None:
-        requests.post(dataset['lexonomy_delete'],
+    if dataset.lexonomy_delete is not None:
+        requests.post(dataset.lexonomy_delete,
                       headers={"Content-Type": 'application/json',
                                "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
