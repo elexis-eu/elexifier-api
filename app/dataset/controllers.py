@@ -80,22 +80,15 @@ def list_dataset_entries(dsid, entry_id=None):
     return result
 
 
-
-def save_ds_metadata(db, dsid, ds_metadata):
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
-    dataset.dictionary_metadata = ds_metadata
-    db.session.commit()
-    return 1
-
-
-def get_ds_metadata(db, dsid):
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
-    ds_metadata = dataset.dictionary_metadata
-    db.session.commit()
-    if ds_metadata is not None:
-        return json.loads(ds_metadata)
+def dataset_metadata(dsid, set=False, metadata=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    if set:
+        dataset.dictionary_metadata = metadata
+        db.session.commit()
     else:
-        return {}
+        metadata = dataset.dictionary_metadata
+        db.session.close()
+    return metadata
 
 
 def map_xml_tags(db, dsid):

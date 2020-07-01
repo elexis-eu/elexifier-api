@@ -148,7 +148,7 @@ def ds_upload_new_dataset():
             os.rename(dzfilepath, new_path)
             dsid = controllers.add_dataset(db, uid, dztotalfilesize, dzfilename, new_path, dzuuid, headerTitle,
                                            headerPublisher, headerBibl)
-            controllers.save_ds_metadata(db, dsid, metadata)
+            controllers.dataset_metadata(dsid, metadata=metadata)
 
             dataset = controllers.list_datasets(uid, dsid)
             if "pdf" in dataset.upload_mimetype:
@@ -229,15 +229,15 @@ def ds_pos(dsid):
 @app.route('/api/save_metadata/<int:dsid>', methods=['POST'])
 def ds_save_metadata(dsid):
     token = flask.request.headers.get('Authorization')
-    id = verify_user(token)
+    uid = verify_user(token)
     ds_metadata = flask.request.json.get('ds_metadata', None)
-    rv = controllers.save_ds_metadata(db, dsid, ds_metadata)
+    rv = controllers.dataset_metadata(dsid, set=True, metadata=ds_metadata)
     return flask.make_response({'done': rv}, 200)
 
 
 @app.route('/api/get_metadata/<int:dsid>', methods=['GET'])
 def ds_get_metadata(dsid):
     token = flask.request.headers.get('Authorization')
-    id = verify_user(token)
-    ds_metadata = controllers.get_ds_metadata(db, dsid)
+    uid = verify_user(token)
+    ds_metadata = controllers.dataset_metadata(dsid)
     return flask.make_response({'metadata': ds_metadata}, 200)
