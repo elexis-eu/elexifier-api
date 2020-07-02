@@ -5,8 +5,10 @@ import lxml
 import lxml.etree
 import re
 import sqlalchemy
+import subprocess
+import copy
 
-from app import app, db
+from app import app, db, celery
 from app.dataset.models import Datasets, Datasets_single_entry
 from app.transformation.models import Transformer
 from app.modules.log import print_log
@@ -92,7 +94,63 @@ def dataset_metadata(dsid, set=False, metadata=None):
     return metadata
 
 
-def map_xml_tags(db, dsid):
+@celery.task
+def transform_pdf2xml(dsid):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    db.session.close()
+
+    bashCommands = ['./app/modules/transformator/pdftoxml -noImage -readingOrder {0:s}'.format(dataset.file_path)]
+    for command in bashCommands:
+        subprocess.run(command.split(" "))
+
+    xml_file_path = dataset.file_path[:-4] + '.xml'
+
+    punctuation_types = ['.', ',', ';', ':', '!', '?', '’']
+    punctiation_counter = 0
+    curr_line = '1'
+
+    root = lxml.etree.parse(xml_file_path).getroot()
+    body = root.xpath('.//BODY')[0]
+
+    for token in body[1:]:
+        # if new line -> reset the punctuation counter
+        if token.attrib['line'] != curr_line:
+            curr_line = token.attrib['line']
+            punctiation_counter = 0
+
+        # add number of punctuations to token word number
+        token.attrib['word'] = str(int(token.attrib['word']) + punctiation_counter)
+
+        # if punctuation is at the end of word
+        if len(token.text) > 1 and token.text[-1] in punctuation_types:
+            # split all punctuations in separate tokens
+            pun_tokens = [token]
+            for char in token.text[::-1]:
+                if char in punctuation_types:
+                    pun_token = copy.copy(token)
+                    pun_token.text = char
+                    pun_tokens.append(pun_token)
+                    pun_tokens[-1].attrib['word'] = str(int(pun_tokens[-2].attrib['word']) + 1)
+                else:
+                    pun_tokens.pop(0)
+                    break
+
+            # delete punctuations from original text
+            token.text = token.text[:len(pun_tokens)]
+            punctiation_counter += len(pun_tokens)
+
+            # insert punctuations
+            for i in range(len(pun_tokens)):
+                body.insert(body.index(token) + i + 1, pun_tokens[i])
+
+    file = open(xml_file_path, 'w')
+    new_xml = lxml.etree.tostring(root, pretty_print=True, encoding='utf8').decode('utf8')
+    file.write(new_xml)
+    file.close()
+
+
+@celery.task
+def map_xml_tags(dsid):
     def xml_walk(node, acc={}):
         tag = node.tag
         if tag not in acc:
@@ -112,8 +170,7 @@ def map_xml_tags(db, dsid):
             acc = xml_walk(child, acc=acc)
         return acc
 
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
-    db.session.commit()
+    dataset = Datasets.query.filter_by(id=dsid).first()
     tree = lxml.etree.parse(dataset.file_path)
     tags_json = xml_walk(tree.getroot())
     dataset.xml_tags = tags_json

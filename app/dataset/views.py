@@ -1,7 +1,6 @@
 import os
 import random
 import string
-import subprocess
 
 import flask
 import lxml
@@ -86,12 +85,6 @@ def generate_filename(filename, stringLength=20):
     return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
 
 
-def transform_pdf2xml(dataset):
-    bashCommands = ['./app/modules/transformator/pdftoxml -noImage -readingOrder {0:s}'.format(dataset.file_path)]
-    for command in bashCommands:
-        subprocess.run(command.split(" "))
-
-
 @app.route('/api/dataset/upload', methods=['POST'])
 def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
@@ -149,9 +142,9 @@ def ds_upload_new_dataset():
             # prepare dataset
             dataset = controllers.list_datasets(uid, dsid)
             if "pdf" in dataset.upload_mimetype:
-                transform_pdf2xml(dataset)
+                controllers.transform_pdf2xml.apply_async(args=[dsid])
             else:
-                controllers.map_xml_tags(db, dsid)
+                controllers.map_xml_tags.apply_async(args=[dsid])
         return flask.make_response(Datasets.to_dict(dataset), 200)
 
 
