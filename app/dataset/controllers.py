@@ -9,6 +9,7 @@ import sqlalchemy
 from app import app, db
 from app.dataset.models import Datasets, Datasets_single_entry
 from app.transformation.models import Transformer
+from app.modules.log import print_log
 
 
 def extract_keys(cur, single=False):
@@ -21,7 +22,7 @@ def extract_keys(cur, single=False):
         return rv[0] if len(rv) > 0 else None
 
 
-def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, headerTitle, headerPublisher, headerBibl):
+def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
         mimetype = m.id_filename(dzfilepath)
 
@@ -32,16 +33,16 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid, header
         mimetype = 'text/xml'
 
     # Create
-    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path, header_title=headerTitle, header_publisher=headerPublisher, header_bibl=headerBibl)
-    print('Adding dataset: {}'.format(dataset))
+    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path)
+    print_log(app.name, 'Adding dataset: {}'.format(dataset))
     db.session.add(dataset)
     db.session.commit()
     return dataset.id
 
 
-def delete_dataset(db, uid, dsid):
-    print('Delete dataset uid: {0:s}, dsid: {1:s}'.format(str(uid), str(dsid)))
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).filter(Datasets.uid == uid).first()
+def delete_dataset(dsid):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    print('Delete {0}'.format(dataset))
     db.session.commit()
     db.session.query(Transformer).filter(Transformer.dsid == dataset.id).delete()
     db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == dataset.id).delete()
@@ -82,7 +83,7 @@ def list_dataset_entries(dsid, entry_id=None):
 def dataset_metadata(dsid, set=False, metadata=None):
     dataset = Datasets.query.filter_by(id=dsid).first()
     if set:
-        dataset.dictionary_metadata = metadata
+        dataset.dictionary_metadata = json.dumps(metadata)
         db.session.commit()
     else:
         metadata = dataset.dictionary_metadata
@@ -113,7 +114,6 @@ def map_xml_tags(db, dsid):
 
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     db.session.commit()
-    print(dataset.file_path, "<----------")
     tree = lxml.etree.parse(dataset.file_path)
     tags_json = xml_walk(tree.getroot())
     dataset.xml_tags = tags_json
@@ -121,8 +121,9 @@ def map_xml_tags(db, dsid):
     return
 
 
-def get_xml_tags(db, dsid):
-    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
+def get_xml_tags(dsid):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    db.session.close()
     return dataset.xml_tags
 
 

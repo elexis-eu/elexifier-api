@@ -15,12 +15,6 @@ from app.modules.error_handling import InvalidUsage
 from app.user.controllers import verify_user
 
 
-# TODO: should this be here?
-from sqlalchemy import create_engine
-db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(db_uri, encoding='utf-8')
-
-
 @app.route('/api/dataset/list', methods=['GET'])
 def ds_list_datasets():
     token = flask.request.headers.get('Authorization')
@@ -48,16 +42,16 @@ def ds_dataset_info(dsid):
 
 
 @celery.task
-def delete_dataset_async(id, dsid):
+def delete_dataset_async(dsid):
     # TODO: delete error_logs
-    controllers.delete_dataset(db, id, dsid)
+    controllers.delete_dataset(dsid)
 
 
 @app.route('/api/dataset/<int:dsid>', methods=['DELETE'])
 def ds_delete_dataset(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-    delete_dataset_async.apply_async(args=[uid, dsid])
+    delete_dataset_async.apply_async(args=[dsid])
 
     return flask.make_response(jsonify({'deleted': dsid}), 200)
 
@@ -93,11 +87,8 @@ def generate_filename(filename, stringLength=20):
 
 
 def transform_pdf2xml(dataset):
-    print("Converting PDF to XML")
     bashCommands = ['./app/modules/transformator/pdftoxml -noImage -readingOrder {0:s}'.format(dataset.file_path)]
-
     for command in bashCommands:
-        print("Command:", command)
         subprocess.run(command.split(" "))
 
 
@@ -106,62 +97,62 @@ def ds_upload_new_dataset():
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
 
-    headerTitle = flask.request.form.get('headerTitle', None)
-    headerPublisher = flask.request.form.get('headerPublisher', None)
-    headerBibl = flask.request.form.get('headerBibl', None)
-
+    # file
     metadata = flask.request.form.get('metadata', None)
-
     dictname = flask.request.files.get('dictname', None)
-    dzcontent = flask.request.files.get('file', None)
-    try:
-        dzfilename = dzcontent.filename  # !!
-    except AttributeError:
-        dzfilename = "tempFile_USER-{0:s}".format(str(uid))
-    dztotalfilesize = flask.request.form.get('dztotalfilesize', None)
-    dzfilepath = os.path.join(app.config['APP_MEDIA'], secure_filename(dzfilename))
+    file_content = flask.request.files.get('file', None)
+    total_filesize = flask.request.form.get('dztotalfilesize', None)
     dzuuid = flask.request.form.get('dzuuid', None)
-    dzcontent = flask.request.files.get('file', None)
+
     current_chunk = int(flask.request.form.get('dzchunkindex'))
+    total_chunks = int(flask.request.form.get('dztotalchunkcount', None))
+    chunk_offset = int(flask.request.form.get('dzchunkbyteoffset', None))
 
-    if os.path.exists(dzfilepath) and current_chunk == 0:
-        print('File already exists')
-        raise InvalidUsage('File already exists.', status_code=400, enum="FILE_EXISTS")
-
+    # get file extension
     try:
-        with open(dzfilepath, 'ab') as f:
-            f.seek(int(flask.request.form.get('dzchunkbyteoffset', None)))
-            f.write(dzcontent.stream.read())
+        orig_filename = file_content.filename
+        extension = '.' + file_content.filename.split('.')[-1]
+    except AttributeError:
+        orig_filename = 'Dictionary'
+        extension = '.xml'
+
+    filename = "tempFile_USER-{0:s}".format(str(uid)) + extension
+    filepath = os.path.join(app.config['APP_MEDIA'], secure_filename(filename))
+
+    if os.path.exists(filepath) and current_chunk == 0:
+        os.remove(filepath)
+        raise InvalidUsage('File already exists.', status_code=400, enum='FILE_EXISTS')
+
+    try:  # write to file
+        with open(filepath, 'ab') as f:
+            f.seek(chunk_offset)
+            f.write(file_content.stream.read())
     except OSError:
-        print('Could not write to file')
         raise InvalidUsage("Not sure why, but we couldn't write the file to disk.", status_code=500, enum="FILE_ERROR")
 
-    total_chunks = int(flask.request.form.get('dztotalchunkcount', None))
-
-    if current_chunk == total_chunks:
-        if os.path.getsize(dzfilepath) != int(dztotalfilesize):
-            print('Size mismatch')
+    if current_chunk != total_chunks:
+        return flask.make_response(jsonify({'status': 'OK',
+                                            'filename': filename,
+                                            'current_chunk': current_chunk,
+                                            'total_chunks': total_chunks}), 200)
+    else:  # finish upload
+        if os.path.getsize(filepath) != int(total_filesize):
+            os.remove(filepath)
             raise InvalidUsage("Size mismatch.", status_code=500, enum="FILE_ERROR")
         else:
-            new_random_name = generate_filename(dzfilename)
+            new_random_name = generate_filename(filename)
             new_path = os.path.join(app.config['APP_MEDIA'], secure_filename(new_random_name))
-            os.rename(dzfilepath, new_path)
-            dsid = controllers.add_dataset(db, uid, dztotalfilesize, dzfilename, new_path, dzuuid, headerTitle,
-                                           headerPublisher, headerBibl)
-            controllers.dataset_metadata(dsid, metadata=metadata)
+            os.rename(filepath, new_path)
+            dsid = controllers.add_dataset(db, uid, total_filesize, orig_filename, new_path, dzuuid)
+            controllers.dataset_metadata(dsid, set=True, metadata=metadata)
 
+            # prepare dataset
             dataset = controllers.list_datasets(uid, dsid)
             if "pdf" in dataset.upload_mimetype:
                 transform_pdf2xml(dataset)
             else:
                 controllers.map_xml_tags(db, dsid)
-
         return flask.make_response(Datasets.to_dict(dataset), 200)
-    else:
-        return flask.make_response(jsonify({'status': 'OK',
-                                            'filename': dzfilename,
-                                            'current_chunk': current_chunk,
-                                            'total_chunks': total_chunks}), 200)
 
 
 @app.route('/api/dataset/<int:dsid>/name', methods=['POST'])
@@ -174,7 +165,7 @@ def ds_rename_dataset(dsid):
 
 @app.route('/api/dataset/<int:dsid>/tags', methods=['GET'])
 def get_dataset_tags(dsid):
-    return controllers.get_xml_tags(db, dsid)
+    return controllers.get_xml_tags(dsid)
 
 
 @celery.task

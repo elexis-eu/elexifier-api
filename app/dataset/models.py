@@ -55,7 +55,7 @@ class Datasets(db.Model):
               'lexonomy_delete': dataset.lexonomy_delete,
               'lexonomy_edit': dataset.lexonomy_edit,
               'lexonomy_status': dataset.lexonomy_status,
-              'status': dataset.lexonomy_status,
+              'status': dataset.status,
               'lexonomy_ml_access': dataset.lexonomy_ml_access,
               'lexonomy_ml_delete': dataset.lexonomy_ml_delete,
               'lexonomy_ml_edit': dataset.lexonomy_ml_edit,

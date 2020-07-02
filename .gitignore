@@ -6,4 +6,4 @@ app.db
 app/media/*
 app/media/.gitkeep
 .env
-app/transformator/pdftoxml
+app/modules/transformator/pdftoxml
