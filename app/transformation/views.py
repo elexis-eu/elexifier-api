@@ -5,8 +5,10 @@ import lxml
 import lxml.etree
 
 from app import app, db, celery
-from app.modules.error_handling import InvalidUsage
+from app.transformation.models import Transformer
 import app.transformation.controllers as controllers
+import app.dataset.controllers as Datasets
+from app.modules.error_handling import InvalidUsage
 from app.user.controllers import verify_user
 from app.dataset.controllers import list_datasets, dataset_metadata
 import app.modules.transformator.dictTransformations3 as DictTransformator
@@ -22,10 +24,9 @@ engine = create_engine(db_uri, encoding='utf-8')
 def xf_list_transforms(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    order = flask.request.args.get('order')
-    if isinstance(order, str):
-        order = order.upper()
-    rv = controllers.list_transforms(engine, id, dsid, order)
+    order = flask.request.args.get('order').upper()
+    rv = controllers.list_transforms(dsid, order=order)
+    rv = [Transformer.to_dict(i) for i in rv]
     return flask.make_response(flask.jsonify(rv), 200)
 
 
@@ -169,16 +170,17 @@ def entries_search(xfid, dsid):
 # --- download
 @celery.task
 def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
-    xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
+    transformer = controllers.list_transforms(dsid, xfid=xfid)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    metadata = Datasets.dataset_metadata(dsid)
+    xf = transformer.transform
+    ds_path = dataset.file_path
+    file_name = dataset.name
+    header_Title = metadata['title']
+    header_Bibl = metadata['bibliographicCitation']
+    header_Publisher = metadata['publisher']
 
-    # Why is this used for?
-    # Frontend has been modified to send dumy now directly in the root of the transformer.
-    # for t in ('entry', 'sense'):
-
-    #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
-    #         spec[t] = spec[t]['selector']
-
-    metadata = dataset_metadata(dsid)
+    #xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
 
     orig_xml = open(ds_path, 'rb').read()
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
@@ -191,7 +193,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
                                         stripForValidation=strip_ns,
                                         stripHeader=strip_header, stripDictScrap=strip_DictScrap,
                                         headerTitle=header_Title, headerPublisher=header_Publisher,
-                                        headerBibl=header_Publisher,
+                                        headerBibl=header_Bibl,
                                         metadata=metadata)
     target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
@@ -201,7 +203,6 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 
     open(target_path, 'a').close()
     with open(target_path, 'w') as out:
-        print("writing to file: " + str(target_path))
         out.write(target_xml)
         out.close()
         controllers.transformer_download_status(db, xfid, set=True, download_status='Ready')
@@ -228,7 +229,9 @@ def ds_download2(xfid, dsid):
 
         # Check if transformer exists
         try:
-            xf, _, _, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
+            transform = controllers.list_transforms(dsid, xfid=xfid)
+            xf = transform.transform
+            # xf, _, _, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
         except:
             raise InvalidUsage('Transformer does not exist.', status_code=409)
 
@@ -246,8 +249,9 @@ def ds_download2(xfid, dsid):
 
     elif status == "Ready":
         # return file and delete afterwards
-
-        _, _, file_name, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
+        dataset = Datasets.list_datasets(uid, dsid=dsid)
+        file_name = dataset.name
+        # _, _, file_name, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
         file_name, file_type = file_name.split('.')
         target_file_name = file_name + '_' + str(xfid) + '_TEI.' + file_type
         target_path = os.path.join(app.config['APP_MEDIA'], target_file_name)
@@ -262,7 +266,7 @@ def ds_download2(xfid, dsid):
             return response
 
         controllers.transformer_download_status(db, xfid, set=True)  # reset status
-        dataset = list_datasets(uid, dsid=dsid)
+        #dataset = list_datasets(uid, dsid=dsid)
         transform_name = controllers.describe_transform(engine, uid, xfid, 1)['transform'][0]['name']
         out_name = dataset.name[:-4] + '-' + transform_name + '.xml'
         return flask.send_file(target_path, attachment_filename=out_name, as_attachment=True)

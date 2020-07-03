@@ -6,6 +6,7 @@ import lxml.etree
 import re
 import sqlalchemy
 
+from app import app, db, celery
 from app.transformation.models import Transformer
 from app.dataset.models import Datasets, Datasets_single_entry
 import app.modules.transformator.dictTransformations3 as DictTransformator
@@ -21,13 +22,27 @@ def extract_keys(cur, single=False):
         return rv[0] if len(rv) > 0 else None
 
 
+def list_transforms(dsid, xfid=None, order='ASC'):
+    if xfid is not None:
+        result = Transformer.query.filter_by(id=xfid).first()
+        try:
+            result.transform = json.loads(result.transform)
+        except:
+            pass
+    elif order == 'ASC':
+        result = Transformer.query.filter_by(dsid=dsid).order_by(sqlalchemy.asc(Transformer.created_ts)).all()
+    else:
+        result = Transformer.query.filter_by(dsid=dsid).order_by(sqlalchemy.desc(Transformer.created_ts)).all()
+    db.session.close()
+    return result
+
+
 # TODO: is this used?
 def list_saved_transforms(db, uid):
     connection = db.connect()
     result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.saved".format(str(uid)))
     transforms = extract_keys(result)
     connection.close()
-    print('list saved transformers')
     return transforms
 
 
@@ -107,18 +122,6 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
             db.session.add(dataset)
     db.session.commit()
     return (True, 'Done')
-
-
-def list_transforms(db, uid, dsid, order):
-    connection = db.connect()
-    if order == 'DESC':
-        result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.saved FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND ds.id='{1:s}' ORDER BY created_ts DESC".format(str(uid), str(dsid)))
-    else:
-        result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.saved FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND ds.id='{1:s}'".format(str(uid), str(dsid)))
-    transforms = extract_keys(result)
-    connection.close()
-    print('list transformers')
-    return transforms
 
 
 def new_transform(db, uid, uuid, xfname, dsid, xpath, headword, saved):
@@ -255,31 +258,27 @@ def get_entity_and_spec(db, uid, xfid, entityid):
 
 
 def search_dataset_entries(db, dsid, xfid, pattern):
+    xfid = str(xfid)
     if len(pattern) == 0:
-        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()
+        entries = Datasets_single_entry.query.filter_by(xfid=xfid).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()
     else:
         pattern = pattern + '%'
-        entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == str(dsid)).filter(Datasets_single_entry.xfid == str(xfid)).filter(Datasets_single_entry.entry_text.like(pattern)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()
-
-    db.session.commit()
+        entries = Datasets_single_entry.query.filter_by(xfid=xfid).filter(Datasets_single_entry.entry_text.like(pattern)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).limit(100).all()
+    db.session.close()
     entries = [{'id': x.id, 'entry_text': x.entry_text, 'is_short_name': x.entry_name, 'entry_head': x.entry_head} for x in entries]
     return entries
 
 
-def get_ds_and_xf(db, uid, xfid, dsid):
-    print('get ds and xf')
-    connection = db.connect()
-    query = "SELECT ds.name, tf.transform, ds.file_path, ds.header_title, ds.header_publisher, ds.header_bibl FROM transformers tf INNER JOIN datasets ds ON tf.dsid = ds.id WHERE tf.dsid = '{0:s}' AND tf.id = '{1:s}'".format(str(dsid), str(xfid))
-    result = connection.execute(query)
-
-    name, transform, ds_file_path, headerTitle, headerPublisher, headerBibl = result.fetchone()
-    connection.close()
+def get_ds_and_xf(xfid, dsid):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    xf = Transformer.query.filter_by(id=xfid).first()
+    db.session.close()
     try:
-        transform = json.loads(transform)
+        transform = json.loads(xf.transform)
     except:
-        pass
-
-    return (transform, ds_file_path, name, headerTitle, headerPublisher, headerBibl)
+        transform = None
+    return (transform, dataset.file_path, dataset.name, None, None, None)
+    #return (transform, ds_file_path, name, headerTitle, headerPublisher, headerBibl)
 
 
 def transformer_download_status(db, xfid, set=False, download_status=None):

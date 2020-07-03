@@ -15,3 +15,15 @@ class Transformer(db.Model):
     saved = db.Column(db.Boolean, default=False)
     #task_id = db.Column(db.String, server_default=None)
     file_download_status = db.Column(db.String, server_default=None)
+
+    @staticmethod
+    def to_dict(transform):
+        xf = {'id': transform.id,
+              'dsid': transform.dsid,
+              'name': transform.name,
+              'created_ts': transform.created_ts,
+              'entity_spec': transform.entity_spec,
+              'transform': transform.transform,
+              'saved': transform.saved,
+              'file_download_status': transform.file_download_status}
+        return xf

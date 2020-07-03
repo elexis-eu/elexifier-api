@@ -14,6 +14,7 @@ from app.transformation.models import Transformer
 from app.modules.log import print_log
 
 
+# TODO: remove this
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
     #print(dataset)
@@ -66,7 +67,7 @@ def list_datasets(uid, dsid=None, order='ASC', mimetype='text/xml'):
         db.session.close()
         return result
     elif order is 'ASC':
-        result = Datasets.query.filter_by(uid=uid, upload_mimetype=mimetype).order_by(sqlalchemy.desc(Datasets.uploaded_ts)).all()
+        result = Datasets.query.filter_by(uid=uid, upload_mimetype=mimetype).order_by(sqlalchemy.asc(Datasets.uploaded_ts)).all()
     else:
         result = Datasets.query.filter_by(uid=uid, upload_mimetype=mimetype).order_by(sqlalchemy.desc(Datasets.uploaded_ts)).all()
     db.session.close()
@@ -85,7 +86,9 @@ def list_dataset_entries(dsid, entry_id=None):
 def dataset_metadata(dsid, set=False, metadata=None):
     dataset = Datasets.query.filter_by(id=dsid).first()
     if set:
-        dataset.dictionary_metadata = json.dumps(metadata)
+        if not isinstance(metadata, str):
+            metadata = json.dumps(metadata)
+        dataset.dictionary_metadata = metadata
         db.session.commit()
     else:
         metadata = dataset.dictionary_metadata
