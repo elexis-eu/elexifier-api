@@ -31,7 +31,9 @@ services:
         aliases:
           - redis
   worker:
-    build: .
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
     command: celery -A app:celery worker --loglevel=info
     volumes:
       - .:/elexifier-api
