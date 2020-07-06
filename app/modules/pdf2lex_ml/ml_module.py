@@ -6,6 +6,7 @@ import requests
 import traceback
 import lxml
 import lxml.etree
+import re
 
 from app import app, db, celery
 from app.user.models import User
@@ -21,6 +22,7 @@ from app.modules.lexonomy import make_lexonomy_request, get_lex_xml
 from app.modules.pdf2lex_ml.xml2json_ML import xml2json
 from app.modules.pdf2lex_ml.train_ML import train_ML
 from app.modules.pdf2lex_ml.json2xml_ML import json2xml
+import app.modules.transformator.dictTransformations3 as transformator
 from app.modules.pdf2lex_ml.tokenized2TEI import tokenized2TEI
 
 
@@ -117,6 +119,52 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     return
 
 
+def prepare_TEI_download(dsid, input_file, output_file, character_map):
+    # Load json for transformation
+    with open('lexonomy_to_tei.json', 'r') as file:
+        json_data = file.read()
+        file.close()
+
+    transformation_json = json.loads(json_data)
+
+    # reading lexonomy xml
+    orig_xml = open(input_file, 'r').read()
+    # clean tokens
+    orig_xml = re.sub('<TOKEN.*">', '', orig_xml)
+    orig_xml = re.sub('</TOKEN>', '', orig_xml)
+
+    parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
+    myParser = lxml.etree.XMLParser()
+    myParser.set_element_class_lookup(parserLookup)
+    lexonomy_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
+
+    # init transformator
+    mapping = transformator.TMapping(transformation_json)
+    mapper = transformator.TMapper()
+
+    # transform lexonomy format to tei format
+    metadata = Datasets.dataset_metadata(dsid)
+    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
+                                        stripForValidation=False,
+                                        stripHeader=False,
+                                        stripDictScrap=True,
+                                        headerTitle=False,
+                                        headerPublisher=False,
+                                        headerBibl=False,
+                                        metadata=metadata)
+    target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
+    target_xml = target_xml.replace(
+        '<entry xmlns:m="http://elex.is/wp1/teiLex0Mapper/meta" xmlns:a="http://elex.is/wp1/teiLex0Mapper/legacyAttributes" xmlns="http://www.tei-c.org/ns/1.0">',
+        '<entry>')
+
+    # writing transformed xml to file
+    open(output_file, 'a').close()
+    with open(output_file, 'w') as out:
+        out.write(target_xml)
+        out.close()
+    return
+
+
 # --- views ---
 @celery.task
 @app.route('/api/ml/<int:dsid>', methods=['GET'])
@@ -162,7 +210,8 @@ def ds_machine_learning(dsid):
         Datasets.update_dataset_status(dsid, 'Preparing_download')
         tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
         character_map = Datasets.dataset_character_map(dsid)
-        tokenized2TEI(xml_ml_out, tmp_file, character_map)
+        prepare_TEI_download(dsid, xml_ml_out, tmp_file, character_map)
+        #tokenized2TEI(dsid, xml_ml_out, tmp_file, character_map)
 
         @after_this_request
         def after(response):

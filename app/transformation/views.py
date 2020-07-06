@@ -260,9 +260,7 @@ def ds_download2(xfid, dsid):
         def remove_file(response):
             response.headers['x-suggested-filename'] = out_name
             response.headers.add('Access-Control-Expose-Headers', '*')
-            if status is None:
-                print("Deleting :" + str(target_path))
-                os.remove(target_path)
+            os.remove(target_path)
             return response
 
         controllers.transformer_download_status(db, xfid, set=True)  # reset status
