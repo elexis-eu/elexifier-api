@@ -1,0 +1,53 @@
+{
+    "entry": {
+        "type": "xpath",
+        "expr": ".//container[@name='entry']"
+    },
+    "entry_lang": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='entry']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}constant",
+        "rex": "",
+        "const": "sl"
+    },
+    "pos": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='pos']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerTextRec",
+        "rex": ""
+    },
+    "hw": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='headword']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerTextRec",
+        "rex": ""
+    },
+    "hw_tr": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='translation']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerTextRec",
+        "rex": ""
+    },
+    "hw_tr_lang": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='translation']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}constant",
+        "rex": "",
+        "const": "en"
+    }
+}

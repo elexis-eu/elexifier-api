@@ -119,6 +119,7 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     return
 
 
+@celery.task
 def prepare_TEI_download(dsid, input_file, output_file, character_map):
     # Load json for transformation
     with open('lexonomy_to_tei.json', 'r') as file:
@@ -130,8 +131,8 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     # reading lexonomy xml
     orig_xml = open(input_file, 'r').read()
     # clean tokens
-    orig_xml = re.sub('<TOKEN.*">', '', orig_xml)
-    orig_xml = re.sub('</TOKEN>', '', orig_xml)
+    orig_xml = re.sub('<TOKEN.*?">', '', orig_xml)
+    orig_xml = re.sub('<\/TOKEN>', '', orig_xml)
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
     myParser = lxml.etree.XMLParser()
