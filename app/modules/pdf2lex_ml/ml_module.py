@@ -119,20 +119,39 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     return
 
 
-@celery.task
+def clean_tokens(node, char_map):
+    if len(node) > 0 and node[-1].text:
+        if node[-1].text[-1] in [',', ':', ';']:
+            dictScrap = lxml.etree.fromstring('<dictScrap></dictScrap>')
+            dictScrap.text = node[-1].text[-1]
+            node[-1].text = node[-1].text[:-1]
+            node.addnext(dictScrap)
+
+    for child in node:
+        if child.tag == 'TOKEN':
+            for key in char_map:
+                if node.text is None:
+                    node.text = re.sub(key, char_map[key], child.text)
+                else:
+                    node.text += ' ' + re.sub(key, char_map[key], child.text)
+            node.remove(child)
+
+        clean_tokens(child, char_map)
+
+
 def prepare_TEI_download(dsid, input_file, output_file, character_map):
     # Load json for transformation
-    with open('lexonomy_to_tei.json', 'r') as file:
+    json_file = os.path.join(app.config['APP_DIR'], 'modules/pdf2lex_ml/lexonomy_to_tei.json')
+    with open(json_file, 'r') as file:
         json_data = file.read()
         file.close()
 
     transformation_json = json.loads(json_data)
 
-    # reading lexonomy xml
-    orig_xml = open(input_file, 'r').read()
     # clean tokens
-    orig_xml = re.sub('<TOKEN.*?">', '', orig_xml)
-    orig_xml = re.sub('<\/TOKEN>', '', orig_xml)
+    lexonomy_xml = lxml.etree.parse(input_file)
+    clean_tokens(lexonomy_xml.getroot(), character_map)
+    orig_xml = lxml.etree.tostring(lexonomy_xml)
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
     myParser = lxml.etree.XMLParser()
