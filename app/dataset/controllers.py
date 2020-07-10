@@ -310,7 +310,7 @@ def dataset_add_lexonomy_access(dsid, lexonomy_access=None, lexonomy_edit=None, 
 def dataset_add_ml_paths(dsid, xml_lex=None, xml_ml_out=None):
     dataset = Datasets.query.filter_by(id=dsid).first()
     dataset.xml_lex = xml_lex
-    dataset.xml_out = xml_ml_out
+    dataset.xml_ml_out = xml_ml_out
     db.session.commit()
     return dsid
 
