@@ -51,7 +51,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
         request_data['ske_user'] = False
 
     print('Starting asynchronous request to Lexonomy')
-    make_lexonomy_request.apply_async(args=[uid, dsid, request_data], kwargs={"ml": True}, countdown=0)
+    make_lexonomy_request.apply_async(args=[dsid, request_data], kwargs={"ml": True}, countdown=0)
 
     status = 'preview_Starting'
     msg = 'OK'
@@ -211,6 +211,8 @@ def ml_run(dsid):
     """
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
+    # get annotations first, so we get lex_xml path in db
+    get_lex_xml(uid, dsid)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     if dataset.status in ['Starting_ML', 'ML_Format', 'ML_Annotated']:
         raise InvalidUsage('ML is already running.', status_code=409, enum='STATUS_ERROR')
@@ -219,7 +221,6 @@ def ml_run(dsid):
     Datasets.update_dataset_status(dsid, status)
     # Get files ready
     xml_raw = dataset.xml_file_path
-    get_lex_xml(uid, dsid)
     xml_ml_out = dataset.xml_lex[:-4] + '-ML_OUT.xml'
     Datasets.dataset_add_ml_paths(dsid, xml_lex=dataset.xml_lex, xml_ml_out=xml_ml_out)
     # Run ml
@@ -233,7 +234,8 @@ def ml_preview(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    if dataset.status is not 'Lex_Format' or dataset.xml_ml_out is None or dataset.xml_ml_out is '':
+    # TODO: check if dataset.status['ml'] is 'Lex_Format'
+    if dataset.xml_ml_out is None or dataset.xml_ml_out is '':
         raise InvalidUsage('No file for preview. Try running ML first.', status_code=409, enum='STATUS_ERROR')
     ds_sendML_to_lexonomy(uid, dsid)
     return flask.make_response({'message': 'ok', 'dsid': dsid, 'status': dataset.status}, 200)
@@ -252,7 +254,6 @@ def ml_download(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    print_log(app.name, dataset.xml_ml_out)
 
     # TODO: This checks can be replaced: if preview exists (is Ready), then get it from Lexonomy and download it
     # TODO: otherwise notify user to send ml output to preview

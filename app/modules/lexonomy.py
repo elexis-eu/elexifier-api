@@ -9,14 +9,9 @@ import json
 from app.user.models import User
 from app.user.controllers import verify_user
 import app.dataset.controllers as Datasets
+from app.modules.log import print_log
 from app.modules.error_handling import InvalidUsage
 from app import app, db, celery
-
-# TODO: should this be here?đ
-from sqlalchemy import create_engine
-db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(db_uri, encoding='utf-8')
-#engine = None
 
 
 # --- controllers ---
@@ -140,15 +135,12 @@ def get_lex_xml(uid, dsid):
 
 
 @celery.task
-def make_lexonomy_request(uid, dsid, request_data, ml=False):
+def make_lexonomy_request(dsid, request_data, ml=False):
     # Send request async and save links to db
     response = requests.post('https://lexonomy.elex.is/elexifier/new',
                              headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']},
                              data=json.dumps(request_data))
-    if ml:
-        status_prepend = "preview_"
-    else:
-        status_prepend = "annotate_"
+    status_prepend = "preview_" if ml else "annotate_"
 
     resp_js = json.loads(response.text)
     if resp_js['error'] == 'email not found':
@@ -208,17 +200,14 @@ def lexonomy_download(uid, dsid):
 def ds_send_to_lexonomy(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-
-    #user = controllers.user_data(db, uid)
     user = User.query.filter_by(id=uid).first()
     db.session.close()
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-
     additional_pages = flask.request.args.get('add_pages', default='false', type=str).lower() == 'true'
+
     if additional_pages:
         # get file from lexonomy and save it
         get_lex_xml(uid, dsid)
-        #return _j({'message': 'test_ok', 'dsid': dsid})
 
     if dataset.lexonomy_delete is not None:
         requests.post(dataset.lexonomy_delete,
@@ -226,31 +215,23 @@ def ds_send_to_lexonomy(dsid):
                                "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
     request_data = {
-        'xml_file': '/api/lexonomy/' + str(uid) + '/download/' + str(dsid),
+        'xml_file': '/api/lexonomy/{}/download/{}'.format(uid, dsid) + ('?add_pages=True' if additional_pages else ''),
         'email': user.email,
         'filename': dataset.name + ' - annotate',
         'type': 'edit',
         'url': app.config['URL'],
+        'ske_user': True if user.password_hash is None else False,
         'return_to': ""  # remove if no longer required
     }
 
-    if additional_pages:
-        request_data['xml_file'] += "?add_pages=True"
+    print_log(app.name, 'Starting asynchronous request to Lexonomy {}'.format(dataset))
+    make_lexonomy_request.apply_async(args=[dsid, request_data], countdown=0)
 
-    if user.password_hash is None:  # ske user
-        request_data['ske_user'] = True
-    else:
-        request_data['ske_user'] = False
-
-    print('Starting asynchronous request to Lexonomy')
-    task = make_lexonomy_request.apply_async(args=[uid, dsid, request_data], countdown=0)
-
-    status = 'annotate_Starting'
-    msg = 'OK'
     # Update dataset status
+    status = 'annotate_Starting'
     Datasets.update_dataset_status(dsid, status)
 
-    return flask.make_response({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data}, 200)
+    return flask.make_response({'message': 'OK', 'dsid': dsid, 'status': status, 'test_request': request_data}, 200)
 
 
 @app.route('/api/lexonomy/<int:dsid>', methods=['DELETE'])
@@ -265,5 +246,4 @@ def delete_lexonomy(dsid):
                                "Authorization": app.config['LEXONOMY_AUTH_KEY']})
 
     Datasets.dataset_add_lexonomy_access(dsid)
-
     return flask.make_response({'message': 'OK'}, 200)
