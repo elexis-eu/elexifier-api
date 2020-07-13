@@ -9,15 +9,9 @@ from app.transformation.models import Transformer
 import app.transformation.controllers as controllers
 import app.dataset.controllers as Datasets
 from app.modules.error_handling import InvalidUsage
+from app.modules.log import print_log
 from app.user.controllers import verify_user
-from app.dataset.controllers import list_datasets, dataset_metadata
 import app.modules.transformator.dictTransformations3 as DictTransformator
-
-
-# TODO: should this be here?
-from sqlalchemy import create_engine
-db_uri = app.config['SQLALCHEMY_DATABASE_URI']
-engine = create_engine(db_uri, encoding='utf-8')
 
 
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
@@ -34,7 +28,7 @@ def xf_list_transforms(dsid):
 def xf_list_saved_transforms():
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    rv = controllers.list_saved_transforms(engine, id)
+    rv = controllers.list_saved_transforms(id)
     rv = flask.jsonify(rv)
     return flask.make_response(rv, 200)
 
@@ -50,18 +44,15 @@ def xf_new_transform():
     entry_spec = flask.request.json.get('entry_spec', None)
     headword = flask.request.json.get('hw', None)
     saved = flask.request.json.get('saved', False)
-    print(flask.request.json)
 
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
-        #return flask.make_response(('Invalid API call'), 422)
 
-    xfid = controllers.new_transform(db, id, dsuuid, xfname, dsid, entry_spec, headword, saved)
-    isok, retmsg = controllers.prepare_dataset(db, id, dsid, xfid, entry_spec, headword)
+    xfid = controllers.new_transform(xfname, dsid, entry_spec, headword, saved)
+    isok, retmsg = controllers.prepare_dataset(id, dsid, xfid, entry_spec, headword)
 
     if not isok:
         raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
-        #return flask.make_response(retmsg, 422)
     return flask.make_response({'xfid': xfid}, 200)
 
 
@@ -70,7 +61,7 @@ def xf_get_transform_spec(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
     page_num = flask.request.args.get('page_num', default='1', type=int)
-    rv = controllers.describe_transform(engine, id, xfid, page_num)
+    rv = controllers.describe_transform(xfid, page_num)
     return flask.make_response(rv, 200)
 
 
@@ -78,11 +69,11 @@ def xf_get_transform_spec(xfid):
 def xf_delete_transform(xfid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    resp = controllers.delete_transform(engine, id, xfid)
+    resp = controllers.delete_transform(id, xfid)
     if resp is None:
         raise InvalidUsage("Transformation does not exist.", status_code=404, enum="TRANSFORMATION_DOESNT_EXIST")
     elif not resp:
-        raise InvalidUsage("You do not own this transformaiton", status_code=401, enum="UNAUTHORIZED")
+        raise InvalidUsage("You do not own this transformation", status_code=401, enum="UNAUTHORIZED")
     else:
         return flask.make_response({'deleted': xfid}, 200)
 
@@ -95,23 +86,20 @@ def xf_update_transform(xfid):
     xfspec = flask.request.json.get('xfspec', None)
     saved = flask.request.json.get('saved', False)
     name = flask.request.json.get('name', None)
-    print('Update transform')
+    print_log(app.name, 'Update transform {}'.format(xfid))
     if xfspec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
-        #return flask.make_response(('Invalid API call'), 422)
-    rv = controllers.update_transform(db, id, xfid, xfspec, name, saved)
+    rv = controllers.update_transform(xfid, xfspec, name, saved)
     return flask.make_response({'updated': rv}, 200)
 
 
 @app.route('/api/transform/<int:xfid>/apply/<int:entityid>', methods=['GET'])
 def xf_entity_transform(xfid, entityid):
-    print('entity transform')
     token = flask.request.args.get('Authorization')
     token_header = flask.request.headers.get('Authorization')
 
     # Old application is in this case sending Authorization token through query params.
     # Keep this conditional until we drop the support for the old app.
-
     if token_header is None:
         id = verify_user(token)
     else:
@@ -121,19 +109,11 @@ def xf_entity_transform(xfid, entityid):
     strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
     strip_DictScrap = flask.request.args.get('strip_dict_scrap', default='false', type=str) == 'true'
 
-    entity, spec = controllers.get_entity_and_spec(engine, id, xfid, entityid)
-
-    print(spec)
+    entity = Datasets.list_dataset_entries(None, entry_id=entityid).contents
+    spec = controllers.list_transforms(None, xfid=xfid).transform
 
     if spec is None:
         return flask.make_response({'spec': None, 'entity_xml': None, 'output': None}, 200)
-
-    # Why is this used for?
-    # Frontend has been modified to send dumy now directly in the root of the transformer.
-    # for t in ('entry', 'sense'):
-
-    #     if t in spec and 'type' in spec[t] and spec[t]['type'] == 'dummy':
-    #         spec[t] = spec[t]['selector']
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
     myParser = lxml.etree.XMLParser(remove_blank_text=True)
@@ -180,8 +160,6 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
     header_Bibl = metadata['bibliographicCitation']
     header_Publisher = metadata['publisher']
 
-    #xf, ds_path, file_name, header_Title, header_Publisher, header_Bibl = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
-
     orig_xml = open(ds_path, 'rb').read()
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
     myParser = lxml.etree.XMLParser()
@@ -205,7 +183,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
     with open(target_path, 'w') as out:
         out.write(target_xml)
         out.close()
-        controllers.transformer_download_status(db, xfid, set=True, download_status='Ready')
+        controllers.transformer_download_status(xfid, set=True, download_status='Ready')
 
     return
 
@@ -214,8 +192,8 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 def ds_download2(xfid, dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-    print('Transformed dataset download uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
-    status = controllers.transformer_download_status(db, xfid)
+    print_log(app.name, 'Transformed dataset download uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
+    status = controllers.transformer_download_status(xfid)
 
     get_status = flask.request.args.get('status', default='false', type=str) == 'true'
 
@@ -231,7 +209,6 @@ def ds_download2(xfid, dsid):
         try:
             transform = controllers.list_transforms(dsid, xfid=xfid)
             xf = transform.transform
-            # xf, _, _, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
         except:
             raise InvalidUsage('Transformer does not exist.', status_code=409)
 
@@ -239,10 +216,9 @@ def ds_download2(xfid, dsid):
             return flask.make_response({'spec': None, 'entity_xml': None, 'output': None}, 200)
         else:
             # start download task
-            task = prepare_download.apply_async(args=[uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap], countdown=0)
-            # controllers.transformer_task_id(engine, xfid, set=True, task_id=task.id)  # Is this needed or is download_status enough?
+            prepare_download.apply_async(args=[uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap], countdown=0)
             status = 'Processing'
-            controllers.transformer_download_status(db, xfid, set=True, download_status=status)
+            controllers.transformer_download_status(xfid, set=True, download_status=status)
 
     elif status == "Processing":
         return flask.make_response({'message': 'File is still processing'}, 200)
@@ -250,9 +226,7 @@ def ds_download2(xfid, dsid):
     elif status == "Ready":
         # return file and delete afterwards
         dataset = Datasets.list_datasets(uid, dsid=dsid)
-        file_name = dataset.name
-        # _, _, file_name, _, _, _ = controllers.get_ds_and_xf(engine, uid, xfid, dsid)
-        file_name, file_type = file_name.split('.')
+        file_name, file_type = dataset.name.split('.')
         target_file_name = file_name + '_' + str(xfid) + '_TEI.' + file_type
         target_path = os.path.join(app.config['APP_MEDIA'], target_file_name)
 
@@ -263,9 +237,8 @@ def ds_download2(xfid, dsid):
             os.remove(target_path)
             return response
 
-        controllers.transformer_download_status(db, xfid, set=True)  # reset status
-        #dataset = list_datasets(uid, dsid=dsid)
-        transform_name = controllers.describe_transform(engine, uid, xfid, 1)['transform'][0]['name']
+        controllers.transformer_download_status(xfid, set=True)  # reset status
+        transform_name = controllers.list_transforms(dsid, xfid=xfid).name
         out_name = dataset.name[:-4] + '-' + transform_name + '.xml'
         return flask.send_file(target_path, attachment_filename=out_name, as_attachment=True)
 

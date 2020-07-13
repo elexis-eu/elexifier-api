@@ -10,12 +10,12 @@ from app import app, db, celery
 from app.transformation.models import Transformer
 from app.dataset.models import Datasets, Datasets_single_entry
 import app.modules.transformator.dictTransformations3 as DictTransformator
+from app.modules.log import print_log
 
 
 def extract_keys(cur, single=False):
     dataset = list(cur.fetchall())
-    #print(dataset)
-    rv = [ {key:row[key] for key in row.keys()} for row in dataset]
+    rv = [{key: row[key] for key in row.keys()} for row in dataset]
     if not single:
         return rv
     else:
@@ -38,12 +38,14 @@ def list_transforms(dsid, xfid=None, order='ASC'):
 
 
 # TODO: is this used?
-def list_saved_transforms(db, uid):
-    connection = db.connect()
-    result = connection.execute("SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.saved".format(str(uid)))
-    transforms = extract_keys(result)
-    connection.close()
-    return transforms
+def list_saved_transforms(uid):
+    datasets = Datasets.query.filter_by(uid=uid).all()
+    out = []
+    for ds in datasets:
+        transforms = Transformer.query.filter_by(dsid=ds.id, saved=True).all()
+        transforms = [Transformer.to_dict(i) for i in transforms]
+        out.extend(transforms)
+    return out
 
 
 def xmls(mimetype, data):
@@ -74,9 +76,9 @@ def clean_tag(xml_tag):
         return xml_tag
 
 
-def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
-    print('prepare dataset')
-    dataset = db.session.query(Datasets).filter((Datasets.uid == uid) & (Datasets.id == dsid)).first()
+def prepare_dataset(uid, dsid, xfid, xpath, hw):
+    dataset = Datasets.query.filter_by(uid=uid, id=dsid).first()
+    print_log(app.name, 'Preparing dataset {}'.format(dataset))
     mimetype, data = dataset.upload_mimetype, dataset.file_path
 
     for xml in xmls(mimetype, data):
@@ -99,9 +101,6 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
         else:
             nodes = tree.xpath('//' + xpath)
 
-        print('have nodes', len(nodes))
-        counter = 0
-
         for entry in nodes:
             headword = entry.findall('.//' + hw)
             if headword:
@@ -109,12 +108,6 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
             else:
                 text = ''
             entry_str = lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
-            # TODO: Return when needed. Commented out due to server breaking after commit 61634f5
-            #     text = entry.tag
-            #
-            # entry_str = """<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type='text/xsl' href='preview.xsl'?>\n<!DOCTYPE Dictionary PUBLIC "-//KDictionaries//DTD MLDS 1.0//EN" "schema.dtd">\n<Dictionary sourceLanguage="fr" targetLanguage="unspecified">\n"""
-            # entry_str += lxml.etree.tostring(entry, encoding='unicode', xml_declaration=False)
-            # entry_str += "\n</Dictionary>"
             entry_head = clean_tag(entry_str.split('\n',1)[0])[:10]
 
             # Create
@@ -124,11 +117,7 @@ def prepare_dataset(db, uid, dsid, xfid, xpath, hw):
     return (True, 'Done')
 
 
-def new_transform(db, uid, uuid, xfname, dsid, xpath, headword, saved):
-    print('new transform')
-
-    # Create
-    # print(dzcontent.stream.read())
+def new_transform(xfname, dsid, xpath, headword, saved):
     dummy = {"entry": {"expr": ".//" + xpath, "type": "xpath"},
              "sense": {"expr": "dummy", "type": "xpath"},
              "hw": {"attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerText",
@@ -138,6 +127,7 @@ def new_transform(db, uid, uuid, xfname, dsid, xpath, headword, saved):
              }
 
     transformer = Transformer(name=xfname, dsid=dsid, entity_spec=xpath, transform=dummy, saved=saved)
+    print('New transform {}'.format(transformer))
     db.session.add(transformer)
     db.session.commit()
     return transformer.id
@@ -149,68 +139,49 @@ def chunks(l, n):
         yield l[i:i + n]
 
 
-def describe_transform(db, uid, xfid, page):
-    print('describe transform')
-    connection = db.connect()
-    result = connection.execute(
-        "SELECT xf.id, xf.name, xf.created_ts, xf.entity_spec, xf.saved, xf.transform FROM transformers xf INNER JOIN datasets ds ON xf.dsid=ds.id WHERE ds.uid='{0:s}' AND xf.id='{1:s}'".format(
-            str(uid), str(xfid)))
-    transform = extract_keys(result)
-    for r in transform:
-        try:
-            r['transform'] = json.loads(r['transform'])
-        except:
-            pass
+def describe_transform(xfid, page):
+    result_transform = Transformer.query.filter_by(id=xfid).first()
+    try:
+        result_transform.transform = json.loads(result_transform.transform)
+    except:
+        pass
+    result_dse = Datasets_single_entry.query.filter_by(xfid=str(xfid)).order_by(sqlalchemy.asc(Datasets_single_entry.entry_text)).all()
+    for i in range(len(result_dse)):
+        result_dse[i] = Datasets_single_entry.to_dict(result_dse[i])
+        result_dse[i]['name'] = result_dse[i]['entry_head']
+        result_dse[i]['hw'] = result_dse[i]['entry_text']
+        result_dse[i]['is_short_name'] = result_dse[i]['entry_name'] is not None
+        for j in ['entry_head', 'entry_text', 'entry_name', 'contents', 'xfid']:
+            result_dse[i].pop(j)
 
-    result = connection.execute(
-        "SELECT id, dsid, entry_head as name, entry_name IS NOT NULL as is_short_name, entry_text as hw FROM datasets_single_entry WHERE xfid='{0:s}' order by entry_text asc".format(
-            str(xfid)))
-    entities = extract_keys(result)
-
-    # page = 1
-
-    pages = list(chunks(entities, 100))
+    pages = list(chunks(result_dse, 100))
     if page > len(pages):
         page = len(pages)
-
     try:
         entities_page = pages[page - 1]
     except IndexError:
         entities_page = []
-
-    connection.close()
-
-    return {'transform': transform, 'entities': entities_page, 'pages': len(pages)}
+    db.session.close()
+    return {'transform': [Transformer.to_dict(result_transform)], 'entities': entities_page, 'pages': len(pages)}
 
 
-def delete_transform(db, uid, xfid):
-    print('delete transform')
-    connection = db.connect()
-    result = connection.execute("SELECT * FROM transformers WHERE id = {0:s}".format(str(xfid)))
-    if len([x for x in result]) == 0:
-        connection.close()
-        return None
-    result = connection.execute("SELECT * FROM datasets ds INNER JOIN transformers ts on (ds.id = ts.dsid) WHERE ds.uid = {0:s} AND ts.id = {1:s}".format(str(uid), str(xfid)))
-    if len([x for x in result]) == 0:
-        connection.close()
-        return False
-    else:
-        connection.execute("DELETE FROM transformers WHERE id = {0:s}".format(str(xfid)))
-        connection.close()
+def delete_transform(uid, xfid):
+    transform = Transformer.query.filter_by(id=xfid).first()
+    print('Delete {0}, uid: {1}'.format(transform, uid))
+    db.session.query(Transformer).filter(Transformer.id == xfid).delete()
+    db.session.commit()
     return True
 
 
-def update_transform(db, uid, xfid, xfspec, name, saved):
-    print('update transformer')
-
-    transformer = db.session.query(Transformer).get(xfid)
+def update_transform(xfid, xfspec, name, saved):
+    transformer = Transformer.query.filter_by(id=xfid).first()
 
     # if headword changed
     if xfspec['hw'] != transformer.transform['hw']:
         transformer.entity_spec = xfspec['entry']['expr'][3:]
         # update datasets single entry
         print("Updating Datasets_single_entry XFID: {0:d}".format(xfid))
-        update_single_entries(db, xfid, xfspec)
+        update_single_entries(xfid, xfspec)
 
     transformer.transform = xfspec
     transformer.saved = saved
@@ -220,8 +191,8 @@ def update_transform(db, uid, xfid, xfspec, name, saved):
     return 1
 
 
-def update_single_entries(db, xfid, transform):
-    entries = db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid))
+def update_single_entries(xfid, transform):
+    entries = Datasets_single_entry.query.filter_by(xfid=str(xfid)).all()
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
     myParser = lxml.etree.XMLParser()
@@ -242,19 +213,6 @@ def update_single_entries(db, xfid, transform):
 
     db.session.commit()
     return
-
-
-def get_entity_and_spec(db, uid, xfid, entityid):
-    connection = db.connect()
-    result = connection.execute("SELECT tf.transform, dse.contents FROM transformers tf INNER JOIN datasets ds ON tf.dsid=ds.id INNER JOIN datasets_single_entry dse ON ds.id=dse.dsid WHERE tf.id='{0:s}' AND ds.uid='{1:s}' AND dse.id='{2:s}'".format(str(xfid), str(uid), str(entityid)))
-    spec, entry = result.fetchone()
-    try:
-        spec = json.loads(spec)
-    except:
-        pass
-    print("Tale spec: ", spec)
-    connection.close()
-    return entry, spec
 
 
 def search_dataset_entries(db, dsid, xfid, pattern):
@@ -278,11 +236,10 @@ def get_ds_and_xf(xfid, dsid):
     except:
         transform = None
     return (transform, dataset.file_path, dataset.name, None, None, None)
-    #return (transform, ds_file_path, name, headerTitle, headerPublisher, headerBibl)
 
 
-def transformer_download_status(db, xfid, set=False, download_status=None):
-    transformer = db.session.query(Transformer).filter(Transformer.id == xfid).first()
+def transformer_download_status(xfid, set=False, download_status=None):
+    transformer = Transformer.query.filter_by(id=xfid).first()
     if set:
         transformer.file_download_status = download_status
     else:

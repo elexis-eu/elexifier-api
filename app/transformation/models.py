@@ -16,6 +16,9 @@ class Transformer(db.Model):
     #task_id = db.Column(db.String, server_default=None)
     file_download_status = db.Column(db.String, server_default=None)
 
+    def __repr__(self):
+        return '<Transform id: {0}, dsid: {1}, name: {2}>'.format(self.id, self.dsid, self.name)
+
     @staticmethod
     def to_dict(transform):
         xf = {'id': transform.id,
