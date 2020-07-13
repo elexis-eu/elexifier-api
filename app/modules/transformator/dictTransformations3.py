@@ -15,9 +15,10 @@ class TXpathSelector:
     def __init__(self, expr):
         self.expr = expr
     def findall(self, tree):
-        #print("tree = %s, expr = %s" % (tree, self.expr))
+        #print("\ntree = %s %s, expr = %s" % (type(tree), etree.tostring(tree, pretty_print=True), self.expr))
         #if type(tree) is not TMyElement: tree = tree.getroot()
         for x in tree.findall(self.expr): yield x
+        #for x in tree.xpath(self.expr): yield x
     def ToJson(self): return { "type": "xpath", "expr": self.expr }
 class TUnionSelector:
     __slots__ = ["selectors"]
@@ -384,6 +385,16 @@ class TMapping:
         self.xfExTrLang = JsonToTransformer(h.get("ex_tr_lang", None))
         self.xfEntryLang = JsonToTransformer(h.get("entry_lang", None))
 
+def GetFromLexonomyMapping():
+    m = TMapping()
+    m.selEntry = TXpathSelector(".//container[@name='entry']")
+    m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//container[@name='entry']"), ATTR_CONSTANT, constValue = "sl")
+    m.xfHw = TSimpleTransformer(TXpathSelector(".//container[@name='headword']"), ATTR_INNER_TEXT_REC)
+    m.xfPos = TSimpleTransformer(TXpathSelector(".//container[@name='pos']"), ATTR_INNER_TEXT_REC)
+    m.xfHwTr = TSimpleTransformer(TXpathSelector(".//container[@name='translation']"), ATTR_INNER_TEXT_REC)
+    m.xfHwTrLang = TSimpleTransformer(TXpathSelector(".//container[@name='translation']"), ATTR_CONSTANT, constValue = "en")
+    return m
+
 def GetMldsMapping():
     m = TMapping()
     m.selEntry = TUnionSelector([
@@ -478,6 +489,19 @@ def GetMcCraeTestMapping():
     m.xfHw = TSimpleTransformer(TXpathSelector(".//Sense"), "n")
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Sense"), "synset")
     m.selSense = TXpathSelector(".//Sense")
+    #m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//LexicalEntry"), ATTR_CONSTANT, constValue = "en")
+    #m.xfEntryLang = None; m.xfHwTr = None; m.xfEx = None; m.xfExTr = None; m.xfExTrLang = None; m.selSense = None
+    return m
+
+def GetHwnMapping():
+    m = TMapping()
+    m.selEntry = TXpathSelector(".//synonym")
+    m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//synonym"), ATTR_CONSTANT, constValue = "he")
+    m.xfHw = TSimpleTransformer(TXpathSelector(".//lemma"), ATTR_INNER_TEXT_REC)
+    #m.xfDef = TSimpleTransformer(TXpathSelector(".//gloss"), ATTR_INNER_TEXT_REC) 
+    #m.selSense = TXpathSelector(".//synonym")
+    #m.xfPos = TSimpleTransformer(TXpathSelector(".//synset"), "pos")
+    m.xfPos = TSimpleTransformer(TXpathSelector(".."), "pos")
     #m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//LexicalEntry"), ATTR_CONSTANT, constValue = "en")
     #m.xfEntryLang = None; m.xfHwTr = None; m.xfEx = None; m.xfExTr = None; m.xfExTrLang = None; m.selSense = None
     return m
@@ -775,7 +799,15 @@ class TEntryMapper:
             i = -1 if prev is None else cur.index(prev)
             if len(cur) > i + 1: prev = None; cur = cur[i + 1] # Move into the next child.
             else: prev = cur; cur = cur.getparent() # Move back into the parent.
-    def StageOne_TransformSubtree(self, elt):
+    def StageOne_GatherIdsInSubtree(self, elt):
+        h = {}
+        def Rec(e):
+            if type(e) is not TMyElement: return
+            h[id(e)] = e
+            for i in range(len(e)): Rec(e[i])
+        if elt is not None: Rec(elt)
+        return h
+    def StageOne_TransformSubtree(self, elt, isEntry, idsInEntrySubtree):
         if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
         class TOrder:
             TYPE_SIB = 1; TYPE_MILESTONES = 2; TYPE_CONSUME = 3
@@ -813,6 +845,22 @@ class TEntryMapper:
         if eltId in self.mHwTr: orders.append(TOrder(ELT_cit, self.mHwTr[eltId], typeAttr = "translationEquivalent"))
         if eltId in self.mEx: orders.append(TOrder(ELT_cit, self.mEx[eltId], typeAttr = "example"))
         if eltId in self.mExTr: orders.append(TOrder(ELT_cit, self.mExTr[eltId], typeAttr = "translation"))
+        # If the current element is the future <entry>, also process any orders that refer to nodes outside the entry.
+        # These can't be transformed (since they're outside), so they will have to result in siblings.
+        if isEntry:
+            def _(trOrderHash, newTag, typeAttr_):
+                for eltId, trOrder in trOrderHash.items():
+                    if eltId in idsInEntrySubtree: continue
+                    order = TOrder(newTag, trOrder, typeAttr = typeAttr_)
+                    order.type = TOrder.TYPE_SIB
+                    orders.append(order)
+            _(self.mDef, ELT_def, "")
+            _(self.mPos, ELT_gram, "pos")
+            _(self.mHw, ELT_orth, "lemma")
+            _(self.mLemma, ELT_orth, "simple")
+            _(self.mHwTr, ELT_cit, "translationEquivalent")
+            _(self.mEx, ELT_cit, "example")
+            _(self.mExTr, ELT_cit, "translation")
         # Create siblings where needed.  
         consumers = []; newSibs = []
         for o in orders:
@@ -837,7 +885,7 @@ class TEntryMapper:
         # Process the children.    
         newElt.text = elt.text
         for i in range(len(elt)):
-            (newChild, newChildSibs) = self.StageOne_TransformSubtree(elt[i])
+            (newChild, newChildSibs) = self.StageOne_TransformSubtree(elt[i], False, None)
             assert newChild is not None
             newElt.append(newChild)
             for newChildSib in newChildSibs: newElt.append(newChildSib)
@@ -1097,7 +1145,8 @@ class TEntryMapper:
         # the tags of the nodes (and the attributes) are suitably transformed,
         # regardless of whether the resulting parent-child relationships
         # are compatible with the model or not.
-        (newEntry, newSibs) = self.StageOne_TransformSubtree(self.entry)
+        idsInEntrySubtree = self.StageOne_GatherIdsInSubtree(self.entry)
+        (newEntry, newSibs) = self.StageOne_TransformSubtree(self.entry, True, idsInEntrySubtree)
         assert len(newSibs) == 0
         return newEntry
 #    seg                                       -> CDATA, seg
@@ -1524,7 +1573,8 @@ class TTreeMapper:
     def TransformDetachedEntry(self, entry):
         # Builds (and returns) a transformed version of 'entry', which is assumed to have
         # been detached from the tree.
-        assert entry.getparent() is None
+        # - Update: we no longer assume that it's detached from the tree.
+        ###assert entry.getparent() is None
         SetMatchInfo(entry, MATCH_entry)
         entryMapper = TEntryMapper(entry, self.m, self.parser, self)
         return entryMapper.TransformEntry()
@@ -1538,8 +1588,10 @@ class TTreeMapper:
         if parent is not None: idx = parent.index(entry); assert idx >= 0
         placeholder = self.Element(ELT_ENTRY_PLACEHOLDER)
         #if addToPlaceholders: self.entryPlaceholders.append(placeholder)
-        if parent is not None: parent[idx] = placeholder; assert entry.getparent() is None
+        # - Do not detach the entry from the rest of the tree; some selectors may refer to things outside the entry.
+        ###if parent is not None: parent[idx] = placeholder; assert entry.getparent() is None
         placeholder.transformedEntry = self.TransformDetachedEntry(entry)
+        if parent is not None: parent[idx] = placeholder
         return placeholder
     def TransformNonTopEntries(self):
         # We'll process the non-top entries in increasing order of exitTime.
@@ -1553,9 +1605,11 @@ class TTreeMapper:
             idx = parent.index(entry); assert idx >= 0
             placeholder = self.Element(ELT_ENTRY_PLACEHOLDER)
             self.entryPlaceholders.append(placeholder)
-            parent[idx] = placeholder; assert entry.getparent() is None
+            # - Do not detach the entry from the rest of the tree; some selectors may refer to things outside the entry.
+            ###parent[idx] = placeholder; assert entry.getparent() is None
             print("Transforming detached entry %d %s" % (id(entry), entry))
             placeholder.transformedEntry = self.TransformDetachedEntry(entry)
+            parent[idx] = placeholder
             #print("Transformed entry: %s %d" % (placeholder.transformedEntry, len(placeholder.transformedEntry)))
     def ReplacePlaceholders(self, root):  # for non-top entries
         #for placeholder in self.entryPlaceholders:
@@ -2044,7 +2098,9 @@ def Test():
     #f = open("toy02.xml", "rt", encoding = "Windows-1250")
     #f = open("toy03.xml", "rt", encoding = "Windows-1250")
     #f = open("toy04.xml", "rt", encoding = "Windows-1250")
-    f = open("WP1\\JMcCrae\\McC_xray.xml", "rt", encoding = "utf8")
+    #f = open("WP1\\JMcCrae\\McC_xray.xml", "rt", encoding = "utf8")
+    #f = open("WP1\\INT\\example-anw.xml", "rt", encoding = "utf8")
+    f = open("Haifa\\hebrew_synonyms_sample.xml", "rt", encoding = "utf8")
     tree = etree.ElementTree(file = f, parser = myParser)
     f.close()
     #
@@ -2061,9 +2117,12 @@ def Test():
     with open("mapping-DDO.json", "wt", encoding = "utf8") as f: json.dump(GetDdoMapping().ToJson(), f, indent = 4)
     with open("mapping-SLD.json", "wt", encoding = "utf8") as f: json.dump(GetSldMapping().ToJson(), f, indent = 4)
     with open("mapping-SP.json", "wt", encoding = "utf8") as f: json.dump(GetSpMapping().ToJson(), f, indent = 4)
+    with open("mapping-FromLexonomy.json", "wt", encoding = "utf8") as f: json.dump(GetFromLexonomyMapping().ToJson(), f, indent = 4)
+    with open("mapping-HWN.json", "wt", encoding = "utf8") as f: json.dump(GetHwnMapping().ToJson(), f, indent = 4)
     #js = GetSldMapping().ToJson()
     #json.dump(js, f, indent = 4)
     #f.close()
+    f = open("mapping-HWN.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     #m = TMapping(js)
     #outTei = mapper.Transform(m, ["WP1\\JSI\\SLD.zip"])
     #outTei = mapper.Transform(GetSldMapping(), ["WP1\\JSI\\SLD_macka_cat2.xml"])
@@ -2073,7 +2132,9 @@ def Test():
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = True)
     #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
+    #outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
+    #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
+    outTei, outAug = mapper.Transform(GetHwnMapping(), "Haifa\\hebrew_synonyms_sample.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
