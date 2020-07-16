@@ -176,6 +176,10 @@ def delete_transform(uid, xfid):
 def update_transform(xfid, xfspec, name, saved):
     transformer = Transformer.query.filter_by(id=xfid).first()
 
+    for key in xfspec:  # removing .// prepend if .. selector
+        if 'selector' in xfspec[key] and '..' == xfspec[key]['selector']['expr'][-2:]:
+            xfspec[key]['selector']['expr'] = '..'
+
     # if headword changed
     if xfspec['hw'] != transformer.transform['hw']:
         transformer.entity_spec = xfspec['entry']['expr'][3:]
