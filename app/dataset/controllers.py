@@ -36,7 +36,8 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
         mimetype = 'text/xml'
 
     # Create
-    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path)
+    status = json.dumps({'annotate': None, 'ml': None, 'preview': None, 'download': None})
+    dataset = Datasets(uid=uid, name=dzfilename, size=dztotalfilesize, file_path=dzfilepath, upload_mimetype=mimetype, upload_uuid=dzuuid, xml_file_path=xml_path, status=status)
     print_log(app.name, 'Adding dataset: {}'.format(dataset))
     db.session.add(dataset)
     db.session.commit()
@@ -64,6 +65,8 @@ def delete_dataset(dsid):
 def list_datasets(uid, dsid=None, order='ASC', mimetype='text/xml'):
     if dsid is not None:
         result = Datasets.query.filter_by(id=dsid).first()
+        if result.status is not None:
+            result.status = json.loads(result.status)
         db.session.close()
         return result
     elif order is 'ASC':
@@ -289,8 +292,22 @@ def extract_xml_heads(db, dsid):
 
 
 def update_dataset_status(dsid, status):
+    if not isinstance(status, str):
+        status = json.dumps(status)
     dataset = Datasets.query.filter_by(id=dsid).first()
     dataset.status = status
+    db.session.commit()
+    return status
+
+
+def dataset_status(dsid, set=False, status=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    if set:
+        if not isinstance(status, str):
+            status = json.dumps(status)
+        dataset.status = status
+    else:
+        status = json.loads(dataset.status)
     db.session.commit()
     return status
 

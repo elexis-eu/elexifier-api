@@ -53,12 +53,12 @@ def ds_sendML_to_lexonomy(uid, dsid):
     print('Starting asynchronous request to Lexonomy')
     make_lexonomy_request.apply_async(args=[dsid, request_data], kwargs={"ml": True}, countdown=0)
 
-    status = 'preview_Starting'
-    msg = 'OK'
     # Update dataset status
-    Datasets.update_dataset_status(dsid, status)
-
-    return flask.make_response({'message': msg, 'dsid': dsid, 'status': status, 'test_request': request_data}, 200)
+    status = Datasets.dataset_status(dsid)
+    status['preview'] = 'Starting'
+    Datasets.dataset_status(dsid, set=True, status=status)
+    msg = 'OK'
+    return flask.make_response({'message': msg, 'dsid': dsid, 'status': status['preview'], 'test_request': request_data}, 200)
 
 
 @celery.task
@@ -75,12 +75,15 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         os.remove(json_ml_in)
         os.remove(json_ml_out)
 
+    status = Datasets.dataset_status(dsid)
     print_log('celery', 'Dictionary: {} @xml2json_ML'.format(dsid))  # step 1
     try:
         xml2json(xml_raw, xml_lex, json_ml_in)
-        Datasets.update_dataset_status(dsid, "ML_Format")
+        status['ml'] = 'ML_Format'
+        Datasets.dataset_status(dsid, set=True, status=status)
     except Exception as e:
-        Datasets.update_dataset_status(dsid, "Lex2ML_Error")
+        status['ml'] = 'Lex2ML_Error'
+        Datasets.dataset_status(dsid, set=True, status=status)
         Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
         print_log('celery', 'Dictionary: {} @xml2json_ML [ERROR]'.format(dsid))
         clean_files()
@@ -91,9 +94,11 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     try:
         _, report = train_ML(json_ml_in, json_ml_out, '')
         ErrorLog.add_error_log(db, dsid, tag='ml_finished', message=report)
-        Datasets.update_dataset_status(dsid, "ML_Annotated")
+        status['ml'] = 'ML_Annotated'
+        Datasets.dataset_status(dsid, set=True, status=status)
     except Exception as e:
-        Datasets.update_dataset_status(dsid, "ML_Error")
+        status['ml'] = 'ML_Error'
+        Datasets.dataset_status(dsid, set=True, status=status)
         Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
         print_log('celery', 'Dictionary: {} @train_ML [ERROR]'.format(dsid))
         clean_files()
@@ -103,9 +108,11 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
     print_log('celery', 'Dictionary: {} @json2xml_ML'.format(dsid))  # step 3
     try:
         json2xml(json_ml_out, xml_raw, xml_out)
-        Datasets.update_dataset_status(dsid, "Lex_Format")
+        status['ml'] = 'Lex_Format'
+        Datasets.dataset_status(dsid, set=True, status=status)
     except Exception as e:
-        Datasets.update_dataset_status(dsid, "ML2Lex_Error")
+        status['ml'] = 'ML2Lex_Error'
+        Datasets.dataset_status(dsid, set=True, status=status)
         Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
         print_log('celery', 'Dictionary: {} @json2xml_ML [ERROR]'.format(dsid))
         clean_files()
@@ -183,7 +190,9 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     with open(output_file, 'w') as out:
         out.write(target_xml)
         out.close()
-    Datasets.update_dataset_status(dsid, 'Ready')
+    status = Datasets.dataset_status(dsid)
+    status['download'] = 'Ready'
+    Datasets.dataset_status(dsid, set=True, status=status)
     return
 
 
@@ -196,7 +205,7 @@ def repair_status():
     status should be json: {'annotate': [None, 'Starting', 'Processing', 'Lexonomy_Error', 'Ready'],
                             'ml': [None, 'Starting_ML', 'Lex2ML_Error', 'ML_Format', 'ML_Error', 'ML_Annotated', 'ML2Lex_Error', 'Lex_Format'],
                             'preview': [None, 'Starting', 'Processing', 'Lexonomy_Error', 'Ready'],
-                            'download': [None, 'Preparing_download']}
+                            'download': [None, 'Preparing_download', 'Ready']}
     delete method after, leave status description
     """
     pass
@@ -212,13 +221,15 @@ def ml_run(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
     # get annotations first, so we get lex_xml path in db
-    get_lex_xml(uid, dsid)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    if dataset.status in ['Starting_ML', 'ML_Format', 'ML_Annotated']:
+    if dataset.status['annotate'] != 'Ready':
+        raise InvalidUsage('File is not annotated at Lexonomy.', status_code=409, enum='STATUS_ERROR')
+    get_lex_xml(uid, dsid)
+    if dataset.status['ml'] in ['Starting_ML', 'ML_Format', 'ML_Annotated']:
         raise InvalidUsage('ML is already running.', status_code=409, enum='STATUS_ERROR')
     print_log(app.name, '{} Starting ML'.format(dataset))
-    status = 'Starting_ML'
-    Datasets.update_dataset_status(dsid, status)
+    dataset.status['ml'] = 'Starting_ML'
+    Datasets.dataset_status(dsid, set=True, status=dataset.status)
     # Get files ready
     xml_raw = dataset.xml_file_path
     xml_ml_out = dataset.xml_lex[:-4] + '-ML_OUT.xml'
@@ -226,7 +237,7 @@ def ml_run(dsid):
     # Run ml
     task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, dataset.xml_lex, xml_ml_out], countdown=0)
     Datasets.dataset_ml_task_id(dsid, set=True, task_id=task.id)
-    return flask.make_response({'message': 'ok', 'dsid': dsid, 'status': status}, 200)
+    return flask.make_response({'message': 'ok', 'dsid': dsid, 'status': dataset.status['ml']}, 200)
 
 
 @app.route('/api/ml/<int:dsid>/preview', methods=['GET'])
@@ -234,8 +245,7 @@ def ml_preview(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    # TODO: check if dataset.status['ml'] is 'Lex_Format'
-    if dataset.xml_ml_out is None or dataset.xml_ml_out is '':
+    if dataset.status['ml'] == 'Lex_Format' and dataset.xml_ml_out is None or dataset.xml_ml_out is '':
         raise InvalidUsage('No file for preview. Try running ML first.', status_code=409, enum='STATUS_ERROR')
     ds_sendML_to_lexonomy(uid, dsid)
     return flask.make_response({'message': 'ok', 'dsid': dsid, 'status': dataset.status}, 200)
@@ -266,17 +276,17 @@ def ml_download(dsid):
     tmp_file = dataset.xml_ml_out.split(".xml")[0] + "_TEI.xml"
 
     # stop if already preparing download
-    if dataset.status == 'Preparing_download':
+    if dataset.status['download'] == 'Preparing_download':
         return flask.make_response({'msg': 'Dataset is preparing for download', 'status': dataset.status}, 200)
     # if download is ready, return file
-    elif dataset.status == 'Ready':
-        Datasets.update_dataset_status(dsid, None)
+    elif dataset.status['download'] == 'Ready':
+        dataset.status['download'] = None
+        Datasets.dataset_status(dsid, set=True, status=dataset.status)
 
         @after_this_request
         def after(response):
             response.headers['x-suggested-filename'] = filename
             response.headers.add('Access-Control-Expose-Headers', '*')
-            Datasets.update_dataset_status(dsid, 'Lex_Format')
             os.remove(tmp_file)
             return response
 
@@ -284,11 +294,11 @@ def ml_download(dsid):
         return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
 
     # prepare download
-    status = 'Preparing_download'
-    Datasets.update_dataset_status(dsid, status)
+    dataset.status['download'] = 'Preparing_download'
+    Datasets.dataset_status(dsid, set=True, status=dataset.status)
     character_map = Datasets.dataset_character_map(dsid)
     prepare_TEI_download.apply_async(args=[dsid, dataset.xml_ml_out, tmp_file, character_map])
-    return flask.make_response({'msg': 'Dataset is preparing for download', 'status': status}, 200)
+    return flask.make_response({'msg': 'Dataset is preparing for download', 'status': dataset.status['download']}, 200)
 
 
 @app.route('/api/ml/<int:dsid>', methods=['DELETE'])
