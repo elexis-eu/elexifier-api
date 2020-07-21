@@ -200,7 +200,6 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
 @app.route('/api/ml/repair_status', methods=['GET'])
 def repair_status():
     """
-    TODO:
     implement a method, that repairs all dataset statuses.
     status should be json: {'annotate': [None, 'Starting', 'Processing', 'Lexonomy_Error', 'Ready'],
                             'ml': [None, 'Starting_ML', 'Lex2ML_Error', 'ML_Format', 'ML_Error', 'ML_Annotated', 'ML2Lex_Error', 'Lex_Format'],
@@ -208,7 +207,19 @@ def repair_status():
                             'download': [None, 'Preparing_download', 'Ready']}
     delete method after, leave status description
     """
-    pass
+    for dsid in range(0, 1000):
+        try:
+            dataset = Datasets.list_datasets(None, dsid=dsid)
+            status = {
+                'preview': None if dataset.lexonomy_ml_access is None else 'Ready',
+                'ml': None if dataset.lexonomy_ml_access is None else 'Lex_Format',
+                'annotate': None if dataset.lexonomy_access is None else 'Ready',
+                'download': None
+            }
+            Datasets.dataset_status(dsid, set=True, status=status)
+        except:
+            continue
+    return flask.make_response({'msg': 'ok'}, 200)
 
 
 @app.route('/api/ml/<int:dsid>/run', methods=['GET'])
@@ -270,7 +281,7 @@ def ml_download(dsid):
     # check if ml output is ready for download
     if dataset.xml_ml_out is None or dataset.xml_ml_out is '':
         raise InvalidUsage('No file for download. Try running ML first.', status_code=409, enum='STATUS_ERROR')
-    elif dataset.status in [None, 'Starting_ML', 'Lex2ML_Error', 'ML_Format', 'ML_Error', 'ML_Annotated', 'ML2Lex_Error']:
+    elif dataset.status['ml'] in [None, 'Starting_ML', 'Lex2ML_Error', 'ML_Format', 'ML_Error', 'ML_Annotated', 'ML2Lex_Error']:
         raise InvalidUsage('File is not ready for download. Wait for ML to finish first.', status_code=409, enum='STATUS_ERROR')
 
     tmp_file = dataset.xml_ml_out.split(".xml")[0] + "_TEI.xml"
