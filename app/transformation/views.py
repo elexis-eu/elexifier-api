@@ -14,6 +14,20 @@ from app.user.controllers import verify_user
 import app.modules.transformator.dictTransformations3 as DictTransformator
 
 
+@app.route('/api/transform/list', methods=['GET'])
+def xf_list_all_transforms():
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    datasets = Datasets.list_datasets(uid)
+    transformations = []
+    for dataset in datasets:
+        _transformations = controllers.list_transforms(dataset.id)
+        for xf in _transformations:
+            xf.name = dataset.name + '/' + xf.name
+            transformations.append(Transformer.to_dict(xf))
+    return flask.make_response(flask.jsonify(transformations), 200)
+
+
 @app.route('/api/transform/list/<int:dsid>', methods=['GET'])
 def xf_list_transforms(dsid):
     token = flask.request.headers.get('Authorization')

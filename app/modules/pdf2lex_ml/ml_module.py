@@ -229,7 +229,7 @@ def ds_send_to_lexonomy(dsid):
     user = User.query.filter_by(id=uid).first()
     db.session.close()
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    additional_pages = flask.request.args.get('add_pages', default='false', type=str).lower() == 'true'
+    additional_pages = flask.request.args.get('add_pages', default='0', type=str).lower() == '1'
 
     if additional_pages:
         # get file from lexonomy and save it
