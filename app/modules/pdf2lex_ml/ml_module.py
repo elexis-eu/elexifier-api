@@ -222,6 +222,49 @@ def repair_status():
     return flask.make_response({'msg': 'ok'}, 200)
 
 
+@app.route('/api/ml/<int:dsid>/annotate', methods=['GET'])
+def ds_send_to_lexonomy(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    user = User.query.filter_by(id=uid).first()
+    db.session.close()
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    additional_pages = flask.request.args.get('add_pages', default='false', type=str).lower() == 'true'
+
+    if additional_pages:
+        # get file from lexonomy and save it
+        get_lex_xml(uid, dsid)
+
+    # Reset dataset status and delete old files @Lexonomy
+    dataset.status['ml'] = None
+    dataset.status['preview'] = None
+    if dataset.lexonomy_delete is not None:
+        requests.post(dataset.lexonomy_delete, headers={"Content-Type": 'application/json',
+                                                        "Authorization": app.config['LEXONOMY_AUTH_KEY']})
+    if dataset.lexonomy_ml_delete is not None:
+        requests.post(dataset.lexonomy_ml_delete, headers={"Content-Type": 'application/json',
+                                                           "Authorization": app.config['LEXONOMY_AUTH_KEY']})
+
+    request_data = {
+        'xml_file': '/api/lexonomy/{}/download/{}'.format(uid, dsid) + ('?add_pages=True' if additional_pages else ''),
+        'email': user.email,
+        'filename': dataset.name + ' - annotate',
+        'type': 'edit',
+        'url': app.config['URL'],
+        'ske_user': True if user.password_hash is None else False,
+        'return_to': ""  # remove if no longer required
+    }
+
+    print_log(app.name, 'Starting asynchronous request to Lexonomy {}'.format(dataset))
+    make_lexonomy_request.apply_async(args=[dsid, request_data], countdown=0)
+
+    # Update dataset status
+    dataset.status['annotate'] = 'Starting'
+    Datasets.dataset_status(dsid, set=True, status=dataset.status)
+
+    return flask.make_response({'message': 'OK', 'dsid': dsid, 'status': dataset.status['annotate'], 'test_request': request_data}, 200)
+
+
 @app.route('/api/ml/<int:dsid>/run', methods=['GET'])
 def ml_run(dsid):
     """
@@ -236,6 +279,14 @@ def ml_run(dsid):
     if dataset.status['annotate'] != 'Ready':
         raise InvalidUsage('File is not annotated at Lexonomy.', status_code=409, enum='STATUS_ERROR')
     get_lex_xml(uid, dsid)
+
+    # deleting preview
+    dataset.status['preview'] = None
+    Datasets.dataset_add_ml_lexonomy_access(dsid)
+    if dataset.lexonomy_ml_delete is not None:
+        requests.post(dataset.lexonomy_ml_delete, headers={"Content-Type": 'application/json',
+                                                           "Authorization": app.config['LEXONOMY_AUTH_KEY']})
+
     if dataset.status['ml'] in ['Starting_ML', 'ML_Format', 'ML_Annotated']:
         raise InvalidUsage('ML is already running.', status_code=409, enum='STATUS_ERROR')
     print_log(app.name, '{} Starting ML'.format(dataset))

@@ -204,44 +204,6 @@ def lexonomy_download(uid, dsid):
         return flask.send_file(temp_fname, attachment_filename=dataset.xml_file_path.split('/')[-1], as_attachment=True)
 
 
-@app.route('/api/lexonomy/<int:dsid>', methods=['GET'])
-def ds_send_to_lexonomy(dsid):
-    token = flask.request.headers.get('Authorization')
-    uid = verify_user(token)
-    user = User.query.filter_by(id=uid).first()
-    db.session.close()
-    dataset = Datasets.list_datasets(uid, dsid=dsid)
-    additional_pages = flask.request.args.get('add_pages', default='false', type=str).lower() == 'true'
-
-    if additional_pages:
-        # get file from lexonomy and save it
-        get_lex_xml(uid, dsid)
-
-    if dataset.lexonomy_delete is not None:
-        requests.post(dataset.lexonomy_delete,
-                      headers={"Content-Type": 'application/json',
-                               "Authorization": app.config['LEXONOMY_AUTH_KEY']})
-
-    request_data = {
-        'xml_file': '/api/lexonomy/{}/download/{}'.format(uid, dsid) + ('?add_pages=True' if additional_pages else ''),
-        'email': user.email,
-        'filename': dataset.name + ' - annotate',
-        'type': 'edit',
-        'url': app.config['URL'],
-        'ske_user': True if user.password_hash is None else False,
-        'return_to': ""  # remove if no longer required
-    }
-
-    print_log(app.name, 'Starting asynchronous request to Lexonomy {}'.format(dataset))
-    make_lexonomy_request.apply_async(args=[dsid, request_data], countdown=0)
-
-    # Update dataset status
-    dataset.status['annotate'] = 'Starting'
-    Datasets.dataset_status(dsid, set=True, status=dataset.status)
-
-    return flask.make_response({'message': 'OK', 'dsid': dsid, 'status': dataset.status['annotate'], 'test_request': request_data}, 200)
-
-
 @app.route('/api/lexonomy/<int:dsid>', methods=['DELETE'])
 def delete_lexonomy(dsid):
     token = flask.request.headers.get('Authorization')
