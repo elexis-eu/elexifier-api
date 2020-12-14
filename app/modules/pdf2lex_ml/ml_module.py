@@ -279,6 +279,7 @@ def ml_run(dsid):
     if dataset.status['annotate'] != 'Ready':
         raise InvalidUsage('File is not annotated at Lexonomy.', status_code=409, enum='STATUS_ERROR')
     get_lex_xml(uid, dsid)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
 
     # deleting preview
     dataset.status['preview'] = None
