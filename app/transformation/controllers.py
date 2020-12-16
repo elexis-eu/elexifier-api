@@ -177,8 +177,14 @@ def update_transform(xfid, xfspec, name, saved):
     transformer = Transformer.query.filter_by(id=xfid).first()
 
     for key in xfspec:  # removing .// prepend if .. selector
-        if 'selector' in xfspec[key] and '..' == xfspec[key]['selector']['expr'][-2:]:
+        # only
+        if 'selector' in xfspec[key] and 'expr' in xfspec[key]['selector'] and '..' == xfspec[key]['selector']['expr'][-2:]:
             xfspec[key]['selector']['expr'] = '..'
+        # union
+        elif 'selector' in xfspec[key] and 'selectors' in xfspec[key]['selector']:
+            for i in range(len(xfspec[key]['selector']['selectors'])):
+                if '..' == xfspec[key]['selector']['selectors'][i]['expr'][-2:]:
+                    xfspec[key]['selector']['selectors'][i]['expr'] = '..'
 
     # if headword changed
     if xfspec['hw'] != transformer.transform['hw']:
