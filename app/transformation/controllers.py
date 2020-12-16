@@ -178,7 +178,7 @@ def update_transform(xfid, xfspec, name, saved):
 
     for key in xfspec:  # removing .// prepend if .. selector
         # only
-        if 'selector' in xfspec[key] and 'expr' in xfspec['key']['selector'] and '..' == xfspec[key]['selector']['expr'][-2:]:
+        if 'selector' in xfspec[key] and 'expr' in xfspec[key]['selector'] and '..' == xfspec[key]['selector']['expr'][-2:]:
             xfspec[key]['selector']['expr'] = '..'
         # union
         elif 'selector' in xfspec[key] and 'selectors' in xfspec[key]['selector']:
