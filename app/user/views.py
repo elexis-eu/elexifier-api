@@ -65,7 +65,7 @@ def login():
     # Sketch-engine login
     if 'sketch_token' in flask.request.json:
         user_data = User.decode_sketch_token(flask.request.json['sketch_token'])
-        user = User.query.filter_by(id=user_data['id']).first()
+        user = User.query.filter_by(sketch_engine_uid=user_data['id']).first()
         # check if ske user exists
         if user is None:
             user = User(user_data['email'], None, sketch_engine_uid=user_data['id'])
