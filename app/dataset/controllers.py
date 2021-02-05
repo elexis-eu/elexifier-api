@@ -159,6 +159,10 @@ def transform_pdf2xml(dsid):
 def map_xml_tags(dsid):
     def xml_walk(node, acc={}):
         tag = node.tag
+        if type(tag) is not str:
+            return acc
+            # we skip non-string, since there can appear tags that get transformed into functions
+
         if tag not in acc:
             acc[tag] = {'parent': [], 'child': []}
         # add parent to accumulator
@@ -171,6 +175,10 @@ def map_xml_tags(dsid):
         # search children
         for child in node:
             child_tag = child.tag
+            if type(tag) is not str:
+                continue
+                # avoid saving non-strings as above
+
             if child_tag not in acc[tag]['child']:
                 acc[tag]['child'].append(child_tag)
             acc = xml_walk(child, acc=acc)
