@@ -168,6 +168,7 @@ def describe_transform(xfid, page):
 def delete_transform(uid, xfid):
     transform = Transformer.query.filter_by(id=xfid).first()
     print('Delete {0}, uid: {1}'.format(transform, uid))
+    db.session.query(Datasets_single_entry).filter(Datasets_single_entry.xfid == str(xfid)).delete()
     db.session.query(Transformer).filter(Transformer.id == xfid).delete()
     db.session.commit()
     return True
