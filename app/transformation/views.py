@@ -218,6 +218,7 @@ def ds_download2(xfid, dsid):
         strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
         strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
         strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
+        strip_DictScrap = strip_ns  # TODO: remove this, when added to FE
 
         # Check if transformer exists
         try:
