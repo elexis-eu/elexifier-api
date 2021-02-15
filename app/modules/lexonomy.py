@@ -137,7 +137,7 @@ def get_lex_xml(uid, dsid):
 @celery.task
 def make_lexonomy_request(dsid, request_data, ml=False):
     # Send request async and save links to db
-    response = requests.post('https://lexonomy.elex.is/elexifier/new',
+    response = requests.post('https://{}/elexifier/new'.format(app.config['LEXONOMY_URL']),
                              headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']},
                              data=json.dumps(request_data))
     status = Datasets.dataset_status(dsid)

@@ -11,7 +11,7 @@ class Config(object):
     APP_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
     APP_MEDIA = os.path.os.path.join(APP_DIR, 'media')
     URL = os.environ['URL']
-    # TODO: LEXONOMY_URL = os.environ['LEXONOMY_URL']
+    LEXONOMY_URL = os.environ['LEXONOMY_URL']
 
     # Database
     SQLALCHEMY_TRACK_MODIFICATIONS = False
