@@ -175,7 +175,7 @@ def map_xml_tags(dsid):
         # search children
         for child in node:
             child_tag = child.tag
-            if type(tag) is not str:
+            if type(child_tag) is not str:
                 continue
                 # avoid saving non-strings as above
 
