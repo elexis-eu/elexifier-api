@@ -3,12 +3,14 @@ from flask import after_this_request
 import os
 import lxml
 import lxml.etree
+import traceback
 
 from app import app, db, celery
 from app.transformation.models import Transformer
 import app.transformation.controllers as controllers
 import app.dataset.controllers as Datasets
 from app.modules.error_handling import InvalidUsage
+import app.modules.support as ErrorLog
 from app.modules.log import print_log
 from app.user.controllers import verify_user
 import app.modules.transformator.dictTransformations3 as DictTransformator
@@ -164,40 +166,46 @@ def entries_search(xfid, dsid):
 # --- download
 @celery.task
 def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
-    transformer = controllers.list_transforms(dsid, xfid=xfid)
-    dataset = Datasets.list_datasets(uid, dsid=dsid)
-    metadata = Datasets.dataset_metadata(dsid)
-    xf = transformer.transform
-    ds_path = dataset.file_path
-    file_name = dataset.name
-    header_Title = metadata['title']
-    header_Bibl = metadata['bibliographicCitation']
-    header_Publisher = metadata['publisher']
+    try:
+        transformer = controllers.list_transforms(dsid, xfid=xfid)
+        dataset = Datasets.list_datasets(uid, dsid=dsid)
+        metadata = Datasets.dataset_metadata(dsid)
+        xf = transformer.transform
+        ds_path = dataset.file_path
+        file_name = dataset.name
+        header_Title = metadata['title']
+        header_Bibl = metadata['bibliographicCitation']
+        header_Publisher = metadata['publisher']
 
-    orig_xml = open(ds_path, 'rb').read()
-    parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
-    myParser = lxml.etree.XMLParser()
-    myParser.set_element_class_lookup(parserLookup)
-    entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
-    mapping = DictTransformator.TMapping(xf)
-    mapper = DictTransformator.TMapper()
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
-                                        stripForValidation=strip_ns,
-                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap,
-                                        headerTitle=header_Title, headerPublisher=header_Publisher,
-                                        headerBibl=header_Bibl,
-                                        metadata=metadata)
-    target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
+        orig_xml = open(ds_path, 'rb').read()
+        parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
+        myParser = lxml.etree.XMLParser()
+        myParser.set_element_class_lookup(parserLookup)
+        entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
+        mapping = DictTransformator.TMapping(xf)
+        mapper = DictTransformator.TMapper()
+        out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
+                                            stripForValidation=strip_ns,
+                                            stripHeader=strip_header, stripDictScrap=strip_DictScrap,
+                                            headerTitle=header_Title, headerPublisher=header_Publisher,
+                                            headerBibl=header_Bibl,
+                                            metadata=metadata)
+        target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
-    orig_fname, file_type = file_name.split('.')
-    target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
-    target_path = os.path.join(app.config['APP_MEDIA'], target_fname)
+        orig_fname, file_type = file_name.split('.')
+        target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
+        target_path = os.path.join(app.config['APP_MEDIA'], target_fname)
 
-    open(target_path, 'a').close()
-    with open(target_path, 'w') as out:
-        out.write(target_xml)
-        out.close()
-        controllers.transformer_download_status(xfid, set=True, download_status='Ready')
+        open(target_path, 'a').close()
+        with open(target_path, 'w') as out:
+            out.write(target_xml)
+            out.close()
+            controllers.transformer_download_status(xfid, set=True, download_status='Ready')
+
+    except Exception as e:
+        ErrorLog.add_error_log(db, dsid, tag='xml_error', message=traceback.format_exc())
+        controllers.transformer_download_status(xfid, set=True)  # reset status
+        return
 
     return
 
@@ -206,7 +214,6 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 def ds_download2(xfid, dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-    print_log(app.name, 'Transformed dataset download uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
     status = controllers.transformer_download_status(xfid)
 
     get_status = flask.request.args.get('status', default='false', type=str) == 'true'
@@ -215,6 +222,7 @@ def ds_download2(xfid, dsid):
         return flask.make_response({'status': status}, 200)
 
     elif status is None:
+        print_log(app.name, 'Transformed dataset download started uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
         strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
         strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
         strip_DictScrap = flask.request.args.get('strip_DictScrap', default='false', type=str) == 'true'
@@ -239,6 +247,7 @@ def ds_download2(xfid, dsid):
         return flask.make_response({'message': 'File is still processing'}, 200)
 
     elif status == "Ready":
+        print_log(app.name, 'Transformed dataset download finished uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
         # return file and delete afterwards
         dataset = Datasets.list_datasets(uid, dsid=dsid)
         file_name, file_type = dataset.name.split('.')
