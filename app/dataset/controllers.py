@@ -11,6 +11,7 @@ import copy
 from app import app, db, celery
 from app.dataset.models import Datasets, Datasets_single_entry
 from app.transformation.models import Transformer
+from app.modules.support import delete_error_log
 from app.modules.log import print_log
 
 
@@ -48,7 +49,10 @@ def delete_dataset(dsid):
     dataset = Datasets.query.filter_by(id=dsid).first()
     print('Delete {0}'.format(dataset))
     db.session.commit()
+    # delete transformations
     db.session.query(Transformer).filter(Transformer.dsid == dataset.id).delete()
+    # delete error_logs
+    delete_error_log(db, None, dsid=dsid)
     db.session.query(Datasets_single_entry).filter(Datasets_single_entry.dsid == dataset.id).delete()
     db.session.query(Datasets).filter(Datasets.id == dataset.id).delete()
     db.session.commit()
