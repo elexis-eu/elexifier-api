@@ -7,7 +7,6 @@ from app import app, db, celery
 from app.user.models import User
 from app.user.controllers import verify_user
 from app.dataset.models import Datasets
-from app.dataset.controllers import list_datasets
 from app.modules.error_handling import InvalidUsage
 
 # TODO: should this be here?
@@ -86,7 +85,7 @@ def view_error_log(e_id):
 
     log = get_error_log(db, e_id=e_id)
 
-    dataset = list_datasets(None, dsid=log.dsid)
+    dataset = Datasets.query.filter_by(id=log.dsid).first()
     pdf = flask.request.args.get('pdf', default=0, type=int) == 1
     xml_lex = flask.request.args.get('xml_lex', default=0, type=int) == 1
     xml_raw = flask.request.args.get('xml_raw', default=0, type=int) == 1

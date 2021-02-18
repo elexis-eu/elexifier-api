@@ -3,14 +3,12 @@ from flask import after_this_request
 import os
 import lxml
 import lxml.etree
-import traceback
 
 from app import app, db, celery
 from app.transformation.models import Transformer
 import app.transformation.controllers as controllers
 import app.dataset.controllers as Datasets
 from app.modules.error_handling import InvalidUsage
-import app.modules.support as ErrorLog
 from app.modules.log import print_log
 from app.user.controllers import verify_user
 import app.modules.transformator.dictTransformations3 as DictTransformator
@@ -203,7 +201,6 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
             controllers.transformer_download_status(xfid, set=True, download_status='Ready')
 
     except Exception as e:
-        ErrorLog.add_error_log(db, dsid, tag='xml_error', message=traceback.format_exc())
         controllers.transformer_download_status(xfid, set=True)  # reset status
         return
 
