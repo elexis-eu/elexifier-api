@@ -11,7 +11,7 @@ import copy
 from app import app, db, celery
 from app.dataset.models import Datasets, Datasets_single_entry
 from app.transformation.models import Transformer
-from app.modules.support import ErrorLog
+from app.modules.support import Error_log
 from app.modules.log import print_log
 
 
