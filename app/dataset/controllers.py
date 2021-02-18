@@ -290,6 +290,8 @@ def extract_xml_heads(db, dsid):
         tree = lxml.etree.parse(xml_file)
         unique_tags = set()
         for element in tree.iter():
+            if type(element.tag) is not str:
+                continue  # we skip non-string, since there can appear tags that get transformed into functions
             unique_tags.add(clean_tag(element.tag))
 
         unique_tags = sorted(list(unique_tags))
