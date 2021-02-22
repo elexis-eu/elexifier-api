@@ -86,23 +86,23 @@ def prepare_dataset(uid, dsid, xfid, xpath, hw):
         xpath = xpath.strip()
 
         namespaces = tree.getroot().nsmap
-        namespace=''
-        namespace_prefix = False
-        for prefix, ns in namespaces.items():
-            if prefix:
-                namespace_prefix = True
-                namespace = {prefix:ns}
-                break
-            else:
-                namespace = ns
-
-        if namespace_prefix:
-            nodes = tree.xpath('//' + xpath, namespaces=namespace)
+        empty_ns = ''
+        if None in namespaces.keys():
+            empty_ns = namespaces.pop(None)
+            namespaces['_'] = empty_ns
+        
+        if len(namespaces) > 0 and len(empty_ns) > 0:
+            nodes = tree.xpath('//_:{}' + xpath, namespaces=namespaces)
+        elif len(namespaces) > 0:
+            nodes = tree.xpath('//' + xpath, namespaces=namespaces)
         else:
             nodes = tree.xpath('//' + xpath)
 
         for entry in nodes:
-            headword = entry.findall('.//' + hw)
+            if len(empty_ns) > 0:
+                headword = entry.findall('.//_:' + hw, namespaces=namespaces)
+            else:
+                headword = entry.findall('.//' + hw)
             if headword:
                 text = headword[0].text
             else:
