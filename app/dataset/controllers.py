@@ -33,7 +33,7 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     xml_path = None
     if mimetype == "application/pdf":
         xml_path = dzfilepath[:-4] + ".xml"
-    elif mimetype == 'text/plain':
+    elif mimetype in ['text/plain', 'text/html']:
         mimetype = 'text/xml'
 
     # Create
