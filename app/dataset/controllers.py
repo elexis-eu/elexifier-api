@@ -33,7 +33,7 @@ def add_dataset(db, uid, dztotalfilesize, dzfilename, dzfilepath, dzuuid):
     xml_path = None
     if mimetype == "application/pdf":
         xml_path = dzfilepath[:-4] + ".xml"
-    elif mimetype == 'text/plain':
+    elif mimetype in ['text/plain', 'text/html']:
         mimetype = 'text/xml'
 
     # Create
@@ -102,6 +102,16 @@ def dataset_metadata(dsid, set=False, metadata=None):
         metadata = json.loads(metadata)
         db.session.close()
     return metadata
+
+
+def clean_empty_namespace(dsid):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    db.session.close()
+    with open(dataset.file_path, 'r') as f:
+        xml_data = f.read()
+    xml_data = re.sub('xmlns=".*?"', '', xml_data)
+    with open(dataset.file_path, 'w') as f:
+        f.write(xml_data)
 
 
 @celery.task

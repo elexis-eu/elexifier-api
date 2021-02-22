@@ -144,6 +144,7 @@ def ds_upload_new_dataset():
             if "pdf" in dataset.upload_mimetype:
                 controllers.transform_pdf2xml.apply_async(args=[dsid])
             else:
+                controllers.clean_empty_namespace(dsid)
                 controllers.map_xml_tags.apply_async(args=[dsid])
         return flask.make_response(Datasets.to_dict(dataset), 200)
 
