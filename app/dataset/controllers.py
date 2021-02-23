@@ -212,44 +212,44 @@ def get_xml_tags(dsid):
     return dataset.xml_tags
 
 
-def extract_pos_elements(db, dsid, pos_element, attribute_name=None):
+def extract_pos_elements(xml_file, pos_element, attribute_name):
+    tree = lxml.etree.parse(xml_file)
+    namespaces = tree.getroot().nsmap
+
+    result = tree.xpath('//' + pos_element, namespaces=namespaces)
+    unique_pos = set()
+
+    for el in result:
+        pos = ''
+        if attribute_name is not None and attribute_name in el.attrib.keys():
+            print('aa')
+            pos = el.attrib[attribute_name].strip()
+        elif el.text and attribute_name is None:
+            pos = el.text.strip()
+        else:
+            continue
+        unique_pos.add(pos)
+    return sorted(list(unique_pos))
+
+
+def get_pos_elements(db, dsid, pos_element, attribute_name=None):
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     db.session.commit()
-    if dataset.pos_elements != None:
-        return json.loads(dataset.pos_elements)
-    else:
-        xml_file = dataset.file_path
-        tree = lxml.etree.parse(xml_file)
-        namespaces = tree.getroot().nsmap
-        namespace = ''
-        namespace_prefix = False
-        for prefix, ns in namespaces.items():
-            if prefix:
-                namespace_prefix = True
-                namespace = {prefix: ns}
-                break
-            else:
-                namespace = ns
 
-        if namespace_prefix:
-            pos_els = tree.xpath('//' + pos_element, namespaces=namespace)
-        else:
-            pos_els = tree.xpath('//' + pos_element)
-
-        unique_pos = []
-        if attribute_name:
-            for el in pos_els:
-                pos = el.attrib[attribute_name].strip()
-                unique_pos.append(pos)
-        else:
-            for el in pos_els:
-                if el.text.strip() not in unique_pos:
-                    unique_pos.append(el.text.strip())
-
-        pos_elements = json.dumps(sorted(unique_pos))
-        dataset.pos_elements = pos_elements
-        db.session.commit()
-        return json.loads(pos_elements)
+    if dataset.pos_elements is not None:
+        pos_elms = json.loads(dataset.pos_elements)
+        if pos_elms['pos_element'] == pos_element and pos_elms['attribute_name'] == attribute_name:
+            return pos_elms
+    
+    pos_elms = extract_pos_elements(dataset.file_path, pos_element, attribute_name)
+    pos_elms = {
+        'pos_element': pos_element,
+        'attribute_name': attribute_name,
+        'pos': sorted(list(pos_elms))
+    }
+    dataset.pos_elements = json.dumps(pos_elms)
+    db.session.commit()
+    return pos_elms
 
 
 def extract_xpaths(db, dsid):
