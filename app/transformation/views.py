@@ -139,6 +139,7 @@ def xf_entity_transform(xfid, entityid):
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
                                         stripForValidation=strip_ns,
                                         stripDictScrap=strip_DictScrap, stripHeader=strip_header,
+                                        promoteNestedEntries=True,
                                         returnFirstEntryOnly=True)
 
     target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
@@ -185,6 +186,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
         out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
                                             stripForValidation=strip_ns,
                                             stripHeader=strip_header, stripDictScrap=strip_DictScrap,
+                                            promoteNestedEntries=True,
                                             headerTitle=header_Title, headerPublisher=header_Publisher,
                                             headerBibl=header_Bibl,
                                             metadata=metadata)

@@ -179,6 +179,7 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
                                         headerTitle=False,
                                         headerPublisher=False,
                                         headerBibl=False,
+                                        promoteNestedEntries=True,
                                         metadata=metadata)
     target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
     target_xml = target_xml.replace(
