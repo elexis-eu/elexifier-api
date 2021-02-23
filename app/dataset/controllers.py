@@ -222,7 +222,6 @@ def extract_pos_elements(xml_file, pos_element, attribute_name):
     for el in result:
         pos = ''
         if attribute_name is not None and attribute_name in el.attrib.keys():
-            print('aa')
             pos = el.attrib[attribute_name].strip()
         elif el.text and attribute_name is None:
             pos = el.text.strip()

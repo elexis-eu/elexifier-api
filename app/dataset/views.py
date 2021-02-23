@@ -204,6 +204,8 @@ def ds_pos(dsid):
     id = verify_user(token)
     pos_element = flask.request.args.get('pos_element', type=str)
     attribute_name = flask.request.args.get('attribute_name', type=str)
+    if len(attribute_name) == 0:
+        attribute_name = None
     nodes = controllers.get_pos_elements(db, dsid, pos_element, attribute_name=attribute_name)
     return flask.make_response(nodes, 200)
 
