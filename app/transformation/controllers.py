@@ -192,7 +192,7 @@ def update_transform(xfid, xfspec, name, saved):
         transformer.entity_spec = xfspec['entry']['expr'][3:]
         # update datasets single entry
         print("Updating Datasets_single_entry XFID: {0:d}".format(xfid))
-        update_single_entries(xfid, xfspec)
+        update_single_entries.apply_async(args=[xfid, xfspec], countdown=0)
 
     transformer.transform = xfspec
     transformer.saved = saved
@@ -202,6 +202,7 @@ def update_transform(xfid, xfspec, name, saved):
     return 1
 
 
+@celery.task
 def update_single_entries(xfid, transform):
     entries = Datasets_single_entry.query.filter_by(xfid=str(xfid)).all()
 
