@@ -17,8 +17,8 @@ class TXpathSelector:
     def findall(self, tree):
         #print("\ntree = %s %s, expr = %s" % (type(tree), etree.tostring(tree, pretty_print=True), self.expr))
         #if type(tree) is not TMyElement: tree = tree.getroot()
-        for x in tree.findall(self.expr): yield x
-        #for x in tree.xpath(self.expr): yield x
+        #for x in tree.findall(self.expr): yield x
+        for x in tree.xpath(self.expr): yield x
     def ToJson(self): return { "type": "xpath", "expr": self.expr }
 class TUnionSelector:
     __slots__ = ["selectors"]
@@ -220,7 +220,7 @@ class TSimpleTransformer:
             #print("XLAT %s  %s -> %s" % (self.xlat, s, self.xlat.get(s, s)))
             return self.xlat.get(s, s)
     def findall(self, root): # yields (Element, str) pairs
-        for elt in self.selector.findall(root):
+        for elt in self.selector.findall(root): 
             if self.attr == ATTR_INNER_TEXT: attrVal = GetInnerText(elt, False)
             elif self.attr == ATTR_INNER_TEXT_REC: attrVal = GetInnerText(elt, True)
             elif self.attr == ATTR_CONSTANT: attrVal = self.constValue
@@ -411,7 +411,8 @@ def GetMldsMapping():
         TXpathSelector("Entry"), TXpathSelector(".//DictionaryEntry")])
     m.xfEntryLang = TSimpleTransformer(
         TXpathSelector("Dictionary"), "sourceLanguage")
-    m.xfHw = TSimpleTransformer(TXpathSelector(".//Headword"), ATTR_INNER_TEXT)
+    #m.xfHw = TSimpleTransformer(TXpathSelector(".//Headword"), ATTR_INNER_TEXT)
+    m.xfHw = TSimpleTransformer(TXpathSelector(".//ancestor::Entry"), "hw")
     m.selSense = TXpathSelector(".//SenseGrp")    
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Definition"), ATTR_INNER_TEXT)
     m.xfPos = TSimpleTransformer(TXpathSelector(".//PartOfSpeech"), "value")
@@ -2235,9 +2236,9 @@ def Test():
     #outTei = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False)
+    #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False)
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = True)
-    #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True)
+    outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
