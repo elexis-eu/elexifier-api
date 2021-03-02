@@ -192,7 +192,7 @@ def update_transform(xfid, xfspec, name, saved):
         transformer.entity_spec = xfspec['entry']['expr'][3:]
         # update datasets single entry
         print("Updating Datasets_single_entry XFID: {0:d}".format(xfid))
-        update_single_entries(xfid, xfspec)
+        update_single_entries.apply_async(args=[xfid, xfspec], countdown=0)
 
     transformer.transform = xfspec
     transformer.saved = saved
@@ -202,6 +202,7 @@ def update_transform(xfid, xfspec, name, saved):
     return 1
 
 
+@celery.task
 def update_single_entries(xfid, transform):
     entries = Datasets_single_entry.query.filter_by(xfid=str(xfid)).all()
 
@@ -214,7 +215,7 @@ def update_single_entries(xfid, transform):
     counter = 0
     for e in entries:
         entity_xml = lxml.etree.fromstring(e.contents, parser=myParser)
-        out_TEI, _aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripHeader=True, stripDictScrap=True)
+        out_TEI, _aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripHeader=True, stripDictScrap=True, promoteNestedEntries=True)
         try:
             headword = out_TEI.findall('.//orth', namespaces=out_TEI.nsmap)[0].text.strip()
         except:

@@ -1,7 +1,7 @@
 # coding=Windows-1250
 #import xml.etree, xml.etree.ElementTree
 from lxml import etree
-import copy, re, logging, traceback, zipfile, json, pathlib, eventlet, sys, datetime, os, os.path, io, time
+import copy, re, logging, traceback, zipfile, json, pathlib, eventlet, sys, datetime, os, os.path, io, time, codecs
 from eventlet import wsgi
 urllib_parse = eventlet.import_patched("urllib.parse")
 urllib_request = eventlet.import_patched("urllib.request")
@@ -17,8 +17,8 @@ class TXpathSelector:
     def findall(self, tree):
         #print("\ntree = %s %s, expr = %s" % (type(tree), etree.tostring(tree, pretty_print=True), self.expr))
         #if type(tree) is not TMyElement: tree = tree.getroot()
-        for x in tree.findall(self.expr): yield x
-        #for x in tree.xpath(self.expr): yield x
+        #for x in tree.findall(self.expr): yield x
+        for x in tree.xpath(self.expr): yield x
     def ToJson(self): return { "type": "xpath", "expr": self.expr }
 class TUnionSelector:
     __slots__ = ["selectors"]
@@ -74,6 +74,16 @@ def AppendToTail(node, what):
     if what is None or what == "": return
     if node.tail is None: node.tail = what
     else: node.tail += what
+
+def EltToStr(elt):
+    if elt is None: return ""
+    tag = elt.tag
+    i = tag.rfind('}')
+    if i >= 0: tag = tag[i + 1:]
+    s = "<%s>%s%s</%s>%s" % (tag, "" if elt.text is None else elt.text, "".join(EltToStr(child) for child in elt), tag, "" if elt.tail is None else elt.tail)
+    s = s.replace('\n', ' ').replace('\t', ' ').replace('\r',  ' ').strip()
+    while "  " in s: s = s.replace("  ", " ")
+    return s
 
 class TTransformOrder:
     __slots__ = ["elt", "rexMatch", "rexGroup", "attr", "attrVal", "matchedStr", "msFrom", "msTo", "trLanguage", "finalStr"]
@@ -210,7 +220,7 @@ class TSimpleTransformer:
             #print("XLAT %s  %s -> %s" % (self.xlat, s, self.xlat.get(s, s)))
             return self.xlat.get(s, s)
     def findall(self, root): # yields (Element, str) pairs
-        for elt in self.selector.findall(root):
+        for elt in self.selector.findall(root): 
             if self.attr == ATTR_INNER_TEXT: attrVal = GetInnerText(elt, False)
             elif self.attr == ATTR_INNER_TEXT_REC: attrVal = GetInnerText(elt, True)
             elif self.attr == ATTR_CONSTANT: attrVal = self.constValue
@@ -401,7 +411,8 @@ def GetMldsMapping():
         TXpathSelector("Entry"), TXpathSelector(".//DictionaryEntry")])
     m.xfEntryLang = TSimpleTransformer(
         TXpathSelector("Dictionary"), "sourceLanguage")
-    m.xfHw = TSimpleTransformer(TXpathSelector(".//Headword"), ATTR_INNER_TEXT)
+    #m.xfHw = TSimpleTransformer(TXpathSelector(".//Headword"), ATTR_INNER_TEXT)
+    m.xfHw = TSimpleTransformer(TXpathSelector(".//ancestor::Entry"), "hw")
     m.selSense = TXpathSelector(".//SenseGrp")    
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Definition"), ATTR_INNER_TEXT)
     m.xfPos = TSimpleTransformer(TXpathSelector(".//PartOfSpeech"), "value")
@@ -441,6 +452,9 @@ def GetSldMapping():
 def GetAnwMapping():
     m = TMapping()
     m.selEntry = TXpathSelector(".//artikel")
+    if True: m.selEntry = TUnionSelector([
+        TXpathSelector(".//artikel"),
+        TXpathSelector(".//Verbindingen")])
     m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//artikel"),
         ATTR_CONSTANT, constValue = "nl")
     m.xfHw = TSimpleTransformer(TXpathSelector(".//Lemmavorm"), ATTR_INNER_TEXT_REC)
@@ -679,11 +693,12 @@ allowedParentHash = {
 #      tree be B', and proceed into its first sibling.
 class TEntryMapper:
     __slots__ = ["entry", "m", "parser", "mapper",
-        "senseIds", 
+        "senseIds", "nestedEntriesWillBePromoted",
         "mDef", "mPos", "mHw", "mLemma", "mHwTr", "mHwTrLang", "mEx", "mExTr", "mExTrLang",
         "transformedEntry"]
-    def __init__(self, entry, m, parser, mapper):
+    def __init__(self, entry, m, parser, mapper, nestedEntriesWillBePromoted):
         self.entry = entry; self.m = m; self.parser = parser; self.mapper = mapper
+        self.nestedEntriesWillBePromoted = nestedEntriesWillBePromoted
     def MakeTrOrderHash(self, transformer, augMatchAttr):
         #print("MakeTrOrderHash: entry = %s, tr = %s" % (self.entry, "None" if not transformer else transformer.ToJson()))
         h = {}
@@ -717,8 +732,24 @@ class TEntryMapper:
     def FindSuitableParent(self, elt):
         # Goes up the ancestors of 'elt' until it finds one that can become its parent.
         # Returns this ancestor, plus the next one on the path from that ancestor to 'elt'.
+        #s_ = etree.tostring(elt).decode("utf8"); 
+        """
+        s_ = EltToStr(elt)
+        print(s_[:150])
+        t_ = "als er geen toezicht is"
+        if t_ in s_: # 
+            i = s_.find(t_)
+            print("### <%s> %s" % (elt.tag, repr(s_[max(0, i - 40):(i + 40)])))
+            i = i
+        if "entryPlaceholder" in elt.tag:
+            i = -1
+        """
         eltTag = elt.tag; allowedParents = allowedParentHash[eltTag]
         cur = elt; parent = cur.getparent()
+        # If nested entries will be promoted to the top level anyway, we don't need to check
+        # whether the placeholders have a suitable parent, because the nested entry won't stay where
+        # the placeholder is now.
+        if eltTag == ELT_ENTRY_PLACEHOLDER and self.nestedEntriesWillBePromoted: return (parent, cur)
         #print("FindSuitableParent for %s" % elt)
         while not (parent is None):
             parentTag = parent.tag
@@ -745,6 +776,11 @@ class TEntryMapper:
         Rec(elt)
         return elt
     def StageTwo_TransformSubtree(self, elt): 
+        # This method returns None if processing should continue with elt's children;
+        # otherwise it returns the node where processing should continue (this will be a segified
+        # copy of 'elt' in cases when the original 'elt' has been moved to become a sibling of
+        # one of its former ancestors; this means we'll encounter it again later, though we won't
+        # have to move it then).
         eltTag = elt.tag; oldParent = elt.getparent()
         # See if 'elt' and its subtree should be moved somewhere higher up.
         (newParent, newSib) = self.FindSuitableParent(elt)
@@ -776,6 +812,7 @@ class TEntryMapper:
                 idx = newParent.index(newSib); assert 0 <= idx < len(newParent)
                 newParent.insert(idx + 1, elt)
                 elt.tail = newSib.tail; newSib.tail = None
+                return segifiedSubtree
         # Otherwise we can transform each of elt's subtrees recursively.
         # Note that during these recursive calls, len(elt) may change if some 
         # subtrees are promoted from deeper below and become elt's children;
@@ -793,7 +830,8 @@ class TEntryMapper:
         while cur is not None:
             if prev is None and type(cur) is TMyElement:
                 # If we entered 'cur' from its parent, transform it now.
-                self.StageTwo_TransformSubtree(cur)
+                next = self.StageTwo_TransformSubtree(cur)
+                if next is not None: prev = None; cur = next
             # If we entered from the parent, we'll move into the first child,
             # otherwise into the child following 'prev'.
             i = -1 if prev is None else cur.index(prev)
@@ -1290,14 +1328,16 @@ class TTreeMapper:
         "relaxNg", # the schema loaded from TEILex0-ODD.rng
         "outBody", # the resulting <body> element, with <entry>es as its chldren
         "augTree", # a copy of the input tree, to be augmented with attributes about the transformation
+        "nestedEntriesWillBePromoted", # will nested entries eventually be promoted to the top level?
         ]
-    def __init__(self, tree, m, parser, relaxNg, makeAugTree): # m = mapping
+    def __init__(self, tree, m, parser, relaxNg, makeAugTree, nestedEntriesWillBePromoted): # m = mapping
         self.tree = tree
         self.m = m
         self.parser = parser
         self.keepAliveHash = {}
         self.relaxNg = relaxNg
         self.augTree = None
+        self.nestedEntriesWillBePromoted = nestedEntriesWillBePromoted
         if makeAugTree: 
             augRoot = self.MakeAugTree(self.tree.getroot())
             self.augTree = etree.ElementTree(augRoot)
@@ -1576,7 +1616,7 @@ class TTreeMapper:
         # - Update: we no longer assume that it's detached from the tree.
         ###assert entry.getparent() is None
         SetMatchInfo(entry, MATCH_entry)
-        entryMapper = TEntryMapper(entry, self.m, self.parser, self)
+        entryMapper = TEntryMapper(entry, self.m, self.parser, self, self.nestedEntriesWillBePromoted)
         return entryMapper.TransformEntry()
         #return transformedEntry
     def TransformEntry(self, entry):
@@ -1748,11 +1788,11 @@ class TMapper:
         for child in children: e.append(child)
         e.text = text; e.tail = tail
         return e
-    def TransformTree(self, mapping, tree, outBody, outAugTrees):
+    def TransformTree(self, mapping, tree, outBody, outAugTrees, nestedEntriesWillBePromoted):
         # Transforms 'tree' using a temporary instance of TTreeMapper and
         # moves the entries from its body into 'outBody'.
         makeAugTrees = outAugTrees is not None
-        treeMapper = TTreeMapper(tree, mapping, self.parser, self.relaxNg, makeAugTrees)
+        treeMapper = TTreeMapper(tree, mapping, self.parser, self.relaxNg, makeAugTrees, nestedEntriesWillBePromoted)
         treeMapper.Transform()
         inBody = treeMapper.outBody; nElts = 0
         while len(inBody) > 0:
@@ -1855,6 +1895,67 @@ class TMapper:
         r = Rec(root)
         if r is None: return root
         else: return r
+    def PromoteNestedEntries(self, root):
+        nOutermostEntries = 0; nNestedEntries = 0; insertAfter = None; nestingDepth = 0
+        nodesMoved = set()
+        keepAlive = []
+        def RecKa(node):
+            keepAlive.append(node)
+            for child in node: RecKa(child)
+        # We need to keep the nodes alive in order to get consistent python object IDs for the assertion check below (and also for debug output).
+        RecKa(root)
+        if Verbose2: print("Keeping %d nodes alive." % len(keepAlive))
+        def Rec(node):
+            nonlocal nOutermostEntries, nNestedEntries, insertAfter, nestingDepth
+            if nestingDepth == 0: assert insertAfter is None
+            else: assert insertAfter is not None
+            if node.tag == ELT_entry:
+                nestingDepth += 1
+                if nestingDepth == 1: insertAfter = node; nOutermostEntries += 1
+            child = None
+            def _(x): 
+                s = x.tag; i = s.rfind('}')
+                if i >= 0: s = s[i + 1:]
+                return "%d %s" % (id(x), s)
+            #print("node %s %s" % (_(node), [_(x) for x in node]))
+            while True:
+                # Move to the next child.
+                if child is None:
+                    if len(node) == 0: break # no children
+                    child = node[0] # first child
+                else:
+                    child = child.getnext() # next sibling
+                    if child is None: break # this was the last child
+                # If this child is not a nested entry, process it recursively.
+                if not (child.tag == ELT_entry and insertAfter is not None):
+                    Rec(child); continue
+                # Otherwise move it after that outermost entry.  There's no need to process
+                # the child recursively as we'll reach it later anyway.
+                prev = child.getprevious()
+                #print("Moving node %s %s (prev: %s %s; parent: %s %s) after %s %s." % (id(child), repr(child), id(prev), repr(prev), id(node), repr(node), id(insertAfter), repr(insertAfter)))
+                if Verbose2: print("Moving node %s (prev: %s; parent: %s; depth %d) after %s." % (_(child), _(prev), _(node), nestingDepth, _(insertAfter)))
+                if Verbose2: print("Parent's children before %s" % ([_(x) for x in node],))
+                if id(child) in nodesMoved: 
+                    print("This node was already moved!"); 
+                    assert False; sys.exit(0)
+                nodesMoved.add(id(child))
+                if prev is None: AppendToText(node, child.tail)
+                else: AppendToTail(prev, child.tail)
+                node.remove(child)
+                insertAfter.addnext(child)
+                child.tail = insertAfter.tail; insertAfter.tail = ""
+                insertAfter = child
+                nNestedEntries += 1
+                if Verbose2: print("Parent's children now %s" % ([_(x) for x in node],))
+                # Move to the previous sibling, so that we can move from it to the next
+                # # sibling at the start of the next iteration.
+                child = prev
+            if node.tag == ELT_entry:
+                assert nestingDepth >= 1
+                nestingDepth -= 1
+                if nestingDepth == 0: insertAfter = None
+        Rec(root)
+        print("PromoteNestedEntries: %d existing outermost entries; %d nested entries have been promoted." % (nOutermostEntries, nNestedEntries))
     def BuildHeader(self, metadata):
         """
         extent        -> teiHeader/fileDesc/extent
@@ -1938,7 +2039,7 @@ class TMapper:
         return eltHeader
     def Transform(self, mapping, fnOrFileList, treeList = [], makeAugmentedInputTrees = False, 
             stripForValidation = False, stripDictScrap = False, stripHeader = False,
-            returnFirstEntryOnly = False,
+            returnFirstEntryOnly = False, promoteNestedEntries = False,
             headerTitle = None, headerPublisher = None, headerBibl = None,
             metadata = None):
         """This method processes one or more XML trees and returns
@@ -1969,6 +2070,10 @@ class TMapper:
         
         The 'returnFirstEntryOnly' parameter can be set to True to return
         only the first <entry> element instead of the whole TEI XML document.
+
+        The 'promoteNestedEntries' parameter can be set to True to move all nested
+        entries out of their containing entries, thus changing the formerly nested 
+        entry from a descendant to a sibling.
         """
         outBody = self.E(ELT_body)
         augTrees = [] if makeAugmentedInputTrees else None
@@ -1976,9 +2081,9 @@ class TMapper:
             print("Processing %s." % fn)
             tree = etree.ElementTree(file = f, parser = self.parser)
             print("Done parsing %s." % fn)
-            self.TransformTree(mapping, tree, outBody, augTrees)
-        print("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s" % (stripHeader,
-            stripDictScrap, stripForValidation, returnFirstEntryOnly))    
+            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
+        print("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s, promoteNestedEntries = %s" % (stripHeader,
+            stripDictScrap, stripForValidation, returnFirstEntryOnly, promoteNestedEntries))    
         if type(fnOrFileList) is type(""): fnOrFileList = [fnOrFileList]    
         for fn in fnOrFileList:
             if type(fn) is not str:
@@ -1993,8 +2098,9 @@ class TMapper:
             else:
                 with open(fn, "rb") as f: ProcessFile(fn, f)
         for tree in treeList: 
-            self.TransformTree(mapping, tree, outBody, augTrees)
+            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
         if stripDictScrap: self.StripDictScrap(outBody)
+        if promoteNestedEntries: self.PromoteNestedEntries(outBody)
         self.FixIds(outBody)    
         #            
         L = []
@@ -2122,31 +2228,36 @@ def Test():
     #js = GetSldMapping().ToJson()
     #json.dump(js, f, indent = 4)
     #f.close()
-    f = open("mapping-HWN.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
+    #f = open("mapping-HWN.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
+    #f = open("mapping-wordnet-3.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     #m = TMapping(js)
     #outTei = mapper.Transform(m, ["WP1\\JSI\\SLD.zip"])
     #outTei = mapper.Transform(GetSldMapping(), ["WP1\\JSI\\SLD_macka_cat2.xml"])
     #outTei = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
+    #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False)
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = True)
-    #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True)
+    outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
-    outTei, outAug = mapper.Transform(GetHwnMapping(), "Haifa\\hebrew_synonyms_sample.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
+    #outTei, outAug = mapper.Transform(GetHwnMapping(), "Haifa\\hebrew_synonyms_sample.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
+    #outTei, outAug = mapper.Transform(m, "wordnet-3.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
     # which is invalid XML.
     f.write(etree.tostring(outTei, pretty_print = True, encoding = "utf8").decode("utf8"))
     f.close()
-    f = open("augmented-input.xml", "wt", encoding = "utf8")
-    f.write(etree.tostring(outAug[0], pretty_print = True, encoding = "utf8").decode("utf8"))
-    f.close()
+    if outAug and outAug[0] is not None:
+        f = open("augmented-input.xml", "wt", encoding = "utf8")
+        f.write(etree.tostring(outAug[0], pretty_print = True, encoding = "utf8").decode("utf8"))
+        f.close()
 
 #TestHeader()
 #TestXpath()
+#sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 #Test(); sys.exit(0)
 
 # ToDo: use the defusedxml library
@@ -2196,6 +2307,7 @@ def MyWsgiHandler(env, start_response):
         callParams["stripDictScrap"] = (GetArg("stripDictScrap") == "true")
         callParams["stripHeader"] = (GetArg("stripHeader") == "true")
         callParams["returnFirstEntryOnly"] = (GetArg("firstEntryOnly") == "true")
+        callParams["promoteNestedEntries"] = (GetArg("promoteNestedEntries") == "true")
         TransferArg("headerTitle"); TransferArg("headerPublisher"); TransferArg("headerBibl")
         for name in params: print("param %s" % repr(name))
         #print("stripForValidation = %s" % GetArg("stripForValidation"))
