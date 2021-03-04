@@ -230,7 +230,6 @@ def extract_pos_elements(xml_file, pos_element, attribute_name):
         else:
             continue
         unique_pos.add(pos)
-        c += 1
         if len(unique_pos) > 100: # limiting the number of pos outputs
             break
     return sorted(list(unique_pos))
