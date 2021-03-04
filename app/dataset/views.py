@@ -198,15 +198,12 @@ def ds_list_paths(dsid):
     return flask.make_response({'paths': nodes}, 200)
 
 
-@app.route('/api/xml_pos/<int:dsid>', methods=['GET'])
+@app.route('/api/xml_pos/<int:dsid>', methods=['POST'])
 def ds_pos(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    pos_element = flask.request.args.get('pos_element', type=str)
-    attribute_name = flask.request.args.get('attribute_name', type=str)
-    if len(attribute_name) == 0:
-        attribute_name = None
-    nodes = controllers.get_pos_elements(db, dsid, pos_element, attribute_name=attribute_name)
+    pos_json = flask.request.json
+    nodes = controllers.get_pos_elements(db, dsid, pos_json)
     return flask.make_response(nodes, 200)
 
 
