@@ -331,6 +331,8 @@ MATCH_entry = "entry"
 MATCH_entry_lang = "entry_lang"
 MATCH_hw = "hw"
 MATCH_lemma = "lemma"
+MATCH_inflected = "inflected"
+MATCH_variant = "variant"
 MATCH_sense = "sense"
 MATCH_def = "def"
 MATCH_pos = "pos"
@@ -347,6 +349,8 @@ class TMapping:
         # - The rest is relative to the entry.
         "xfHw",  # headword; becomes <form type="lemma"><orth>
         "xfLemma",  # headword; becomes <form type="simple"><orth>
+        "xfVariant",  # variant headword; becomes <form type="variant"><orth>
+        "xfInflected",  # inflected form; becomes <form type="inflected"><orth>
         "selSense",  # becomes <sense>  
         "xfEntryLang", # becomes @xml:lang of <entry>
         "xfDef",  # definition; becomes <def>
@@ -360,6 +364,7 @@ class TMapping:
     def __init__(self, js = None):
         self.selEntry = None; self.xfEntryLang = None
         self.xfHw = None; self.xfLemma = None; self.selSense = None
+        self.xfVariant = None; self.xfInflected = None
         self.xfPos = None; self.xfHwTr = None; self.xfHwTrLang = None
         self.xfEx = None; self.xfExTr = None; self.xfExTrLang = None
         self.xfDef = None
@@ -374,6 +379,8 @@ class TMapping:
         _("pos", self.xfPos)
         _("hw", self.xfHw)
         _("sec_hw", self.xfLemma)
+        _("variant", self.xfVariant)
+        _("inflected", self.xfInflected)
         _("hw_tr", self.xfHwTr)
         _("hw_tr_lang", self.xfHwTrLang)
         _("ex", self.xfEx)
@@ -388,6 +395,8 @@ class TMapping:
         self.xfPos = JsonToTransformer(h.get("pos", None))
         self.xfHw = JsonToTransformer(h.get("hw", None))
         self.xfLemma = JsonToTransformer(h.get("sec_hw", None))
+        self.xfVariant = JsonToTransformer(h.get("variant", None))
+        self.xfInflected = JsonToTransformer(h.get("inflected", None))
         self.xfHwTr = JsonToTransformer(h.get("hw_tr", None))
         self.xfHwTrLang = JsonToTransformer(h.get("hw_tr_lang", None))
         self.xfEx = JsonToTransformer(h.get("ex", None))
@@ -458,6 +467,8 @@ def GetAnwMapping():
     m.xfEntryLang = TSimpleTransformer(TXpathSelector(".//artikel"),
         ATTR_CONSTANT, constValue = "nl")
     m.xfHw = TSimpleTransformer(TXpathSelector(".//Lemmavorm"), ATTR_INNER_TEXT_REC)
+    m.xfVariant = TSimpleTransformer(TXpathSelector(".//Synoniem//lemma"), ATTR_INNER_TEXT_REC)    
+    m.xfInflected = TSimpleTransformer(TXpathSelector(".//SpellingEnFlexie//Woordvorm"), ATTR_INNER_TEXT_REC)    
     m.selSense = TXpathSelector(".//Kernbetekenis")
     m.xfDef = TSimpleTransformer(TXpathSelector(".//Definitie"), ATTR_INNER_TEXT_REC)
     m.xfPos = TSimpleTransformer(TXpathSelector(".//Woordsoort/Type"), ATTR_INNER_TEXT,
@@ -694,7 +705,7 @@ allowedParentHash = {
 class TEntryMapper:
     __slots__ = ["entry", "m", "parser", "mapper",
         "senseIds", "nestedEntriesWillBePromoted",
-        "mDef", "mPos", "mHw", "mLemma", "mHwTr", "mHwTrLang", "mEx", "mExTr", "mExTrLang",
+        "mDef", "mPos", "mHw", "mLemma", "mVariant", "mInflected", "mHwTr", "mHwTrLang", "mEx", "mExTr", "mExTrLang",
         "transformedEntry"]
     def __init__(self, entry, m, parser, mapper, nestedEntriesWillBePromoted):
         self.entry = entry; self.m = m; self.parser = parser; self.mapper = mapper
@@ -879,6 +890,8 @@ class TEntryMapper:
         if eltId in self.mDef: orders.append(TOrder(ELT_def, self.mDef[eltId]))
         if eltId in self.mPos: orders.append(TOrder(ELT_gram, self.mPos[eltId], typeAttr = "pos"))
         if eltId in self.mHw: orders.append(TOrder(ELT_orth, self.mHw[eltId], typeAttr = "lemma"))
+        if eltId in self.mInflected: orders.append(TOrder(ELT_orth, self.mInflected[eltId], typeAttr = "inflected"))
+        if eltId in self.mVariant: orders.append(TOrder(ELT_orth, self.mVariant[eltId], typeAttr = "variant"))
         if eltId in self.mLemma: orders.append(TOrder(ELT_orth, self.mLemma[eltId], typeAttr = "simple"))
         if eltId in self.mHwTr: orders.append(TOrder(ELT_cit, self.mHwTr[eltId], typeAttr = "translationEquivalent"))
         if eltId in self.mEx: orders.append(TOrder(ELT_cit, self.mEx[eltId], typeAttr = "example"))
@@ -896,6 +909,8 @@ class TEntryMapper:
             _(self.mPos, ELT_gram, "pos")
             _(self.mHw, ELT_orth, "lemma")
             _(self.mLemma, ELT_orth, "simple")
+            _(self.mVariant, ELT_orth, "variant")
+            _(self.mInflected, ELT_orth, "inflected")
             _(self.mHwTr, ELT_cit, "translationEquivalent")
             _(self.mEx, ELT_cit, "example")
             _(self.mExTr, ELT_cit, "translation")
@@ -991,6 +1006,8 @@ class TEntryMapper:
         elif eltId in self.mPos: newTag = ELT_gram; trOrder = self.mPos[eltId]; typeAttr = "pos"
         elif eltId in self.mHw: newTag = ELT_orth; trOrder = self.mHw[eltId]; typeAttr = "lemma"
         elif eltId in self.mLemma: newTag = ELT_orth; trOrder = self.mLemma[eltId]; typeAttr = "simple"
+        elif eltId in self.mInflected: newTag = ELT_orth; trOrder = self.mInflected[eltId]; typeAttr = "inflected"
+        elif eltId in self.mVariant: newTag = ELT_orth; trOrder = self.mVariant[eltId]; typeAttr = "variant"
         elif eltId in self.mHwTr: newTag = ELT_cit; trOrder = self.mHwTr[eltId]; typeAttr = "translationEquivalent"
         elif eltId in self.mEx: newTag = ELT_cit; trOrder = self.mEx[eltId]; typeAttr = "example"
         elif eltId in self.mExTr: newTag = ELT_cit; trOrder = self.mExTr[eltId]; typeAttr = "translation"
@@ -1259,6 +1276,8 @@ class TEntryMapper:
         self.mDef = self.MakeTrOrderHash(self.m.xfDef, MATCH_def)
         self.mPos = self.MakeTrOrderHash(self.m.xfPos, MATCH_pos)
         self.mHw = self.MakeTrOrderHash(self.m.xfHw, MATCH_hw)
+        self.mVariant = self.MakeTrOrderHash(self.m.xfVariant, MATCH_variant)
+        self.mInflected = self.MakeTrOrderHash(self.m.xfInflected, MATCH_inflected)
         self.mLemma = self.MakeTrOrderHash(self.m.xfLemma, MATCH_lemma)
         self.mHwTrLang = self.MakeTrOrderHash(self.m.xfHwTrLang, MATCH_hw_tr_lang)
         self.mHwTr = self.MakeTrOrderHash(self.m.xfHwTr, MATCH_hw_tr)
@@ -1267,8 +1286,8 @@ class TEntryMapper:
         self.mExTr = self.MakeTrOrderHash(self.m.xfExTr, MATCH_ex_tr)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
-        if Verbose: print("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
-            len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
+        if Verbose: print("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
+            len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mVariant), len(self.mInflected), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
             len(self.mEx), len(self.mExTr), len(self.mExTrLang)))
         #traceback.print_stack()    
         # Insert milestone elements where needed.  Note that we don't need
@@ -2236,9 +2255,9 @@ def Test():
     #outTei = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False)
+    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False)
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = True)
-    outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
+    #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
