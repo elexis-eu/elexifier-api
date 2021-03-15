@@ -216,7 +216,9 @@ def extract_pos_elements(xml_file, pos_element, attribute_name):
     tree = lxml.etree.parse(xml_file)
     namespaces = tree.getroot().nsmap
 
-    result = tree.xpath('//' + pos_element, namespaces=namespaces)
+    result = []
+    for pos_el in pos_element:
+        result.extend(tree.xpath('//' + pos_el, namespaces=namespaces))
     unique_pos = set()
 
     for el in result:
@@ -228,10 +230,14 @@ def extract_pos_elements(xml_file, pos_element, attribute_name):
         else:
             continue
         unique_pos.add(pos)
+        if len(unique_pos) > 100: # limiting the number of pos outputs
+            break
     return sorted(list(unique_pos))
 
 
-def get_pos_elements(db, dsid, pos_element, attribute_name=None):
+def get_pos_elements(db, dsid, pos_json):
+    pos_element = pos_json['pos_element']
+    attribute_name = pos_json['attribute_name']
     dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     db.session.commit()
 
