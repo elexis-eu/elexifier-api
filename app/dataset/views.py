@@ -168,17 +168,17 @@ def validate_path(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
     paths = flask.request.json.get('paths', [])
-
-    dataset = controllers.list_datasets(uid, dsid=dsid)
-    tree = lxml.etree.parse(dataset.file_path)
-    namespaces = tree.getroot().nsmap
+    xml_tags = controllers.get_xml_tags(dsid)
     out = []
 
     for path in paths:
-        _path = ".//" + "/".join(path)
-        if len(tree.xpath(_path, namespaces=namespaces)) > 0:
+        flag = True
+        for i in range(len(path)-1):
+           if path[i+1] not in xml_tags[path[i]]['child']:
+               flag = False
+               break
+        if flag:
             out.append(path)
-
     return flask.make_response(jsonify({'paths': out}), 200)
 
 
