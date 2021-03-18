@@ -45,7 +45,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
         'return_to': ""  # remove if no longer required
     }
 
-    if user.password_hash is None:  # ske user
+    if user.sketch_engine_uid is None:  # ske user
         request_data['ske_user'] = True
     else:
         request_data['ske_user'] = False
@@ -252,7 +252,7 @@ def ds_send_to_lexonomy(dsid):
         'filename': dataset.name + ' - annotate',
         'type': 'edit',
         'url': app.config['URL'],
-        'ske_user': True if user.password_hash is None else False,
+        'ske_user': True if user.sketch_engine_uid is not None else False,
         'return_to': ""  # remove if no longer required
     }
 
