@@ -19,6 +19,6 @@ python-dotenv==0.10.3
 requests==2.22.0
 redis==3.2.1
 numpy==1.17.3
-keras==2.2.5
-tensorflow==1.15.2
+keras==2.4.3
+tensorflow==2.4.1
 sklearn
