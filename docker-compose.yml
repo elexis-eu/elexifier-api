@@ -34,7 +34,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.dev
-    command: celery -A app:celery worker --loglevel=info
+    command: celery -A app:celery worker -P threads --loglevel=info
     volumes:
       - .:/elexifier-api
     networks:
@@ -47,7 +47,7 @@ services:
       build:
         context: ./
         dockerfile: Dockerfile.dev
-      command: celery -A app:celery worker --loglevel=info
+      command: celery -A app:celery worker -P threads --loglevel=info
       volumes:
         - .:/elexifier-api
       networks:
