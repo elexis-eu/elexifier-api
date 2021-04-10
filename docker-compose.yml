@@ -30,7 +30,7 @@ services:
       elexifier-network:
         aliases:
           - redis
-  worker:
+  worker1:
     build:
       context: ./
       dockerfile: Dockerfile.dev
@@ -40,8 +40,21 @@ services:
     networks:
       elexifier-network:
         aliases:
-          - worker
+          - worker1
     depends_on:
       - redis
+  worker2:
+      build:
+        context: ./
+        dockerfile: Dockerfile.dev
+      command: celery -A app:celery worker --loglevel=info
+      volumes:
+        - .:/elexifier-api
+      networks:
+        elexifier-network:
+          aliases:
+            - worker2
+      depends_on:
+        - redis
 networks:
     elexifier-network:
