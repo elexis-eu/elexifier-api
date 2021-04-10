@@ -7,6 +7,8 @@ urllib_parse = eventlet.import_patched("urllib.parse")
 urllib_request = eventlet.import_patched("urllib.request")
 urllib_error = eventlet.import_patched("urllib.error")
 
+logging.basicConfig(format = "[%(asctime)s] [%(levelname)s] %(message)s", level = logging.DEBUG)
+
 Verbose = False
 Verbose2 = False
 
@@ -196,7 +198,7 @@ class TTransformOrder:
         #assert self.attrVal == GetInnerText(self.elt, recurse)
         newInnerText = GetInnerText(root, True)
         assert oldInnerText == newInnerText # inserting milestones should not change anything else
-        print("TransformOrder for <%s>, rex %s, matched %s -> %s, inserted %d start and %d end milestones." % (
+        logging.info("TransformOrder for <%s>, rex %s, matched %s -> %s, inserted %d start and %d end milestones." % (
             self.elt.tag, self.rexMatch.re.pattern, repr(self.matchedStr), repr(self.finalStr), 
             len(self.msFrom), -1 if self.msTo is None else len(self.msTo)))
 
@@ -287,6 +289,7 @@ ATTR_MATCH_ATTR = "{%s}matchAttr" % NS_META
 ATTR_MATCH_FROM = "{%s}matchFrom" % NS_META
 ATTR_MATCH_TO = "{%s}matchTo" % NS_META
 ELT_ENTRY_PLACEHOLDER = "{%s}entryPlaceholder" % NS_META
+ATTR_PLACEHOLDER_ID = "{%s}placeholderId" % NS_META
 ELT_MILESTONE = "{%s}milestone" % NS_META
 ELT_TEMP_ROOT = "{%s}tempRoot" % NS_META
 #ELT_PHASE_2_STUB = "{%s}phase2Stub" % NS_META
@@ -296,6 +299,9 @@ ELT_orth = "{%s}orth" % NS_TEI
 ELT_form = "{%s}form" % NS_TEI
 ELT_cit = "{%s}cit" % NS_TEI
 ELT_quote = "{%s}quote" % NS_TEI
+ELT_note = "{%s}note" % NS_TEI
+ELT_gloss = "{%s}gloss" % NS_TEI
+ELT_usg = "{%s}usg" % NS_TEI
 ELT_sense = "{%s}sense" % NS_TEI
 ELT_gram = "{%s}gram" % NS_TEI
 ELT_gramGrp = "{%s}gramGrp" % NS_TEI
@@ -341,6 +347,9 @@ MATCH_hw_tr_lang = "hw_tr_lang"
 MATCH_ex = "ex"
 MATCH_ex_tr = "ex_tr"
 MATCH_ex_tr_lang = "ex_tr_lang"
+MATCH_gloss = "gloss"
+MATCH_usg = "usg"
+MATCH_note = "note"
 
 class TMapping:
     #
@@ -356,6 +365,9 @@ class TMapping:
         "xfDef",  # definition; becomes <def>
         "xfPos",  # part-of-speech; becomes <gram type="pos">
         "xfHwTr", # translated headword; becomes <cit type="translationEquivalent">
+        "xfNote", # note; becomes <note>
+        "xfUsg", # label; becomes <usg type="hint">
+        "xfGloss", # sense indicator; becomes <gloss>
         "xfHwTrLang",  # language of the translated headword [goes into the xml:lang attribute]
         "xfEx", # example; becomes <cit type="example"><quote>
         "xfExTr", # translated example; becomes <cit type="translation">
@@ -367,7 +379,7 @@ class TMapping:
         self.xfVariant = None; self.xfInflected = None
         self.xfPos = None; self.xfHwTr = None; self.xfHwTrLang = None
         self.xfEx = None; self.xfExTr = None; self.xfExTrLang = None
-        self.xfDef = None
+        self.xfDef = None; self.xfNote = None; self.xfUsg = None; self.xfGloss = None
         if js: self.InitFromJson(js)
     def ToJson(self):
         h = {}
@@ -387,6 +399,9 @@ class TMapping:
         _("ex_tr", self.xfExTr)
         _("ex_tr_lang", self.xfExTrLang)
         _("def", self.xfDef)
+        _("note", self.xfNote)
+        _("usg", self.xfUsg)
+        _("gloss", self.xfGloss)
         return h
     def InitFromJson(self, h):
         self.selEntry = JsonToSelector(h.get("entry", None))
@@ -403,6 +418,9 @@ class TMapping:
         self.xfExTr = JsonToTransformer(h.get("ex_tr", None))
         self.xfExTrLang = JsonToTransformer(h.get("ex_tr_lang", None))
         self.xfEntryLang = JsonToTransformer(h.get("entry_lang", None))
+        self.xfNote = JsonToTransformer(h.get("note", None))
+        self.xfUsg = JsonToTransformer(h.get("usg", None))
+        self.xfGloss = JsonToTransformer(h.get("gloss", None))
 
 def GetFromLexonomyMapping():
     m = TMapping()
@@ -478,6 +496,9 @@ def GetAnwMapping():
     m.xfEx = TSimpleTransformer(TXpathSelector(".//Voorbeeld/Tekst"), ATTR_INNER_TEXT_REC)
     m.xfExTr = None
     m.xfExTrLang = None
+    m.xfGloss = TSimpleTransformer(TXpathSelector(".//Uiterlijk"), ATTR_INNER_TEXT_REC)
+    m.xfNote = TSimpleTransformer(TXpathSelector(".//Realisatie"), ATTR_INNER_TEXT_REC)
+    m.xfUsg = TSimpleTransformer(TXpathSelector(".//BijzonderhedenGebruik"), ATTR_INNER_TEXT_REC)
     return m
 
 def GetDdoMapping():
@@ -549,16 +570,21 @@ class TMyElement(etree.ElementBase):
 # This assumes that the form/orth pair is represented by orth, gramGrp/gram by gram, cit/quote by cit.
 # Also note that this hash table is used in stage 2, when <orth> elements are still
 # actually temporary <orthHw> and <orthLemma> - they will be renamed in stage 3.
+# Another problem here is that <usg> may be a child of <gramGrp> but not of <gram>,
+# so the fact that we only see <gram> at that point may lead us to move <usg> too high up.
 allowedParentHash = {
-    ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense]),
+    ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note]),
     ELT_def: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_gram: set([ELT_sense, ELT_dictScrap, ELT_entry]),
-    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg]),
+    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg, ELT_usg, ELT_gloss, ELT_note]),
     ELT_sense: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_entry: set([ELT_entry]),
     ELT_ENTRY_PLACEHOLDER: set([ELT_entry]),
-    ELT_dictScrap: set([ELT_entry, ELT_dictScrap])
+    ELT_dictScrap: set([ELT_entry, ELT_dictScrap]),
+    ELT_note: set([ELT_gloss, ELT_cit, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_entry, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_usg, ELT_seg]),
+    ELT_gloss: set([ELT_cit, ELT_gloss, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_sense, ELT_usg, ELT_seg]),
+    ELT_usg: set([ELT_dictScrap, ELT_entry, ELT_form, ELT_gramGrp, ELT_sense])
 }
 
 # To map an individual entry:
@@ -705,7 +731,8 @@ allowedParentHash = {
 class TEntryMapper:
     __slots__ = ["entry", "m", "parser", "mapper",
         "senseIds", "nestedEntriesWillBePromoted",
-        "mDef", "mPos", "mHw", "mLemma", "mVariant", "mInflected", "mHwTr", "mHwTrLang", "mEx", "mExTr", "mExTrLang",
+        "mDef", "mPos", "mHw", "mLemma", "mVariant", "mInflected", "mHwTr", "mHwTrLang", 
+        "mEx", "mExTr", "mExTrLang", "mNote", "mGloss", "mUsg",
         "transformedEntry"]
     def __init__(self, entry, m, parser, mapper, nestedEntriesWillBePromoted):
         self.entry = entry; self.m = m; self.parser = parser; self.mapper = mapper
@@ -736,7 +763,7 @@ class TEntryMapper:
             tr = hTrLang.get(id(elt), None)
             if tr and not (tr.matchedStr is None): return tr
             elt = elt.getparent()
-        print("Warning: no language found for %s" % elt)    
+        logging.warning("Warning: no language found for %s" % elt)    
         return None
     def FindLanguageAll(self, hDest, hLang):
         for trDest in hDest.values(): trDest.trLanguage = self.FindLanguage(trDest, hLang)
@@ -896,6 +923,9 @@ class TEntryMapper:
         if eltId in self.mHwTr: orders.append(TOrder(ELT_cit, self.mHwTr[eltId], typeAttr = "translationEquivalent"))
         if eltId in self.mEx: orders.append(TOrder(ELT_cit, self.mEx[eltId], typeAttr = "example"))
         if eltId in self.mExTr: orders.append(TOrder(ELT_cit, self.mExTr[eltId], typeAttr = "translation"))
+        if eltId in self.mNote: orders.append(TOrder(ELT_note, self.mNote[eltId]))
+        if eltId in self.mGloss: orders.append(TOrder(ELT_gloss, self.mGloss[eltId]))
+        if eltId in self.mUsg: orders.append(TOrder(ELT_usg, self.mUsg[eltId], typeAttr = "hint"))
         # If the current element is the future <entry>, also process any orders that refer to nodes outside the entry.
         # These can't be transformed (since they're outside), so they will have to result in siblings.
         if isEntry:
@@ -914,6 +944,9 @@ class TEntryMapper:
             _(self.mHwTr, ELT_cit, "translationEquivalent")
             _(self.mEx, ELT_cit, "example")
             _(self.mExTr, ELT_cit, "translation")
+            _(self.mNote, ELT_note, "")
+            _(self.mGloss, ELT_gloss, "")
+            _(self.mUsg, ELT_usg, "hint")
         # Create siblings where needed.  
         consumers = []; newSibs = []
         for o in orders:
@@ -1011,11 +1044,14 @@ class TEntryMapper:
         elif eltId in self.mHwTr: newTag = ELT_cit; trOrder = self.mHwTr[eltId]; typeAttr = "translationEquivalent"
         elif eltId in self.mEx: newTag = ELT_cit; trOrder = self.mEx[eltId]; typeAttr = "example"
         elif eltId in self.mExTr: newTag = ELT_cit; trOrder = self.mExTr[eltId]; typeAttr = "translation"
+        elif eltId in self.mNote: newTag = ELT_note; trOrder = self.mNote[eltId]
+        elif eltId in self.mGloss: newTag = ELT_gloss; trOrder = self.mGloss[eltId]
+        elif eltId in self.mUsg: newTag = ELT_usg; trOrder = self.mUsg[eltId]; typeAttr = "hint"
         elif elt.tag == ELT_ENTRY_PLACEHOLDER: newTag = elt.tag
         else: newTag = ELT_seg
         needsMilestones = False; newSib = None
         if trOrder != None and trOrder.finalStr != trOrder.matchedStr:
-            print("# %s -> %s" % (trOrder.matchedStr, trOrder.finalStr))
+            logging.info("# %s -> %s" % (trOrder.matchedStr, trOrder.finalStr))
         if trOrder != None and trOrder.attr != ATTR_INNER_TEXT and trOrder.attr != ATTR_INNER_TEXT_REC and trOrder.attr != ATTR_CONSTANT:
             # The data here is extracted from an attribute, not from the inner text.
             # Thus we'll have to turn the original node into a <seg> and make a new
@@ -1248,6 +1284,11 @@ class TEntryMapper:
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty) # the type attribute stays in <gram>
                 elt.attrib.pop(ATTR_TEMP_type, None)
+        elif elt.tag == ELT_usg:
+            ty = elt.get(ATTR_TEMP_type, None)
+            if ty is not None: 
+                elt.set(ATTR_type_UNPREFIXED, ty)
+                elt.attrib.pop(ATTR_TEMP_type, None)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
             # It may also not contain character data and <def>s, so we'll wrap those things into <dictScraps>.
@@ -1284,11 +1325,14 @@ class TEntryMapper:
         self.mEx = self.MakeTrOrderHash(self.m.xfEx, MATCH_ex)
         self.mExTrLang = self.MakeTrOrderHash(self.m.xfExTrLang, MATCH_ex_tr_lang)
         self.mExTr = self.MakeTrOrderHash(self.m.xfExTr, MATCH_ex_tr)
+        self.mGloss = self.MakeTrOrderHash(self.m.xfGloss, MATCH_gloss)
+        self.mNote = self.MakeTrOrderHash(self.m.xfNote, MATCH_note)
+        self.mUsg = self.MakeTrOrderHash(self.m.xfUsg, MATCH_usg)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
-        if Verbose: print("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang)." % (
+        if Verbose: logging.info("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang), %d glosses, %d notes, %d usgs." % (
             len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mVariant), len(self.mInflected), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
-            len(self.mEx), len(self.mExTr), len(self.mExTrLang)))
+            len(self.mEx), len(self.mExTr), len(self.mExTrLang), len(self.mGloss), len(self.mNote), len(self.mUsg)))
         #traceback.print_stack()    
         # Insert milestone elements where needed.  Note that we don't need
         # them for the language elements since those won't be transformed into
@@ -1300,15 +1344,15 @@ class TEntryMapper:
         self.transformedEntry = self.StageOne()
         assert self.transformedEntry is not None
         assert self.transformedEntry.tag == ELT_entry
-        if Verbose: print("After stage one:\n%s" % etree.tostring(self.transformedEntry, pretty_print = True).decode("utf8"))
+        if Verbose: logging.info("After stage one:\n%s" % etree.tostring(self.transformedEntry, pretty_print = True).decode("utf8"))
         # Move things around when needed to set up proper parent/child relationships.
         self.StageTwo()
         assert self.transformedEntry.tag == ELT_entry
-        if Verbose: print("After stage two:\n%s" % etree.tostring(self.transformedEntry, pretty_print = True).decode("utf8"))
+        if Verbose: logging.info("After stage two:\n%s" % etree.tostring(self.transformedEntry, pretty_print = True).decode("utf8"))
         # Stage 3: expand orth into form/orth, gram into gramGrp/gram, and cit into cit/quote;
         # and if the root <entry> has any children of the wrong type, wrap them into <dictScrap>s.
         self.StageThree()
-        if Verbose: print("After stage three:\n%s" % etree.tostring(self.transformedEntry, pretty_print = True).decode("utf8"))
+        if Verbose: logging.info("After stage three:\n%s" % etree.tostring(self.transformedEntry, pretty_print = True).decode("utf8"))
         #transformedEntry = self.mapper.Element(ELT_entry)
         #transformedEntry.entryTime = self.entry.entryTime
         # The language was set by the caller in self.entry.xmlLangAttribute, if available.
@@ -1334,6 +1378,48 @@ def SetMatchInfo(e, match, attr = None, from_ = None, to_ = None):
     _(ATTR_MATCH_TO, to_)
 
 augmentedNodes = set()
+
+class TTransformEntryTask:
+    __slots__ = ["curLeft", "curRight", "inEntry", "outEntry", "fut", "placeholder", "xmlLangAttribute", "inEntryStr", "outEntryStr"]
+    def __init__(self, curLeft, curRight, inEntry): self.curLeft = curLeft; self.curRight = curRight; self.inEntry = inEntry
+def CallTransformEntry(inEntryStr, mapping, nestedEntriesWillBePromoted, xmlLangAttribute): 
+    #sys.stdout.write("CallTransformEntry %d begins\n" % len(inEntryStr)); sys.stdout.flush()
+    parserLookup = etree.ElementDefaultClassLookup(element = TMyElement)
+    parser = etree.XMLParser()
+    parser.set_element_class_lookup(parserLookup)
+    f = io.StringIO(inEntryStr.decode("utf8"))
+    tree = etree.ElementTree(file = f, parser = parser)
+    f.close()
+    inEntry = tree.getroot()
+    inEntry.xmlLangAttribute = xmlLangAttribute
+    treeMapper = TTreeMapper(tree, mapping, parser, None, False, nestedEntriesWillBePromoted)
+    entryMapper = TEntryMapper(inEntry, treeMapper.m, treeMapper.parser, treeMapper, treeMapper.nestedEntriesWillBePromoted)
+    transformedEntry = entryMapper.TransformEntry()
+    outEntryStr = etree.tostring(transformedEntry, pretty_print = False, encoding = "utf8").decode("utf8")
+    #sys.stdout.write("CallTransformEntry %d ends %d\n" % (len(inEntryStr), len(outEntryStr))); sys.stdout.flush()
+    return outEntryStr
+def CallTransformEntry_Multi(mapping, nestedEntriesWillBePromoted, params):
+    results = []
+    for (inEntryStr, xmlLangAttribute) in params:
+        outEntryStr = CallTransformEntry(inEntryStr, mapping, nestedEntriesWillBePromoted, xmlLangAttribute)
+        results.append(outEntryStr)
+    return results
+
+class TDummyFuture:
+    __slots__ = ["value"]
+    def __init__(self, value): self.value = value
+    def result(self): return self.value
+    def wait(self): pass
+class TDummyExecutor:
+    def __init__(self): pass
+    def submit(self, func, *args, **kwargs):
+        result = func(*args, **kwargs)
+        return TDummyFuture(result)
+    def shutdown(self, wait): pass
+
+class TPlaceholderRec:
+    __slots__ = ["placeholderElt", "origEntry", "transformedEntry", "pid"]
+    def __init__(self, pid): self.pid = pid
 
 class TTreeMapper:
     __slots__ = [
@@ -1419,7 +1505,7 @@ class TTreeMapper:
         # - isEntry: boolean indicating if this element is an entry or not.
         # - entryTime, exitTime: time when we entered/exited this element in the in-order traversal
         # It also builds self.topEltList.
-        counter = 0; tmStart = time.clock(); tmPrev = tmStart; counterPrev = counter
+        counter = 0; tmStart = time.perf_counter(); tmPrev = tmStart; counterPrev = counter
         self.topEntryList = []
         def Rec(elt, outermostContainingEntry):
             nonlocal counter, tmPrev, counterPrev
@@ -1449,7 +1535,7 @@ class TTreeMapper:
             elt.lastSubEntry = lastSubEntry
             elt.exitTime = counter; counter += 1
             if Verbose2 and counter % 10000 == 0: 
-                tmNow = time.clock()
+                tmNow = time.perf_counter()
                 sys.stdout.write("MarkEntries %d (%.2f sec, %.2f counts/sec, recently %.2f)    \r" % (counter, tmNow - tmStart,
                     counter / max(tmNow - tmStart, 0.1), (counter - counterPrev) / max(0.01, tmNow - tmPrev))); sys.stdout.flush()
                 counterPrev = counter; tmPrev = tmNow
@@ -1535,6 +1621,7 @@ class TTreeMapper:
             if not IsNonSp(scrap.text) and len(scrap) == 1 and scrap[0].tag == ELT_seg and not IsNonSp(scrap[0].tail):
                 scrap = scrap[0]; scrap.tag = ELT_dictScrap
         return scrap if anythingScrapped else None    
+    #@profile  # https://gist.github.com/danriti/8015889
     def ScrapifyBetween(self, entryL, entryR):
         # The two entries must be on separate branches, i.e. neither being an ancestor of the other.
         # This method returns a pair of scraps that, taken together, contain everything between 
@@ -1562,22 +1649,35 @@ class TTreeMapper:
         anythingScrappedL = False
         segCur = None; lca = None; cur = entryL; leftTailToDo = entryL.tail
         while True:
-            parent = cur.getparent(); iCur = parent.index(cur); assert iCur >= 0
+            parent = cur.getparent(); 
+            # iCur = parent.index(cur);   # Element::index seems to be O(return value)
+            # assert iCur >= 0
             #print("Going up the left branch.  parent = %s" % id(parent))
             if parent.IsAncestorOf(entryR): 
-                lca = parent; lcaLeftBranch = iCur; break
-            nChildren = len(parent)
+                lca = parent; # lcaLeftBranch = iCur; 
+                lcaLeftBranchElt = cur
+                break
+            #nChildren = len(parent)
             #print("cur = %s, parent = %s, iCur = %d" % (cur, parent, iCur))
             segParent = self.SegifyElt(parent)
             segParent.text = entryL.tail if cur is entryL else ""
             leftTailToDo = None # was consumed
             if IsNonSp(segParent.text) or IsNonSp(segParent.tail): anythingScrappedL = True
             if segCur is not None: segParent.append(segCur)
+            sib = cur
+            while True:
+                sib = sib.getnext()
+                if sib is None: break
+                segSib = self.SegifySubtree(sib)
+                segParent.append(segSib)
+                anythingScrappedL = True
+            """
             if iCur < nChildren - 1:
                 for iSib in range(iCur + 1, nChildren):
                     segSib = self.SegifySubtree(parent[iSib])
                     segParent.append(segSib)
                     anythingScrappedL = True
+            """
             cur = parent; segCur = segParent
         segL = segCur
         #
@@ -1585,16 +1685,27 @@ class TTreeMapper:
         while True:
             parent = cur.getparent()
             #print("Going up the right branch.  parent = %s, lca = %s" % (id(parent), id(lca)))
-            iCur = parent.index(cur); assert iCur >= 0
-            if parent is lca: lcaRightBranch = iCur; break
+            # iCur = parent.index(cur); # slow
+            # assert iCur >= 0
+            if parent is lca: 
+                #lcaRightBranch = iCur; 
+                lcaRightBranchElt = cur; 
+                break
             segParent = self.SegifyElt(parent)
             segParent.tail = ""
             if IsNonSp(segParent.text): anythingScrappedR = True
+            for sib in parent:
+                if sib is cur: break
+                segSib = self.SegifySubtree(sib)
+                segParent.append(segSib)
+                anythingScrapped = True
+            """
             if iCur > 0:
                 for iSib in range(iCur):
                     segSib = self.SegifySubtree(parent[iSib])
                     segParent.append(segSib)
                     anythingScrapped = True
+            """
             cur = parent
             if segCur is not None: segParent.append(segCur)
             segCur = segParent
@@ -1610,16 +1721,25 @@ class TTreeMapper:
         # we'll treat entryL's tail much as if it was another of lca's subtrees between
         # the two branches.  entryL's tail will move into lcaL's text or lcaR's text, same
         # as those subtrees.
-        nChildren = len(lca)
+        # - Holy shit: Element::__len__ seems to be O(nChildren).  https://github.com/lxml/lxml/blob/master/src/lxml/etree.pyx  and _countElements in https://github.com/lxml/lxml/blob/master/src/lxml/apihelpers.pxi
+        #nChildren = len(lca)
         #print("lca has %d children, left = %d, right = %d" % (nChildren, lcaLeftBranch, lcaRightBranch))
-        assert 0 <= lcaLeftBranch < lcaRightBranch < nChildren
+        # assert 0 <= lcaLeftBranch < lcaRightBranch < nChildren
         if segL is not None: lcaL.append(segL)
-        if lcaRightBranch - lcaLeftBranch > 1 or leftTailToDo:
+        #if lcaRightBranch - lcaLeftBranch > 1 or leftTailToDo:
+        if lcaLeftBranchElt.getnext() is not lcaRightBranchElt or leftTailToDo:
             if anythingScrappedR and not anythingScrappedL: dest = lcaR; anythingScrappedR = True
             else: dest = lcaL; anythingScrappedL = True
             if leftTailToDo: dest.text = leftTailToDo; leftTailToDo = None
+            elt = lcaLeftBranchElt
+            while True:
+                elt = elt.getnext()
+                if elt is lcaRightBranchElt: break
+                dest.append(self.SegifySubtree(elt))
+            """
             for iChild in range(lcaLeftBranch + 1, lcaRightBranch):
                 dest.append(self.SegifySubtree(lca[iChild]))
+            """
         if segR is not None: lcaR.append(segR)
         # Now add segified versions of all the ancestors of 'lca'.
         cur = lca; root = self.tree.getroot()
@@ -1648,86 +1768,185 @@ class TTreeMapper:
         placeholder = self.Element(ELT_ENTRY_PLACEHOLDER)
         #if addToPlaceholders: self.entryPlaceholders.append(placeholder)
         # - Do not detach the entry from the rest of the tree; some selectors may refer to things outside the entry.
-        ###if parent is not None: parent[idx] = placeholder; assert entry.getparent() is None
+        doDetach = True
+        if doDetach and parent is not None: parent[idx] = placeholder; assert entry.getparent() is None
         placeholder.transformedEntry = self.TransformDetachedEntry(entry)
-        if parent is not None: parent[idx] = placeholder
+        if not doDetach and parent is not None: parent[idx] = placeholder
         return placeholder
+    def TransformEntryWithFuture(self, task, executor):
+        # Like 'TransformEntry', but with concurrency.  This function submits a call to
+        # CallTransformEntry to 'executor' and stores the resulting future into 'task.fut'.
+        # 'executor' may be None, in which case this function will just prepare, in 'task',
+        # the parameters needed for CallTransformEntry (i.e. 'inEntryStr' and 'xmlLangAttribute').
+        entry = task.inEntry
+        # Replace 'entry' in its current tree with a placeholder element,
+        # whose 'transformedEntry' member will point to the transformed version of 'entry'.
+        # This is intended to be used for non-nested entries, so the placeholder
+        # is not added to 'self.placeholders'.
+        parent = entry.getparent()
+        #if parent is not None: idx = parent.index(entry); assert idx >= 0  # Element::index() is O(return value), we'll use .replace below to avoid having to know the index
+        task.placeholder = self.Element(ELT_ENTRY_PLACEHOLDER)
+        #if addToPlaceholders: self.entryPlaceholders.append(placeholder)
+        # - This version has to detach the entry.
+        #if parent is not None: parent[idx] = task.placeholder; assert entry.getparent() is None
+        if parent is not None: parent.replace(entry, task.placeholder); assert entry.getparent() is None
+        SetMatchInfo(entry, MATCH_entry)
+        newParser = etree.XMLParser()
+        newParser.set_element_class_lookup(etree.ElementDefaultClassLookup(element = TMyElement))
+        inEntryStr = etree.tostring(task.inEntry, pretty_print = False, encoding = "utf8")
+        xmlLangAttribute = getattr(entry, "xmlLangAttribute")
+        #CallTransformEntry(inEntryStr, self.m, self.nestedEntriesWillBePromoted, xmlLangAttribute)
+        if executor is None: task.xmlLangAttribute = xmlLangAttribute; task.inEntryStr = inEntryStr
+        else: task.fut = executor.submit(CallTransformEntry, inEntryStr, self.m, self.nestedEntriesWillBePromoted, xmlLangAttribute)
     def TransformNonTopEntries(self):
         # We'll process the non-top entries in increasing order of exitTime.
         # This ensures that subentries are processed before their parent entries.
         L = [(entry.exitTime, entry) for entry in self.entryHash.values() if not (entry.outermostContainingEntry is None)]
         assert len(L) == len(self.entryHash) - len(self.topEntryList)
         L.sort()
-        self.entryPlaceholders = []
+        self.entryPlaceholders = []; nDone = 0
         for dummy, entry in L: 
+            nDone += 1
             parent = entry.getparent(); assert not (parent is None)
-            idx = parent.index(entry); assert idx >= 0
+            #idx = parent.index(entry); assert idx >= 0
             placeholder = self.Element(ELT_ENTRY_PLACEHOLDER)
-            self.entryPlaceholders.append(placeholder)
+            pr = TPlaceholderRec(len(self.entryPlaceholders)); self.entryPlaceholders.append(pr)
+            pr.placeholderElt = placeholder; pr.origEntry = entry
+            pidStr = str(pr.pid); placeholder.set(ATTR_PLACEHOLDER_ID, pidStr); entry.set(ATTR_PLACEHOLDER_ID, pidStr)
             # - Do not detach the entry from the rest of the tree; some selectors may refer to things outside the entry.
             ###parent[idx] = placeholder; assert entry.getparent() is None
-            print("Transforming detached entry %d %s" % (id(entry), entry))
-            placeholder.transformedEntry = self.TransformDetachedEntry(entry)
-            parent[idx] = placeholder
+            if len(L) < 20 or nDone % 1000 == 0: logging.info("[%d/%d] Transforming detached entry %d %s" % (nDone, len(L), id(entry), entry))
+            pr.transformedEntry = self.TransformDetachedEntry(entry)
+            #parent[idx] = placeholder
+            parent.replace(entry, placeholder)
             #print("Transformed entry: %s %d" % (placeholder.transformedEntry, len(placeholder.transformedEntry)))
     def ReplacePlaceholders(self, root):  # for non-top entries
         #for placeholder in self.entryPlaceholders:
+        Verbose = False
         def Rec(elt):
-            for i in range(len(elt)): Rec(elt[i])
+            #for i in range(len(elt)): Rec(elt[i])  # Element::__getitem__(int) is expensive
+            for child in elt: Rec(child)
             if elt.tag == ELT_ENTRY_PLACEHOLDER:
-                placeholder = elt.originalElement
-                print("Placeholder = %s [len %d] %s" % (placeholder, len(placeholder), placeholder.transformedEntry))
+                pid = int(elt.get(ATTR_PLACEHOLDER_ID))
+                pr = self.entryPlaceholders[pid]
+                placeholder = pr.placeholderElt; transformedEntry = pr.transformedEntry
+                if Verbose: logging.info("Placeholder = %s [len %d] %s" % (placeholder, len(placeholder), transformedEntry))
                 #if len(placeholder) > 0: print("- Its child: %s" % repr(placeholder[0][0].tail))
                 #assert len(placeholder) == 0
                 parent = elt.getparent()
-                idx = parent.index(elt); assert idx >= 0
-                te = placeholder.transformedEntry
-                assert te is not None
-                print("Transformed entry: %d %s" % (te.entryTime, te))
-                print("Its parent: %s" % placeholder.transformedEntry.getparent())
-                assert placeholder.transformedEntry.getparent() is None
-                parent[idx] = placeholder.transformedEntry
+                #idx = parent.index(elt); assert idx >= 0  # Element::index is expensive
+                assert transformedEntry is not None
+                if Verbose: logging.info("Transformed entry: %d %s" % (transformedEntry.entryTime, transformedEntry))
+                if Verbose: logging.info("Its parent: %s" % transformedEntry.getparent())
+                assert transformedEntry.getparent() is None
+                #parent[idx] = transformedEntry  # expensive, use replace instead
+                parent.replace(elt, transformedEntry)
                 assert elt.getparent() is None
-                assert placeholder.transformedEntry.getparent() is parent
+                assert transformedEntry.getparent() is parent
         Rec(root)
     def BuildBody(self):
         # Builds a <body> element with the list of all top (i.e. non-nested) entries
         # (actually placeholders of transformed top entries).  Anything in between entries
         # in the original tree gets scrapified and included in the transformed entries.
+        # Entries are processed in batches, each batch being submitted to an executor
+        # from 'concurrent.futures'.
         outBody = self.Element(ELT_body); self.outBody = outBody
         nTopEntries = len(self.topEntryList)
+        import concurrent.futures
+        nProcesses = 20
+        # Experiments on lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml , batches of 10000 entries:
+        # - TDummyExecutor (i.e. no concurrency): 1000 entries/sec  [calling plain old TransformEntry should be even better as it would save us the trouble of converting the entry to a string before and after the transformation]
+        # - ThreadPoolExecutor(20 threads): 800 entries/sec
+        # - ProcessPoolExecutor(20 processes): 3300-3700 entries/sec
+        if nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
+            executor = concurrent.futures.ProcessPoolExecutor(nProcesses)
+        else:
+            executor = TDummyExecutor()
+        #executor = concurrent.futures.ThreadPoolExecutor(nProcesses)
+        #executor = TDummyExecutor()
         #print("\n\n###### BuildBody")
         if nTopEntries == 0:
-            print("Warning: no entries found.")
+            logging.warning("Warning: no entries found.")
             outBody.append(self.SegifySubtree(self.tree.getroot()))
         else:
             nextLeft = self.ScrapifyLeft(self.topEntryList[0])
-            tmStart = time.clock(); iPrev = 0; tmPrev = tmStart
-            for i in range(nTopEntries):
-                if (True or Verbose2) and i % 1000 == 0: 
-                    tmNow = time.clock()
-                    sys.stdout.write("BuildBody transforming entry %d/%d  (%.2f sec; %.2f entries/sec, recently %.2f)     \r" % (i, nTopEntries,
-                        tmNow - tmStart, i / max(0.1, tmNow - tmStart), (i - iPrev) / max(0.1, tmNow - tmPrev))); sys.stdout.flush()
-                    tmPrev = tmNow; iPrev = i    
-                curLeft = nextLeft
-                if i == nTopEntries - 1:
-                    curRight = self.ScrapifyRight(self.topEntryList[i])
-                else:
-                    nextLeft, curRight = self.ScrapifyBetween(self.topEntryList[i], self.topEntryList[i + 1])
-                inEntry = self.topEntryList[i]
-                inEntry.tail = None # if there was a tail, it was already included in the curRight scrap
-                outEntry = self.TransformEntry(inEntry).transformedEntry
-                #print("i = %d, curLeft = %s, curRight = %s" % (i, curLeft, curRight))
-                if curLeft is not None: 
-                    assert not curLeft.tail
-                    curLeft.tail = outEntry.text; outEntry.text = None
-                    if curLeft.tag == ELT_seg: curLeft.tag = ELT_dictScrap
-                    outEntry.insert(0, curLeft)
-                    #print("outEntry = now %s" % outEntry)
-                if curRight is not None: 
-                    if curRight.tag == ELT_seg: curRight.tag = ELT_dictScrap
-                    outEntry.append(curRight)
-                outBody.append(outEntry)
+            tmStart = time.perf_counter(); iPrev = 0; tmPrev = tmStart
+            batchSize = 10000; nBatches = (nTopEntries + batchSize - 1) // batchSize
+            for batchNo in range(nBatches):
+                batchFrom = batchNo * batchSize; batchTo = min(batchFrom + batchSize, nTopEntries)
+                Verbose3 = False
+                def Tm(): return float(time.perf_counter() - tmPrev)
+                if True or Verbose2: #  and i % 1000 == 0: 
+                    tmNow = time.perf_counter()
+                    sys.stdout.write("BuildBody transforming entry %d/%d  (%.2f sec; %.2f entries/sec, recently %.2f)     \r" % (batchFrom, nTopEntries,
+                        tmNow - tmStart, batchFrom / max(0.1, tmNow - tmStart), (batchFrom - iPrev) / max(0.1, tmNow - tmPrev))); sys.stdout.flush()
+                    tmPrev = time.perf_counter(); iPrev = batchFrom
+                    #if batchNo >= 20: sys.exit(0)
+                if Verbose3: sys.stdout.write("Batch %d, preparing tasks\n" % batchNo); sys.stdout.flush()
+                # Prepare a TTransformEntryTask structure for each entry in this batch.
+                # Also scrapify anything between these entries.
+                tasks = []; tasksByProcess = [[] for j in range(nProcesses)]; tm1 = 0; tmS = 0
+                for i in range(batchFrom, batchTo):
+                    curLeft = nextLeft
+                    tmS -= Tm()
+                    if i == nTopEntries - 1:
+                        curRight = self.ScrapifyRight(self.topEntryList[i])
+                    else:
+                        nextLeft, curRight = self.ScrapifyBetween(self.topEntryList[i], self.topEntryList[i + 1])
+                    tmS += Tm()
+                    inEntry = self.topEntryList[i]
+                    inEntry.tail = None # if there was a tail, it was already included in the curRight scrap
+                    # outEntry = self.TransformEntry(inEntry).transformedEntry
+                    task = TTransformEntryTask(curLeft, curRight, inEntry)
+                    tm1 -= Tm()
+                    self.TransformEntryWithFuture(task, None)
+                    tm1 += Tm()
+                    tasks.append(task)
+                    tasksByProcess[i % nProcesses].append(task)
+                if Verbose3: sys.stdout.write("[%.2f; %.2f in TransformEntryWithFuture; %2.f scrapifying] Batch %d, calling subprocesses\n" % (Tm(), tm1, tmS, batchNo)); sys.stdout.flush()
+                # Send the tasks to the executor.  We'll have one "sub-batch" for each process in the pool.
+                futs = []
+                for j in range(nProcesses):
+                    params = [(task.inEntryStr, task.xmlLangAttribute) for task in tasksByProcess[j]]
+                    fut = executor.submit(CallTransformEntry_Multi, self.m, self.nestedEntriesWillBePromoted, params)
+                    futs.append(fut)
+                if Verbose3: sys.stdout.write("[%.2f] Batch %d, gathering results\n" % (Tm(), batchNo)); sys.stdout.flush()
+                # Gather the results, i.e. wait for the processes to finish processing their sub-batches.
+                for j in range(nProcesses):
+                    results = futs[j].result()
+                    assert len(results) == len(tasksByProcess[j])
+                    for i, task in enumerate(tasksByProcess[j]):
+                        task.outEntryStr = results[i]
+                if Verbose3: sys.stdout.write("[%.2f] Batch %d, processing results\n" % (Tm(), batchNo)); sys.stdout.flush()
+                # Process the results.
+                for task in tasks:
+                    curLeft = task.curLeft; curRight = task.curRight
+                    # Parse the transformed entry string into an element tree.
+                    #outEntryStr = task.fut.result(); 
+                    outEntryStr = task.outEntryStr
+                    f = io.StringIO(outEntryStr)
+                    outEntryTree = etree.ElementTree(file = f, parser = self.parser)
+                    f.close()
+                    outEntry = outEntryTree.getroot()
+                    task.outEntry = outEntry
+                    # Attach the transformed entry to the placeholder element.
+                    task.outEntry.originalElement = task.inEntry   # actually we no longer use 'originalElement' for anything
+                    task.placeholder.transformedEntry = outEntry
+                    #print("i = %d, curLeft = %s, curRight = %s" % (i, curLeft, curRight))
+                    # Insert the scrapified versions of any other elements between the entries.
+                    if curLeft is not None: 
+                        assert not curLeft.tail
+                        curLeft.tail = outEntry.text; outEntry.text = None
+                        if curLeft.tag == ELT_seg: curLeft.tag = ELT_dictScrap
+                        outEntry.insert(0, curLeft)
+                        #print("outEntry = now %s" % outEntry)
+                    if curRight is not None: 
+                        if curRight.tag == ELT_seg: curRight.tag = ELT_dictScrap
+                        outEntry.append(curRight)
+                    #for key, val in task.treeMapper.keepAliveHash.items(): self.keepAliveHash[key] = val
+                    outBody.append(outEntry)
+                if Verbose3: sys.stdout.write("[%.2f] Batch %d, done\n" % (Tm(), batchNo)); sys.stdout.flush()
+        executor.shutdown(True)
         #return outBody
     def SetEntryLangs(self, root):
         # The xml:lang attribute of an <entry> might rely on something outside of that
@@ -1749,23 +1968,23 @@ class TTreeMapper:
             elt.xmlLangAttribute = tr.finalStr
     def Transform(self): # the main function
         verbose = True # Verbose2
-        if verbose: print("Transform")
+        if verbose: logging.info("Transform")
         oldRoot = self.tree.getroot()
         newRoot = self.InsertTempRoot(oldRoot)
         self.FindEntries(newRoot) # fills self.entryHash and self.eltHash
-        if verbose: print("FindEntries found %d entries, %d elements." % (len(self.entryHash), len(self.eltHash)))
+        if verbose: logging.info("FindEntries found %d entries, %d elements." % (len(self.entryHash), len(self.eltHash)))
         self.MarkEntries() # fills self.topEntryList
-        if verbose: print("MarkEntries found %d top-levelentries." % (len(self.topEntryList)))
+        if verbose: logging.info("MarkEntries found %d top-levelentries." % (len(self.topEntryList)))
         self.SetEntryLangs(newRoot) # sets the 'xmlLangAttribute' attribute of the entry Element objects
-        if verbose: print("SetEntryLangs returned.")
+        if verbose: logging.info("SetEntryLangs returned.")
         self.RemoveTempRoot(newRoot)
-        if verbose: print("RemoveTempRoot returned.")
+        if verbose: logging.info("RemoveTempRoot returned.")
         self.TransformNonTopEntries()
-        if verbose: print("TransformNonTopEntries returned.")
+        if verbose: logging.info("TransformNonTopEntries returned.")
         self.BuildBody()  
-        if verbose: print("BuildBody returned.")
+        if verbose: logging.info("BuildBody returned.")
         self.ReplacePlaceholders(self.outBody)  # replace placeholders with transformed entries
-        if verbose: print("ReplacePlaceholders returned.")
+        if verbose: logging.info("ReplacePlaceholders returned.")
         return self.outBody
         #print(etree.tostring(outTei, pretty_print = True).decode("utf8"))
         """
@@ -1804,6 +2023,8 @@ class TMapper:
         self.relaxNg = etree.RelaxNG(relaxNgDoc)
     def E(self, tag, attrib_ = {}, children = [], text = None, tail = None):
         e = self.parser.makeelement(tag, attrib = attrib_, nsmap = NS_MAP)
+        # This can be very slow if the tree is large; see _appendChild in https://github.com/lxml/lxml/blob/master/src/lxml/apihelpers.pxi
+        # and moveNodeToDocument in https://github.com/lxml/lxml/blob/master/src/lxml/proxy.pxi .
         for child in children: e.append(child)
         e.text = text; e.tail = tail
         return e
@@ -1814,9 +2035,10 @@ class TMapper:
         treeMapper = TTreeMapper(tree, mapping, self.parser, self.relaxNg, makeAugTrees, nestedEntriesWillBePromoted)
         treeMapper.Transform()
         inBody = treeMapper.outBody; nElts = 0
-        while len(inBody) > 0:
-            elt = inBody[0]; inBody.remove(elt)
-            outBody.append(elt)
+        children = [child for child in inBody]
+        for child in children:
+            inBody.remove(child)
+            outBody.append(child)
             nElts += 1
         if makeAugTrees: 
             outAugTrees.append(treeMapper.augTree); treeMapper.augTree = None
@@ -1859,15 +2081,18 @@ class TMapper:
                 else: i += 1    
         Rec(root)        
     def FixIds(self, root):
-        idHash = {}; counter = 0
+        idHash = {} # key: ID; value: number of elements with that ID
+        counters = {} # key: (containingEntryId, tag); value: counter
+        nEntries = 0
         def Rec1(e):
             nonlocal idHash
             id_ = e.get(ATTR_ID)
             if id_ is None: return
             idHash[id_] = idHash.get(id_, 0) + 1
             for child in e: Rec1(child)
-        def GenId(tag):
-            nonlocal idHash, counter
+        def GenId(tag, containingEntryId):
+            nonlocal idHash, counters
+            if tag == ELT_entry: containingEntryId = ""
             # We'll generate IDs of the form tag_number, where the tag
             # is stripped of any namespace prefixes.  The number will be
             # globally unique anyway.
@@ -1877,27 +2102,33 @@ class TMapper:
             if i >= 0: tag = tag[i + 1:]
             tag = tag.strip()
             if not tag: tag = "elt"
+            counter = counters.get((containingEntryId, tag), 0)
             while True:
                 counter += 1
                 cand = "%s_%s" % (tag, counter)
+                if containingEntryId: cand = "%s_%s" % (containingEntryId, cand)
                 if cand in idHash: continue
                 idHash[cand] = 1
+                counters[containingEntryId, tag] = counter
                 return cand
-        def Rec2(e):
-            nonlocal idHash, counter
+        def Rec2(e, containingEntryId):
+            nonlocal idHash, counters, nEntries
             id_ = e.get(ATTR_ID)
             needsId = False
+            if e.tag == ELT_entry: nEntries += 1
             if id_ is not None and idHash.get(id_, 0) > 1: needsId = True
             elif e.tag == ELT_entry or e.tag == ELT_sense: needsId = True
-            if needsId: e.set(ATTR_ID, GenId(e.tag))
-            for child in e: Rec2(child)
+            if needsId: id_ = GenId(e.tag, containingEntryId); e.set(ATTR_ID, id_)
+            if e.tag == ELT_entry: containingEntryId = id_
+            for child in e: Rec2(child, containingEntryId)
         # Gather all the existing IDs into 'idHash' - though there shouldn't really be any
         # at this point, as we moved them to the meta namespace (ATTR_LEGACY_ID).
         Rec1(root) 
         # Now make sure that every <entry> and <sense> has an ID, and if any other
         # existing IDs weren't unique (due to the duplication of nodes etc.),
         # we'll fix this now.
-        Rec2(root)    
+        Rec2(root, "")    
+        return nEntries
     def GetFirstEntry(self, root):  
         if root.tag == ELT_entry: return root
         def Rec(node):
@@ -1923,7 +2154,7 @@ class TMapper:
             for child in node: RecKa(child)
         # We need to keep the nodes alive in order to get consistent python object IDs for the assertion check below (and also for debug output).
         RecKa(root)
-        if Verbose2: print("Keeping %d nodes alive." % len(keepAlive))
+        if Verbose2: logging.info("Keeping %d nodes alive." % len(keepAlive))
         def Rec(node):
             nonlocal nOutermostEntries, nNestedEntries, insertAfter, nestingDepth
             if nestingDepth == 0: assert insertAfter is None
@@ -1952,10 +2183,10 @@ class TMapper:
                 # the child recursively as we'll reach it later anyway.
                 prev = child.getprevious()
                 #print("Moving node %s %s (prev: %s %s; parent: %s %s) after %s %s." % (id(child), repr(child), id(prev), repr(prev), id(node), repr(node), id(insertAfter), repr(insertAfter)))
-                if Verbose2: print("Moving node %s (prev: %s; parent: %s; depth %d) after %s." % (_(child), _(prev), _(node), nestingDepth, _(insertAfter)))
-                if Verbose2: print("Parent's children before %s" % ([_(x) for x in node],))
+                if Verbose2: logging.info("Moving node %s (prev: %s; parent: %s; depth %d) after %s." % (_(child), _(prev), _(node), nestingDepth, _(insertAfter)))
+                if Verbose2: logging.info("Parent's children before %s" % ([_(x) for x in node],))
                 if id(child) in nodesMoved: 
-                    print("This node was already moved!"); 
+                    logging.critical("This node was already moved!"); 
                     assert False; sys.exit(0)
                 nodesMoved.add(id(child))
                 if prev is None: AppendToText(node, child.tail)
@@ -1965,7 +2196,7 @@ class TMapper:
                 child.tail = insertAfter.tail; insertAfter.tail = ""
                 insertAfter = child
                 nNestedEntries += 1
-                if Verbose2: print("Parent's children now %s" % ([_(x) for x in node],))
+                if Verbose2: logging.info("Parent's children now %s" % ([_(x) for x in node],))
                 # Move to the previous sibling, so that we can move from it to the next
                 # # sibling at the start of the next iteration.
                 child = prev
@@ -1974,7 +2205,7 @@ class TMapper:
                 nestingDepth -= 1
                 if nestingDepth == 0: insertAfter = None
         Rec(root)
-        print("PromoteNestedEntries: %d existing outermost entries; %d nested entries have been promoted." % (nOutermostEntries, nNestedEntries))
+        logging.info("PromoteNestedEntries: %d existing outermost entries; %d nested entries have been promoted." % (nOutermostEntries, nNestedEntries))
     def BuildHeader(self, metadata):
         """
         extent        -> teiHeader/fileDesc/extent
@@ -2095,33 +2326,6 @@ class TMapper:
         entry from a descendant to a sibling.
         """
         outBody = self.E(ELT_body)
-        augTrees = [] if makeAugmentedInputTrees else None
-        def ProcessFile(fn, f):
-            print("Processing %s." % fn)
-            tree = etree.ElementTree(file = f, parser = self.parser)
-            print("Done parsing %s." % fn)
-            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
-        print("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s, promoteNestedEntries = %s" % (stripHeader,
-            stripDictScrap, stripForValidation, returnFirstEntryOnly, promoteNestedEntries))    
-        if type(fnOrFileList) is type(""): fnOrFileList = [fnOrFileList]    
-        for fn in fnOrFileList:
-            if type(fn) is not str:
-                ProcessFile("<file-like-object>", fn)
-            elif "*" in fn:
-                for path in pathlib.Path(".").glob(fn):
-                    with open(str(path), "rb") as f: ProcessFile(str(path), f)
-            elif fn.lower().endswith(".zip"):
-                with zipfile.ZipFile(fn, "r") as zf:
-                    for fn2 in zf.namelist():
-                        with zf.open(fn2, "r") as f: ProcessFile("%s[%s]" % (fn, fn2), f)
-            else:
-                with open(fn, "rb") as f: ProcessFile(fn, f)
-        for tree in treeList: 
-            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
-        if stripDictScrap: self.StripDictScrap(outBody)
-        if promoteNestedEntries: self.PromoteNestedEntries(outBody)
-        self.FixIds(outBody)    
-        #            
         L = []
         if not stripHeader:
             if metadata is None: metadata = {}
@@ -2154,9 +2358,45 @@ class TMapper:
                 #]),
             ]))
         outTei = self.E(ELT_tei, {}, L)
+        #
+        augTrees = [] if makeAugmentedInputTrees else None
+        def ProcessFile(fn, f):
+            logging.info("Processing %s." % fn)
+            tree = etree.ElementTree(file = f, parser = self.parser)
+            logging.info("Done parsing %s." % fn)
+            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
+        logging.info("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s, promoteNestedEntries = %s" % (stripHeader,
+            stripDictScrap, stripForValidation, returnFirstEntryOnly, promoteNestedEntries))
+        if type(fnOrFileList) is type(""): fnOrFileList = [fnOrFileList]    
+        for fn in fnOrFileList:
+            if type(fn) is not str:
+                ProcessFile("<file-like-object>", fn)
+            elif "*" in fn:
+                for path in pathlib.Path(".").glob(fn):
+                    with open(str(path), "rb") as f: ProcessFile(str(path), f)
+            elif fn.lower().endswith(".zip"):
+                with zipfile.ZipFile(fn, "r") as zf:
+                    for fn2 in zf.namelist():
+                        with zf.open(fn2, "r") as f: ProcessFile("%s[%s]" % (fn, fn2), f)
+            else:
+                with open(fn, "rb") as f: ProcessFile(fn, f)
+        for tree in treeList: 
+            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
+        if stripDictScrap: 
+            logging.info("Calling StripDictScrap.")
+            self.StripDictScrap(outBody)
+            logging.info("StripDictScrap returned.")
+        if promoteNestedEntries: 
+            logging.info("Calling PromoteNestedEntries.")
+            self.PromoteNestedEntries(outBody)
+            logging.info("PromoteNestedEntries returned.")
+        logging.info("Calling FixIds.")
+        nEntries = self.FixIds(outBody)    
+        logging.info("FixIds returned (%d entries)." % nEntries)
+        #            
         if returnFirstEntryOnly: 
             outTei = self.GetFirstEntry(outTei)
-            x = self.E(outTei.tag, {}, [outTei[i] for i in range(len(outTei))])
+            x = self.E(outTei.tag, {a: outTei.attrib[a] for a in outTei.attrib}, [outTei[i] for i in range(len(outTei))])
             x.text = outTei.text
             outTei = x
             """
@@ -2170,9 +2410,16 @@ class TMapper:
         #etree.cleanup_namespaces(outTei, top_nsmap = NS_MAP)
         #return outTei, augTrees
         if stripForValidation:
+            logging.info("Calling StripForValidation.")
             self.StripForValidation(outTei)
-            if not self.relaxNg.validate(outTei):
-                print("Relax-NG validation failed:\n%s" % (self.relaxNg.error_log))
+            if nEntries >= 1000:
+                logging.info("Skipping Relax-NG validation due to the size of the document.")
+            else:
+                logging.info("Calling relaxNg.validate.")
+                if not self.relaxNg.validate(outTei):
+                    logging.info("Relax-NG validation failed:\n%s" % (self.relaxNg.error_log))
+                else:
+                    logging.info("Relag-NG validation succeeded.")
         return outTei, augTrees
 
 def TestXpath():
@@ -2225,9 +2472,9 @@ def Test():
     #f = open("toy04.xml", "rt", encoding = "Windows-1250")
     #f = open("WP1\\JMcCrae\\McC_xray.xml", "rt", encoding = "utf8")
     #f = open("WP1\\INT\\example-anw.xml", "rt", encoding = "utf8")
-    f = open("Haifa\\hebrew_synonyms_sample.xml", "rt", encoding = "utf8")
-    tree = etree.ElementTree(file = f, parser = myParser)
-    f.close()
+    #f = open("Haifa\\hebrew_synonyms_sample.xml", "rt", encoding = "utf8")
+    #tree = etree.ElementTree(file = f, parser = myParser)
+    #f.close()
     #
     #m = GetMldsMapping()
     #m = GetToyMapping()
@@ -2249,6 +2496,7 @@ def Test():
     #f.close()
     #f = open("mapping-HWN.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     #f = open("mapping-wordnet-3.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
+    f = open("FromPdf2\\mapping.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     #m = TMapping(js)
     #outTei = mapper.Transform(m, ["WP1\\JSI\\SLD.zip"])
     #outTei = mapper.Transform(GetSldMapping(), ["WP1\\JSI\\SLD_macka_cat2.xml"])
@@ -2263,6 +2511,7 @@ def Test():
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     #outTei, outAug = mapper.Transform(GetHwnMapping(), "Haifa\\hebrew_synonyms_sample.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     #outTei, outAug = mapper.Transform(m, "wordnet-3.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
+    #outTei, outAug = mapper.Transform(m, "FromPdf2\\lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = False)
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
@@ -2274,10 +2523,11 @@ def Test():
         f.write(etree.tostring(outAug[0], pretty_print = True, encoding = "utf8").decode("utf8"))
         f.close()
 
-#TestHeader()
-#TestXpath()
-#sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-#Test(); sys.exit(0)
+if False and __name__ == "__main__":
+    #TestHeader()
+    #TestXpath()
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+    Test(); sys.exit(0)
 
 # ToDo: use the defusedxml library
 
@@ -2355,10 +2605,11 @@ def MyWsgiHandler(env, start_response):
             except: pass
         #return Err(errDesc, "exception")
         return errDesc
-        
-if "--runserver" in sys.argv or "--runServer" in sys.argv:
-    wsgi.server(eventlet.listen(("localhost", 8101)), MyWsgiHandler)
-    sys.exit(0)
+
+if __name__ == "__main__":
+    if "--runserver" in sys.argv or "--runServer" in sys.argv:
+        wsgi.server(eventlet.listen(("localhost", 8101)), MyWsgiHandler)
+        sys.exit(0)
 
 """
 ToDo:
