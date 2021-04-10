@@ -23,7 +23,7 @@ services:
       elexifier-network:
         aliases:
           - redis
-  worker:
+  worker1:
     build: .
     command: celery -A app:celery worker --loglevel=info
     volumes:
@@ -33,7 +33,20 @@ services:
     networks:
       elexifier-network:
         aliases:
-          - worker
+          - worker1
+    depends_on:
+      - redis
+  worker2:
+    build: .
+    command: celery -A app:celery worker --loglevel=info
+    volumes:
+      - /home/jgradisar/elexifier_data/media:/var/www/elexifier-api/app/media
+    extra_hosts:
+      - "host:10.10.1.8"
+    networks:
+      elexifier-network:
+        aliases:
+          - worker2
     depends_on:
       - redis
 
