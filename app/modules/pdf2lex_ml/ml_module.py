@@ -180,8 +180,7 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
                                         headerTitle=False,
                                         headerPublisher=False,
                                         headerBibl=False,
-                                        #promoteNestedEntries=True,
-                                        promoteNestedEntries=False,
+                                        promoteNestedEntries=True,
                                         metadata=metadata)
     print_log('DEBUG', 'transformed')
     target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
