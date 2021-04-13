@@ -175,7 +175,7 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
                                         stripForValidation=False,
                                         stripHeader=False,
-                                        #stripDictScrap=True,
+                                        #stripDictScrap=True, # TODO: change when fixed
                                         stripDictScrap=False,
                                         headerTitle=False,
                                         headerPublisher=False,
@@ -361,7 +361,7 @@ def ml_download(dsid):
             return response
 
         filename = dataset.name.split('.')[0] + '-transformed.xml'
-        return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
+        return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True, conditional=True)
 
     # prepare download
     dataset.status['download'] = 'Preparing_download'
