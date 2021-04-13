@@ -175,11 +175,13 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
                                         stripForValidation=False,
                                         stripHeader=False,
-                                        stripDictScrap=True,
+                                        #stripDictScrap=True,
+                                        stripDictScrap=False,
                                         headerTitle=False,
                                         headerPublisher=False,
                                         headerBibl=False,
-                                        promoteNestedEntries=True,
+                                        #promoteNestedEntries=True,
+                                        promoteNestedEntries=False,
                                         metadata=metadata)
     print_log('DEBUG', 'transformed')
     target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
