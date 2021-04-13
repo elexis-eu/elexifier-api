@@ -181,16 +181,21 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
                                         headerBibl=False,
                                         promoteNestedEntries=True,
                                         metadata=metadata)
+    print_log('DEBUG', 'transformed')
     target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
+    print_log('DEBUG', 'in string')
     target_xml = target_xml.replace(
         '<entry xmlns:m="http://elex.is/wp1/teiLex0Mapper/meta" xmlns:a="http://elex.is/wp1/teiLex0Mapper/legacyAttributes" xmlns="http://www.tei-c.org/ns/1.0">',
         '<entry>')
+    print_log('DEBUG', 'entry replaced')
 
     # writing transformed xml to file
     open(output_file, 'a').close()
+    print_log('DEBUG', 'writing to file')
     with open(output_file, 'w') as out:
         out.write(target_xml)
         out.close()
+    print_log('DEBUG', 'writing finished')
     status = Datasets.dataset_status(dsid)
     status['download'] = 'Ready'
     Datasets.dataset_status(dsid, set=True, status=status)
