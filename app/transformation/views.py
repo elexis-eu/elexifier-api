@@ -124,7 +124,9 @@ def xf_entity_transform(xfid, entityid):
     strip_DictScrap = flask.request.args.get('strip_dict_scrap', default='false', type=str) == 'true'
 
     entity = Datasets.list_dataset_entries(None, entry_id=entityid).contents
-    spec = controllers.list_transforms(None, xfid=xfid).transform
+    transformer = controllers.list_transforms(None, xfid=xfid)
+    spec = transformer.transform
+    metadata = Datasets.dataset_metadata(transformer.dsid)
 
     if spec is None:
         return flask.make_response({'spec': None, 'entity_xml': None, 'output': None}, 200)
@@ -140,7 +142,8 @@ def xf_entity_transform(xfid, entityid):
                                         stripForValidation=strip_ns,
                                         stripDictScrap=strip_DictScrap, stripHeader=strip_header,
                                         promoteNestedEntries=True,
-                                        returnFirstEntryOnly=True)
+                                        returnFirstEntryOnly=True,
+                                        metadata=metadata)
 
     target_xml = '\n' + lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
     target_xml = target_xml.replace(

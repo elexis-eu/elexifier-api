@@ -437,6 +437,7 @@ ELT_cit = "{%s}cit" % NS_TEI
 ELT_quote = "{%s}quote" % NS_TEI
 ELT_note = "{%s}note" % NS_TEI
 ELT_gloss = "{%s}gloss" % NS_TEI
+ELT_xr = "{%s}xr" % NS_TEI
 ELT_usg = "{%s}usg" % NS_TEI
 ELT_sense = "{%s}sense" % NS_TEI
 ELT_gram = "{%s}gram" % NS_TEI
@@ -485,6 +486,7 @@ MATCH_ex = "ex"
 MATCH_ex_tr = "ex_tr"
 MATCH_ex_tr_lang = "ex_tr_lang"
 MATCH_gloss = "gloss"
+MATCH_xr = "xr"
 MATCH_usg = "usg"
 MATCH_note = "note"
 
@@ -507,6 +509,7 @@ class TMapping:
         "xfNote", # note; becomes <note>
         "xfUsg", # label; becomes <usg type="hint">
         "xfGloss", # sense indicator; becomes <gloss>
+        "xfXr", # cross reference; becomes <xr type="related">
         "xfHwTrLang",  # language of the translated headword [goes into the xml:lang attribute]
         "xfEx", # example; becomes <cit type="example"><quote>
         "xfExTr", # translated example; becomes <cit type="translation">
@@ -541,6 +544,7 @@ class TMapping:
         _("note", self.xfNote)
         _("usg", self.xfUsg)
         _("gloss", self.xfGloss)
+        _("xr", self.xfXf)
         return h
     def InitFromJson(self, h):
         self.selEntry = JsonToSelector(h.get("entry", None))
@@ -559,6 +563,7 @@ class TMapping:
         self.xfEntryLang = JsonToTransformer(h.get("entry_lang", None))
         self.xfNote = JsonToTransformer(h.get("note", None))
         self.xfUsg = JsonToTransformer(h.get("usg", None))
+        self.xfXr = JsonToTransformer(h.get("xr", None))
         self.xfGloss = JsonToTransformer(h.get("gloss", None))
 
 def GetFromLexonomyMapping():
@@ -733,9 +738,10 @@ allowedParentHash = {
     ELT_note: set([ELT_gloss, ELT_cit, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_entry, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_usg, ELT_seg]),
     ELT_gloss: set([ELT_cit, ELT_gloss, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_sense, ELT_usg, ELT_seg]),
     ELT_usg: set([ELT_dictScrap, ELT_entry, ELT_form, ELT_gramGrp, ELT_sense]),
+    ELT_xr: set([ELT_dictScrap, ELT_entry, ELT_form, ELT_gramGrp, ELT_sense]),
     # The following entry is used to indicate which elements may contain text (character data) directly.
     # This is used by StripDictScrap().
-    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_gramGrp])  # but not entry, sense, cit
+    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_xr, ELT_gramGrp])  # but not entry, sense, cit
 }
 
 # To map an individual entry:
@@ -886,7 +892,7 @@ class TEntryMapper:
     __slots__ = ["entry", "m", "parser", "mapper",
         "senseIds", "nestedEntriesWillBePromoted",
         "mDef", "mPos", "mHw", "mLemma", "mVariant", "mInflected", "mHwTr", "mHwTrLang", 
-        "mEx", "mExTr", "mExTrLang", "mNote", "mGloss", "mUsg",
+        "mEx", "mExTr", "mExTrLang", "mNote", "mGloss", "mUsg", "mXr",
         "transformedEntry"]
     def __init__(self, entry, m, parser, mapper, nestedEntriesWillBePromoted):
         self.entry = entry; self.m = m; self.parser = parser; self.mapper = mapper
@@ -1082,6 +1088,7 @@ class TEntryMapper:
         if eltId in self.mNote: orders.append(TOrder(ELT_note, self.mNote[eltId]))
         if eltId in self.mGloss: orders.append(TOrder(ELT_gloss, self.mGloss[eltId]))
         if eltId in self.mUsg: orders.append(TOrder(ELT_usg, self.mUsg[eltId], typeAttr = "hint"))
+        if eltId in self.mXr: orders.append(TOrder(ELT_xr, self.mXr[eltId], typeAttr = "related"))
         # If the current element is the future <entry>, also process any orders that refer to nodes outside the entry.
         # These can't be transformed (since they're outside), so they will have to result in siblings.
         if isEntry:
@@ -1103,6 +1110,7 @@ class TEntryMapper:
             _(self.mNote, ELT_note, "")
             _(self.mGloss, ELT_gloss, "")
             _(self.mUsg, ELT_usg, "hint")
+            _(self.mXr, ELT_usg, "related")
         # Create siblings where needed.  
         consumers = []; newSibs = []
         for o in orders:
@@ -1205,6 +1213,7 @@ class TEntryMapper:
         elif eltId in self.mNote: newTag = ELT_note; trOrder = self.mNote[eltId]
         elif eltId in self.mGloss: newTag = ELT_gloss; trOrder = self.mGloss[eltId]
         elif eltId in self.mUsg: newTag = ELT_usg; trOrder = self.mUsg[eltId]; typeAttr = "hint"
+        elif eltId in self.mXr: newTag = ELT_xr; trOrder = self.mXr[eltId]; typeAttr = "related"
         elif elt.tag == ELT_ENTRY_PLACEHOLDER: newTag = elt.tag
         else: newTag = ELT_seg
         needsMilestones = False; newSib = None
@@ -1447,6 +1456,11 @@ class TEntryMapper:
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty)
                 elt.attrib.pop(ATTR_TEMP_type, None)
+        elif elt.tag == ELT_xr:
+            ty = elt.get(ATTR_TEMP_type, None)
+            if ty is not None: 
+                elt.set(ATTR_type_UNPREFIXED, ty)
+                elt.attrib.pop(ATTR_TEMP_type, None)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
             # It may also not contain character data and <def>s, so we'll wrap those things into <dictScraps>.
@@ -1515,11 +1529,12 @@ class TEntryMapper:
         self.mGloss = self.MakeTrOrderHash(self.m.xfGloss, MATCH_gloss)
         self.mNote = self.MakeTrOrderHash(self.m.xfNote, MATCH_note)
         self.mUsg = self.MakeTrOrderHash(self.m.xfUsg, MATCH_usg)
+        self.mXr = self.MakeTrOrderHash(self.m.xfXr, MATCH_xr)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
         if Verbose: logging.info("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang), %d glosses, %d notes, %d usgs." % (
             len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mVariant), len(self.mInflected), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
-            len(self.mEx), len(self.mExTr), len(self.mExTrLang), len(self.mGloss), len(self.mNote), len(self.mUsg)))
+            len(self.mEx), len(self.mExTr), len(self.mExTrLang), len(self.mGloss), len(self.mNote), len(self.mUsg), len(self.mXr)))
         #traceback.print_stack()    
         # Insert milestone elements where needed.  Note that we don't need
         # them for the language elements since those won't be transformed into
