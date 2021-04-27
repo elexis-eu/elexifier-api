@@ -114,6 +114,7 @@ def RemoveElementAndPromoteChildren(elt, appendSpace):
     for child in elt:
         if prevSib is not None: prevSib.addnext(child)
         elif nextSib is not None: nextSib.addprevious(child)
+        else: parent.append(child)
         prevSib = child
     s = elt.tail or ""
     if appendSpace and nextSib is not None and s and not s[-1].isspace(): s += " "
@@ -438,6 +439,7 @@ ELT_quote = "{%s}quote" % NS_TEI
 ELT_note = "{%s}note" % NS_TEI
 ELT_gloss = "{%s}gloss" % NS_TEI
 ELT_usg = "{%s}usg" % NS_TEI
+ELT_xr = "{%s}xr" % NS_TEI
 ELT_sense = "{%s}sense" % NS_TEI
 ELT_gram = "{%s}gram" % NS_TEI
 ELT_gramGrp = "{%s}gramGrp" % NS_TEI
@@ -486,6 +488,7 @@ MATCH_ex_tr = "ex_tr"
 MATCH_ex_tr_lang = "ex_tr_lang"
 MATCH_gloss = "gloss"
 MATCH_usg = "usg"
+MATCH_xr = "xr"
 MATCH_note = "note"
 
 def IsScrap(elt): return elt is not None and type(elt) is TMyElement and (elt.tag == ELT_seg or elt.tag == ELT_dictScrap)
@@ -506,6 +509,7 @@ class TMapping:
         "xfHwTr", # translated headword; becomes <cit type="translationEquivalent">
         "xfNote", # note; becomes <note>
         "xfUsg", # label; becomes <usg type="hint">
+        "xfXr", # cross-reference; becomes <xr type="related">
         "xfGloss", # sense indicator; becomes <gloss>
         "xfHwTrLang",  # language of the translated headword [goes into the xml:lang attribute]
         "xfEx", # example; becomes <cit type="example"><quote>
@@ -518,7 +522,7 @@ class TMapping:
         self.xfVariant = None; self.xfInflected = None
         self.xfPos = None; self.xfHwTr = None; self.xfHwTrLang = None
         self.xfEx = None; self.xfExTr = None; self.xfExTrLang = None
-        self.xfDef = None; self.xfNote = None; self.xfUsg = None; self.xfGloss = None
+        self.xfDef = None; self.xfNote = None; self.xfUsg = None; self.xfGloss = None; self.xfXr = None
         if js: self.InitFromJson(js)
     def ToJson(self):
         h = {}
@@ -540,6 +544,7 @@ class TMapping:
         _("def", self.xfDef)
         _("note", self.xfNote)
         _("usg", self.xfUsg)
+        _("xr", self.xfXr)
         _("gloss", self.xfGloss)
         return h
     def InitFromJson(self, h):
@@ -559,6 +564,7 @@ class TMapping:
         self.xfEntryLang = JsonToTransformer(h.get("entry_lang", None))
         self.xfNote = JsonToTransformer(h.get("note", None))
         self.xfUsg = JsonToTransformer(h.get("usg", None))
+        self.xfXr = JsonToTransformer(h.get("xr", None))
         self.xfGloss = JsonToTransformer(h.get("gloss", None))
 
 def GetFromLexonomyMapping():
@@ -637,7 +643,7 @@ def GetAnwMapping():
     m.xfExTrLang = None
     m.xfGloss = TSimpleTransformer(TXpathSelector(".//Uiterlijk"), ATTR_INNER_TEXT_REC)
     m.xfNote = TSimpleTransformer(TXpathSelector(".//Realisatie"), ATTR_INNER_TEXT_REC)
-    m.xfUsg = TSimpleTransformer(TXpathSelector(".//BijzonderhedenGebruik"), ATTR_INNER_TEXT_REC)
+    m.xfXr = TSimpleTransformer(TXpathSelector(".//pid"), ATTR_INNER_TEXT_REC)
     return m
 
 def GetDdoMapping():
@@ -721,21 +727,22 @@ def MakeAcronym(s):
 # Another problem here is that <usg> may be a child of <gramGrp> but not of <gram>,
 # so the fact that we only see <gram> at that point may lead us to move <usg> too high up.
 allowedParentHash = {
-    ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note]),
+    ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note, ELT_xr]),
     ELT_def: set([ELT_sense, ELT_dictScrap]),
     ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_gram: set([ELT_sense, ELT_dictScrap, ELT_entry]),
-    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg, ELT_usg, ELT_gloss, ELT_note]),
+    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg, ELT_usg, ELT_gloss, ELT_note, ELT_xr]),
     ELT_sense: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_entry: set([ELT_entry]),
     ELT_ENTRY_PLACEHOLDER: set([ELT_entry]),
     ELT_dictScrap: set([ELT_entry, ELT_dictScrap]),
-    ELT_note: set([ELT_gloss, ELT_cit, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_entry, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_usg, ELT_seg]),
-    ELT_gloss: set([ELT_cit, ELT_gloss, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_sense, ELT_usg, ELT_seg]),
+    ELT_note: set([ELT_gloss, ELT_cit, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_entry, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_usg, ELT_seg, ELT_xr]),
+    ELT_gloss: set([ELT_cit, ELT_gloss, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_sense, ELT_usg, ELT_seg, ELT_xr]),
     ELT_usg: set([ELT_dictScrap, ELT_entry, ELT_form, ELT_gramGrp, ELT_sense]),
+    ELT_xr: set([ELT_cit, ELT_gloss, ELT_note, ELT_gram, ELT_gramGrp, ELT_def, ELT_dictScrap, ELT_entry, ELT_orth, ELT_sense, ELT_xr, ELT_seg]),
     # The following entry is used to indicate which elements may contain text (character data) directly.
     # This is used by StripDictScrap().
-    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_gramGrp])  # but not entry, sense, cit
+    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_gramGrp])  # but not entry, sense, cit, xr
 }
 
 # To map an individual entry:
@@ -886,7 +893,7 @@ class TEntryMapper:
     __slots__ = ["entry", "m", "parser", "mapper",
         "senseIds", "nestedEntriesWillBePromoted",
         "mDef", "mPos", "mHw", "mLemma", "mVariant", "mInflected", "mHwTr", "mHwTrLang", 
-        "mEx", "mExTr", "mExTrLang", "mNote", "mGloss", "mUsg",
+        "mEx", "mExTr", "mExTrLang", "mNote", "mGloss", "mUsg", "mXr",
         "transformedEntry"]
     def __init__(self, entry, m, parser, mapper, nestedEntriesWillBePromoted):
         self.entry = entry; self.m = m; self.parser = parser; self.mapper = mapper
@@ -1082,6 +1089,7 @@ class TEntryMapper:
         if eltId in self.mNote: orders.append(TOrder(ELT_note, self.mNote[eltId]))
         if eltId in self.mGloss: orders.append(TOrder(ELT_gloss, self.mGloss[eltId]))
         if eltId in self.mUsg: orders.append(TOrder(ELT_usg, self.mUsg[eltId], typeAttr = "hint"))
+        if eltId in self.mXr: orders.append(TOrder(ELT_xr, self.mXr[eltId], typeAttr = "related"))
         # If the current element is the future <entry>, also process any orders that refer to nodes outside the entry.
         # These can't be transformed (since they're outside), so they will have to result in siblings.
         if isEntry:
@@ -1103,6 +1111,7 @@ class TEntryMapper:
             _(self.mNote, ELT_note, "")
             _(self.mGloss, ELT_gloss, "")
             _(self.mUsg, ELT_usg, "hint")
+            _(self.mXr, ELT_xr, "related")
         # Create siblings where needed.  
         consumers = []; newSibs = []
         for o in orders:
@@ -1205,6 +1214,7 @@ class TEntryMapper:
         elif eltId in self.mNote: newTag = ELT_note; trOrder = self.mNote[eltId]
         elif eltId in self.mGloss: newTag = ELT_gloss; trOrder = self.mGloss[eltId]
         elif eltId in self.mUsg: newTag = ELT_usg; trOrder = self.mUsg[eltId]; typeAttr = "hint"
+        elif eltId in self.mXr: newTag = ELT_xr; trOrder = self.mXr[eltId]; typeAttr = "related"
         elif elt.tag == ELT_ENTRY_PLACEHOLDER: newTag = elt.tag
         else: newTag = ELT_seg
         needsMilestones = False; newSib = None
@@ -1442,11 +1452,22 @@ class TEntryMapper:
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty) # the type attribute stays in <gram>
                 elt.attrib.pop(ATTR_TEMP_type, None)
-        elif elt.tag == ELT_usg:
+        elif elt.tag == ELT_usg or elt.tag == ELT_xr:
             ty = elt.get(ATTR_TEMP_type, None)
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty)
                 elt.attrib.pop(ATTR_TEMP_type, None)
+            # An <xr> may not contain character data directly, so it should be wrapped into <seg>s.
+            if elt.tag == ELT_xr:
+                children = [child for child in elt]
+                if elt.text and not elt.text.isspace():
+                    sib = self.mapper.Element(ELT_seg); sib.text = elt.text; elt.text = ""
+                    if children: children[0].addbefore(sib)
+                    else: elt.append(sib)
+                for child in children:
+                    if not (child.tail and not child.tail.isspace()): continue
+                    sib = self.mapper.Element(ELT_seg); sib.text = child.tail; child.tail = ""
+                    child.addnext(sib)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
             # It may also not contain character data and <def>s, so we'll wrap those things into <dictScraps>.
@@ -1515,11 +1536,12 @@ class TEntryMapper:
         self.mGloss = self.MakeTrOrderHash(self.m.xfGloss, MATCH_gloss)
         self.mNote = self.MakeTrOrderHash(self.m.xfNote, MATCH_note)
         self.mUsg = self.MakeTrOrderHash(self.m.xfUsg, MATCH_usg)
+        self.mXr = self.MakeTrOrderHash(self.m.xfXr, MATCH_xr)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
-        if Verbose: logging.info("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang), %d glosses, %d notes, %d usgs." % (
+        if Verbose: logging.info("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang), %d glosses, %d notes, %d usgs, %d xrs." % (
             len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mVariant), len(self.mInflected), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
-            len(self.mEx), len(self.mExTr), len(self.mExTrLang), len(self.mGloss), len(self.mNote), len(self.mUsg)))
+            len(self.mEx), len(self.mExTr), len(self.mExTrLang), len(self.mGloss), len(self.mNote), len(self.mUsg), len(self.mXr)))
         #traceback.print_stack()    
         # Insert milestone elements where needed.  Note that we don't need
         # them for the language elements since those won't be transformed into
@@ -1580,6 +1602,8 @@ def CallTransformEntry(inEntryStr, mapping, nestedEntriesWillBePromoted, xmlLang
     inEntry = tree.getroot()
     inEntry.xmlLangAttribute = xmlLangAttribute
     treeMapper = TTreeMapper(tree, mapping, parser, None, False, nestedEntriesWillBePromoted)
+    treeMapper.FindEntries(inEntry) # fills treeMapper.entryHash and treeMapper.eltHash; but it might fail to find the entry because the xpath expression assumed that the entry is still a part of the original XML document; no matter, the important thing is to fill eltHash to keep the elements alive
+    treeMapper.entryHash = { id(inEntry) : inEntry }
     entryMapper = TEntryMapper(inEntry, treeMapper.m, treeMapper.parser, treeMapper, treeMapper.nestedEntriesWillBePromoted)
     transformedEntry = entryMapper.TransformEntry()
     outEntryStr = etree.tostring(transformedEntry, pretty_print = False, encoding = "utf8").decode("utf8")
@@ -2267,27 +2291,35 @@ class TMapper:
             for child in childrenToRemove: 
                 RemoveElementAndPromoteChildren(child, True)
         Rec(root)        
-    def StripDictScrap_Thorough(self, root):
+    def StripDictScrap_Thorough(self, root, deleteTextOnlyScraps):
         """This version of StripDictScrap applies the following principle: if a <seg> or <dictScrap> has only
         such children as could also be children of its parent, then this <seg> or <dictScrap> is stripped and
         its former children now become the children of its former parent.  For example,
           <a> one <seg> two <b> three </b> four </seg> five <seg> six </seg> </a>
         might become (assuming that <b> can be a child of <a>)
           <a> one  two <b> three </b> four  five  six  </a>
+        Furthermore, if deleteTextOnlyScraps is True, then any <seg> or <dictScrap> that contains only
+        character data is also deleted, *along with its contents*.
         """
         def Rec(elt):
             if type(elt) is not TMyElement: return
             #isScrap = IsScrap(elt)
-            childrenToRemove = []
+            childrenToRemove = []; childrenToRemoveWithContent = []
+            eltMayContainText = elt.tag in allowedParentHash[ELT_PSEUDO_text]
             for child in elt:
                 Rec(child)
                 if not IsScrap(child): continue
-                canBeDeleted = True; hasText = child.text and not child.text.isspace()
+                canBeDeleted = True; hasText = child.text and not child.text.isspace(); hasChildren = False
                 for grandchild in child:
+                    hasChildren = True
                     if not (grandchild.tag in allowedParentHash and elt.tag in allowedParentHash[grandchild.tag]): 
                         canBeDeleted = False; break
                     if grandchild.tail and not grandchild.tail.isspace(): hasText = True
-                if hasText and not elt.tag in allowedParentHash[ELT_PSEUDO_text]: canBeDeleted = False
+                # We won't delete text-only <seg>s inside <xr> because we assume that those <seg>s have
+                # been inserted only because <xr> can't contain text directly, so removing them with their 
+                # content would actually remove useful content of the <xr>.
+                if deleteTextOnlyScraps and not hasChildren and elt.tag != ELT_xr: childrenToRemoveWithContent.append(child); continue
+                if hasText and not eltMayContainText: canBeDeleted = False
                 if canBeDeleted: childrenToRemove.append(child)
             # After removing a child, it may be desirable to insert spaces around it, so that e.g.
             # <ul><li>Foo</li><li>Bar</li></ul> does not become <ul>FooBar</ul> but <ul>Foo Bar</ul>.
@@ -2297,6 +2329,8 @@ class TMapper:
             # available to clarify this either.  We'll assume that most of the time, inserting spaces
             # is the better option.
             for child in childrenToRemove: RemoveElementAndPromoteChildren(child, True)
+            for child in childrenToRemoveWithContent:
+                child.text = ""; RemoveElementAndPromoteChildren(child, True)
             """
             if isScrap: elt.text = ""
             def GetFirstChild(x):
@@ -2577,8 +2611,9 @@ class TMapper:
         
         The 'stripDictScrap' parameter can be set to True or 1 to strip "unnecesary"
         <dictScrap> and <seg> elements from the resulting output (set it to 2 to
-        strip even more of these elements), and stripHeader can be set to True to
-        strip the <teiHeader> element from the resulting output.
+        strip even more of these elements, and set it to 3 to strip even more at
+        the cost of losing some character cata), and 'stripHeader' can be set to True 
+        to strip the <teiHeader> element from the resulting output.
         
         The 'returnFirstEntryOnly' parameter can be set to True to return
         only the first <entry> element instead of the whole TEI XML document.
@@ -2650,7 +2685,7 @@ class TMapper:
             self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
         if stripDictScrap: 
             logging.info("Calling StripDictScrap (%s)." % stripDictScrap)
-            if stripDictScrap == 2: self.StripDictScrap_Thorough(outBody)
+            if 2 <= stripDictScrap <= 3: self.StripDictScrap_Thorough(outBody, stripDictScrap >= 3)
             else: self.StripDictScrap(outBody)
             logging.info("StripDictScrap returned.")
         if promoteNestedEntries: 
@@ -2764,13 +2799,14 @@ def Test():
     #f = open("mapping-HWN.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     #f = open("mapping-wordnet-3.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     f = open("FromPdf2\\mapping.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
+    def LoadMapping(fn): f = open(fn, "rt"); js = json.load(f); f.close(); return TMapping(js)
     #m = TMapping(js)
     #outTei, outAug = mapper.Transform(m, ["WP1\\JSI\\SLD.zip"])
     #outTei, outAug = mapper.Transform(GetSldMapping(), ["WP1\\JSI\\SLD_macka_cat.xml"], stripForValidation = True, stripDictScrap = True)
     #outTei, outAug = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = True, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = True)
     #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
@@ -2778,7 +2814,10 @@ def Test():
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     #outTei, outAug = mapper.Transform(GetHwnMapping(), "Haifa\\hebrew_synonyms_sample.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     #outTei, outAug = mapper.Transform(m, "wordnet-3.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
-    outTei, outAug = mapper.Transform(m, "FromPdf2\\lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = 2)
+    #outTei, outAug = mapper.Transform(m, "FromPdf2\\lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = 2)
+    #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw-carole.txt"), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("apr21\\spec-drae.txt"), "apr21\\example-drae.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw_note_spec.txt"), "apr21\\anw_note.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
@@ -2840,9 +2879,8 @@ def MyWsgiHandler(env, start_response):
         inputStr = GetArg("input")
         callParams = {}
         callParams["stripForValidation"] = (GetArg("stripForValidation") == "true")
-        if GetArg("stripDictScrap") != "true": stripDictScrap = 0
-        elif GetArg("stripDictScrap2") != "true": stripDictScrap = 1
-        else: stripDictScrap = 2
+        s = GetArg("stripDictScrap")
+        stripDictScrap = (3 if s == "3" else 2 if s == "2" else 1 if s == "true" or s == "1" else 0)
         callParams["stripDictScrap"] = stripDictScrap
         callParams["stripHeader"] = (GetArg("stripHeader") == "true")
         callParams["returnFirstEntryOnly"] = (GetArg("firstEntryOnly") == "true")
