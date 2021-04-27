@@ -742,7 +742,7 @@ allowedParentHash = {
     ELT_xr: set([ELT_cit, ELT_gloss, ELT_note, ELT_gram, ELT_gramGrp, ELT_def, ELT_dictScrap, ELT_entry, ELT_orth, ELT_sense, ELT_xr, ELT_seg]),
     # The following entry is used to indicate which elements may contain text (character data) directly.
     # This is used by StripDictScrap().
-    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_gramGrp, ELT_xr])  # but not entry, sense, cit
+    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_gramGrp])  # but not entry, sense, cit, xr
 }
 
 # To map an individual entry:
@@ -1457,6 +1457,17 @@ class TEntryMapper:
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty)
                 elt.attrib.pop(ATTR_TEMP_type, None)
+            # An <xr> may not contain character data directly, so it should be wrapped into <seg>s.
+            if elt.tag == ELT_xr:
+                children = [child for child in elt]
+                if elt.text and not elt.text.isspace():
+                    sib = self.mapper.Element(ELT_seg); sib.text = elt.text; elt.text = ""
+                    if children: children[0].addbefore(sib)
+                    else: elt.append(sib)
+                for child in children:
+                    if not (child.tail and not child.tail.isspace()): continue
+                    sib = self.mapper.Element(ELT_seg); sib.text = child.tail; child.tail = ""
+                    child.addnext(sib)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
             # It may also not contain character data and <def>s, so we'll wrap those things into <dictScraps>.
@@ -2280,27 +2291,35 @@ class TMapper:
             for child in childrenToRemove: 
                 RemoveElementAndPromoteChildren(child, True)
         Rec(root)        
-    def StripDictScrap_Thorough(self, root):
+    def StripDictScrap_Thorough(self, root, deleteTextOnlyScraps):
         """This version of StripDictScrap applies the following principle: if a <seg> or <dictScrap> has only
         such children as could also be children of its parent, then this <seg> or <dictScrap> is stripped and
         its former children now become the children of its former parent.  For example,
           <a> one <seg> two <b> three </b> four </seg> five <seg> six </seg> </a>
         might become (assuming that <b> can be a child of <a>)
           <a> one  two <b> three </b> four  five  six  </a>
+        Furthermore, if deleteTextOnlyScraps is True, then any <seg> or <dictScrap> that contains only
+        character data is also deleted, *along with its contents*.
         """
         def Rec(elt):
             if type(elt) is not TMyElement: return
             #isScrap = IsScrap(elt)
-            childrenToRemove = []
+            childrenToRemove = []; childrenToRemoveWithContent = []
+            eltMayContainText = elt.tag in allowedParentHash[ELT_PSEUDO_text]
             for child in elt:
                 Rec(child)
                 if not IsScrap(child): continue
-                canBeDeleted = True; hasText = child.text and not child.text.isspace()
+                canBeDeleted = True; hasText = child.text and not child.text.isspace(); hasChildren = False
                 for grandchild in child:
+                    hasChildren = True
                     if not (grandchild.tag in allowedParentHash and elt.tag in allowedParentHash[grandchild.tag]): 
                         canBeDeleted = False; break
                     if grandchild.tail and not grandchild.tail.isspace(): hasText = True
-                if hasText and not elt.tag in allowedParentHash[ELT_PSEUDO_text]: canBeDeleted = False
+                # We won't delete text-only <seg>s inside <xr> because we assume that those <seg>s have
+                # been inserted only because <xr> can't contain text directly, so removing them with their 
+                # content would actually remove useful content of the <xr>.
+                if deleteTextOnlyScraps and not hasChildren and elt.tag != ELT_xr: childrenToRemoveWithContent.append(child); continue
+                if hasText and not eltMayContainText: canBeDeleted = False
                 if canBeDeleted: childrenToRemove.append(child)
             # After removing a child, it may be desirable to insert spaces around it, so that e.g.
             # <ul><li>Foo</li><li>Bar</li></ul> does not become <ul>FooBar</ul> but <ul>Foo Bar</ul>.
@@ -2310,6 +2329,8 @@ class TMapper:
             # available to clarify this either.  We'll assume that most of the time, inserting spaces
             # is the better option.
             for child in childrenToRemove: RemoveElementAndPromoteChildren(child, True)
+            for child in childrenToRemoveWithContent:
+                child.text = ""; RemoveElementAndPromoteChildren(child, True)
             """
             if isScrap: elt.text = ""
             def GetFirstChild(x):
@@ -2590,8 +2611,9 @@ class TMapper:
         
         The 'stripDictScrap' parameter can be set to True or 1 to strip "unnecesary"
         <dictScrap> and <seg> elements from the resulting output (set it to 2 to
-        strip even more of these elements), and stripHeader can be set to True to
-        strip the <teiHeader> element from the resulting output.
+        strip even more of these elements, and set it to 3 to strip even more at
+        the cost of losing some character cata), and 'stripHeader' can be set to True 
+        to strip the <teiHeader> element from the resulting output.
         
         The 'returnFirstEntryOnly' parameter can be set to True to return
         only the first <entry> element instead of the whole TEI XML document.
@@ -2663,7 +2685,7 @@ class TMapper:
             self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
         if stripDictScrap: 
             logging.info("Calling StripDictScrap (%s)." % stripDictScrap)
-            if stripDictScrap == 2: self.StripDictScrap_Thorough(outBody)
+            if 2 <= stripDictScrap <= 3: self.StripDictScrap_Thorough(outBody, stripDictScrap >= 3)
             else: self.StripDictScrap(outBody)
             logging.info("StripDictScrap returned.")
         if promoteNestedEntries: 
@@ -2784,7 +2806,7 @@ def Test():
     #outTei, outAug = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 2, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = True)
     #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
@@ -2857,9 +2879,8 @@ def MyWsgiHandler(env, start_response):
         inputStr = GetArg("input")
         callParams = {}
         callParams["stripForValidation"] = (GetArg("stripForValidation") == "true")
-        if GetArg("stripDictScrap") != "true": stripDictScrap = 0
-        elif GetArg("stripDictScrap2") != "true": stripDictScrap = 1
-        else: stripDictScrap = 2
+        s = GetArg("stripDictScrap")
+        stripDictScrap = (3 if s == "3" else 2 if s == "2" else 1 if s == "true" or s == "1" else 0)
         callParams["stripDictScrap"] = stripDictScrap
         callParams["stripHeader"] = (GetArg("stripHeader") == "true")
         callParams["returnFirstEntryOnly"] = (GetArg("firstEntryOnly") == "true")
