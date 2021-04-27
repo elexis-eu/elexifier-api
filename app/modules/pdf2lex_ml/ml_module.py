@@ -45,7 +45,7 @@ def ds_sendML_to_lexonomy(uid, dsid):
         'return_to': ""  # remove if no longer required
     }
 
-    if user.sketch_engine_uid is None:  # ske user
+    if user.sketch_engine_uid not is None:  # ske user
         request_data['ske_user'] = True
     else:
         request_data['ske_user'] = False
