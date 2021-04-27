@@ -122,7 +122,7 @@ def xf_entity_transform(xfid, entityid):
     strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
     strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
     strip_DictScrap = flask.request.args.get('strip_dict_scrap', default='false', type=str) == 'true'
-    strip_DictScrap = 2 if strip_DictScrap else 0
+    strip_DictScrap = 3 if strip_DictScrap else 0
 
     entity = Datasets.list_dataset_entries(None, entry_id=entityid).contents
     transformer = controllers.list_transforms(None, xfid=xfid)
