@@ -114,6 +114,7 @@ def RemoveElementAndPromoteChildren(elt, appendSpace):
     for child in elt:
         if prevSib is not None: prevSib.addnext(child)
         elif nextSib is not None: nextSib.addprevious(child)
+        else: parent.append(child)
         prevSib = child
     s = elt.tail or ""
     if appendSpace and nextSib is not None and s and not s[-1].isspace(): s += " "
@@ -437,8 +438,8 @@ ELT_cit = "{%s}cit" % NS_TEI
 ELT_quote = "{%s}quote" % NS_TEI
 ELT_note = "{%s}note" % NS_TEI
 ELT_gloss = "{%s}gloss" % NS_TEI
-ELT_xr = "{%s}xr" % NS_TEI
 ELT_usg = "{%s}usg" % NS_TEI
+ELT_xr = "{%s}xr" % NS_TEI
 ELT_sense = "{%s}sense" % NS_TEI
 ELT_gram = "{%s}gram" % NS_TEI
 ELT_gramGrp = "{%s}gramGrp" % NS_TEI
@@ -486,8 +487,8 @@ MATCH_ex = "ex"
 MATCH_ex_tr = "ex_tr"
 MATCH_ex_tr_lang = "ex_tr_lang"
 MATCH_gloss = "gloss"
-MATCH_xr = "xr"
 MATCH_usg = "usg"
+MATCH_xr = "xr"
 MATCH_note = "note"
 
 def IsScrap(elt): return elt is not None and type(elt) is TMyElement and (elt.tag == ELT_seg or elt.tag == ELT_dictScrap)
@@ -508,8 +509,8 @@ class TMapping:
         "xfHwTr", # translated headword; becomes <cit type="translationEquivalent">
         "xfNote", # note; becomes <note>
         "xfUsg", # label; becomes <usg type="hint">
+        "xfXr", # cross-reference; becomes <xr type="related">
         "xfGloss", # sense indicator; becomes <gloss>
-        "xfXr", # cross reference; becomes <xr type="related">
         "xfHwTrLang",  # language of the translated headword [goes into the xml:lang attribute]
         "xfEx", # example; becomes <cit type="example"><quote>
         "xfExTr", # translated example; becomes <cit type="translation">
@@ -521,7 +522,7 @@ class TMapping:
         self.xfVariant = None; self.xfInflected = None
         self.xfPos = None; self.xfHwTr = None; self.xfHwTrLang = None
         self.xfEx = None; self.xfExTr = None; self.xfExTrLang = None
-        self.xfDef = None; self.xfNote = None; self.xfUsg = None; self.xfGloss = None
+        self.xfDef = None; self.xfNote = None; self.xfUsg = None; self.xfGloss = None; self.xfXr = None
         if js: self.InitFromJson(js)
     def ToJson(self):
         h = {}
@@ -543,8 +544,8 @@ class TMapping:
         _("def", self.xfDef)
         _("note", self.xfNote)
         _("usg", self.xfUsg)
+        _("xr", self.xfXr)
         _("gloss", self.xfGloss)
-        _("xr", self.xfXf)
         return h
     def InitFromJson(self, h):
         self.selEntry = JsonToSelector(h.get("entry", None))
@@ -642,7 +643,7 @@ def GetAnwMapping():
     m.xfExTrLang = None
     m.xfGloss = TSimpleTransformer(TXpathSelector(".//Uiterlijk"), ATTR_INNER_TEXT_REC)
     m.xfNote = TSimpleTransformer(TXpathSelector(".//Realisatie"), ATTR_INNER_TEXT_REC)
-    m.xfUsg = TSimpleTransformer(TXpathSelector(".//BijzonderhedenGebruik"), ATTR_INNER_TEXT_REC)
+    m.xfXr = TSimpleTransformer(TXpathSelector(".//pid"), ATTR_INNER_TEXT_REC)
     return m
 
 def GetDdoMapping():
@@ -726,22 +727,22 @@ def MakeAcronym(s):
 # Another problem here is that <usg> may be a child of <gramGrp> but not of <gram>,
 # so the fact that we only see <gram> at that point may lead us to move <usg> too high up.
 allowedParentHash = {
-    ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note]),
+    ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note, ELT_xr]),
     ELT_def: set([ELT_sense, ELT_dictScrap]),
     ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_gram: set([ELT_sense, ELT_dictScrap, ELT_entry]),
-    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg, ELT_usg, ELT_gloss, ELT_note]),
+    ELT_cit: set([ELT_sense, ELT_dictScrap, ELT_entry, ELT_cit, ELT_seg, ELT_usg, ELT_gloss, ELT_note, ELT_xr]),
     ELT_sense: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_entry: set([ELT_entry]),
     ELT_ENTRY_PLACEHOLDER: set([ELT_entry]),
     ELT_dictScrap: set([ELT_entry, ELT_dictScrap]),
-    ELT_note: set([ELT_gloss, ELT_cit, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_entry, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_usg, ELT_seg]),
-    ELT_gloss: set([ELT_cit, ELT_gloss, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_sense, ELT_usg, ELT_seg]),
+    ELT_note: set([ELT_gloss, ELT_cit, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_entry, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_usg, ELT_seg, ELT_xr]),
+    ELT_gloss: set([ELT_cit, ELT_gloss, ELT_note, ELT_quote, ELT_def, ELT_dictScrap, ELT_form, ELT_gram, ELT_gramGrp, ELT_orth, ELT_sense, ELT_usg, ELT_seg, ELT_xr]),
     ELT_usg: set([ELT_dictScrap, ELT_entry, ELT_form, ELT_gramGrp, ELT_sense]),
-    ELT_xr: set([ELT_dictScrap, ELT_entry, ELT_form, ELT_gramGrp, ELT_sense]),
+    ELT_xr: set([ELT_cit, ELT_gloss, ELT_note, ELT_gram, ELT_gramGrp, ELT_def, ELT_dictScrap, ELT_entry, ELT_orth, ELT_sense, ELT_xr, ELT_seg]),
     # The following entry is used to indicate which elements may contain text (character data) directly.
     # This is used by StripDictScrap().
-    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_xr, ELT_gramGrp])  # but not entry, sense, cit
+    ELT_PSEUDO_text: set([ELT_seg, ELT_def, ELT_orth, ELT_gram, ELT_dictScrap, ELT_note, ELT_gloss, ELT_usg, ELT_gramGrp, ELT_xr])  # but not entry, sense, cit
 }
 
 # To map an individual entry:
@@ -1110,7 +1111,7 @@ class TEntryMapper:
             _(self.mNote, ELT_note, "")
             _(self.mGloss, ELT_gloss, "")
             _(self.mUsg, ELT_usg, "hint")
-            _(self.mXr, ELT_usg, "related")
+            _(self.mXr, ELT_xr, "related")
         # Create siblings where needed.  
         consumers = []; newSibs = []
         for o in orders:
@@ -1451,12 +1452,7 @@ class TEntryMapper:
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty) # the type attribute stays in <gram>
                 elt.attrib.pop(ATTR_TEMP_type, None)
-        elif elt.tag == ELT_usg:
-            ty = elt.get(ATTR_TEMP_type, None)
-            if ty is not None: 
-                elt.set(ATTR_type_UNPREFIXED, ty)
-                elt.attrib.pop(ATTR_TEMP_type, None)
-        elif elt.tag == ELT_xr:
+        elif elt.tag == ELT_usg or elt.tag == ELT_xr:
             ty = elt.get(ATTR_TEMP_type, None)
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty)
@@ -1532,7 +1528,7 @@ class TEntryMapper:
         self.mXr = self.MakeTrOrderHash(self.m.xfXr, MATCH_xr)
         self.FindLanguageAll(self.mHwTr, self.mHwTrLang)
         self.FindLanguageAll(self.mExTr, self.mExTrLang)
-        if Verbose: logging.info("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang), %d glosses, %d notes, %d usgs." % (
+        if Verbose: logging.info("TEntryMapper: %d sense elements, %d headwords, %d lemmas, %d variants, %d infected forms, %s definitions, %d part-of-speech, %d translations (%d lang), %d examples, %d translated examples (%d lang), %d glosses, %d notes, %d usgs, %d xrs." % (
             len(self.senseIds), len(self.mHw), len(self.mLemma), len(self.mVariant), len(self.mInflected), len(self.mDef), len(self.mPos), len(self.mHwTr), len(self.mHwTrLang),
             len(self.mEx), len(self.mExTr), len(self.mExTrLang), len(self.mGloss), len(self.mNote), len(self.mUsg), len(self.mXr)))
         #traceback.print_stack()    
@@ -1595,6 +1591,8 @@ def CallTransformEntry(inEntryStr, mapping, nestedEntriesWillBePromoted, xmlLang
     inEntry = tree.getroot()
     inEntry.xmlLangAttribute = xmlLangAttribute
     treeMapper = TTreeMapper(tree, mapping, parser, None, False, nestedEntriesWillBePromoted)
+    treeMapper.FindEntries(inEntry) # fills treeMapper.entryHash and treeMapper.eltHash; but it might fail to find the entry because the xpath expression assumed that the entry is still a part of the original XML document; no matter, the important thing is to fill eltHash to keep the elements alive
+    treeMapper.entryHash = { id(inEntry) : inEntry }
     entryMapper = TEntryMapper(inEntry, treeMapper.m, treeMapper.parser, treeMapper, treeMapper.nestedEntriesWillBePromoted)
     transformedEntry = entryMapper.TransformEntry()
     outEntryStr = etree.tostring(transformedEntry, pretty_print = False, encoding = "utf8").decode("utf8")
@@ -2779,13 +2777,14 @@ def Test():
     #f = open("mapping-HWN.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     #f = open("mapping-wordnet-3.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
     f = open("FromPdf2\\mapping.json", "rt"); js = json.load(f); f.close(); m = TMapping(js)
+    def LoadMapping(fn): f = open(fn, "rt"); js = json.load(f); f.close(); return TMapping(js)
     #m = TMapping(js)
     #outTei, outAug = mapper.Transform(m, ["WP1\\JSI\\SLD.zip"])
     #outTei, outAug = mapper.Transform(GetSldMapping(), ["WP1\\JSI\\SLD_macka_cat.xml"], stripForValidation = True, stripDictScrap = True)
     #outTei, outAug = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = True, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 2, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = True)
     #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
@@ -2793,7 +2792,10 @@ def Test():
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     #outTei, outAug = mapper.Transform(GetHwnMapping(), "Haifa\\hebrew_synonyms_sample.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
     #outTei, outAug = mapper.Transform(m, "wordnet-3.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
-    outTei, outAug = mapper.Transform(m, "FromPdf2\\lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = 2)
+    #outTei, outAug = mapper.Transform(m, "FromPdf2\\lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = 2)
+    #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw-carole.txt"), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("apr21\\spec-drae.txt"), "apr21\\example-drae.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw_note_spec.txt"), "apr21\\anw_note.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
