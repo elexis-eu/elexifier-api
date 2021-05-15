@@ -131,17 +131,17 @@ def clean_tokens(node, char_map):
             dictScrap.text = node[-1].text[-1]
             node[-1].text = node[-1].text[:-1]
             node.addnext(dictScrap)
-
+    if node.text is None:
+        node.text = ''
     for child in node:
         if child.tag == 'TOKEN':
-            for key in char_map:
-                if node.text is None:
-                    node.text = re.sub(key, char_map[key], child.text)
-                else:
-                    node.text += ' ' + re.sub(key, char_map[key], child.text)
+            node.text += ' ' + child.text.strip()
             node.remove(child)
-
         clean_tokens(child, char_map)
+
+    for key in char_map:
+        node.text = re.sub(key, char_map[key], node.text)
+    node.text = node.text.strip()
 
 
 @celery.task
