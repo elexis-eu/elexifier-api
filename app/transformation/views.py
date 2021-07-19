@@ -3,6 +3,7 @@ from flask import after_this_request
 import os
 import lxml
 import lxml.etree
+import traceback
 
 from app import app, db, celery
 from app.transformation.models import Transformer
@@ -207,6 +208,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
             controllers.transformer_download_status(xfid, set=True, download_status='Ready')
 
     except Exception as e:
+        print(traceback.format_exc())
         controllers.transformer_download_status(xfid, set=True)  # reset status
         return
 
