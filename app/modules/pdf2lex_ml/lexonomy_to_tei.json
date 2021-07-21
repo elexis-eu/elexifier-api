@@ -3,6 +3,10 @@
         "type": "xpath",
         "expr": ".//container[@name='entry']"
     },
+    "sense": {
+        "type": "xpath",
+        "expr": ".//container[@name='sense']"
+    },
     "entry_lang": {
         "type": "simple",
         "selector": {
