@@ -3,6 +3,10 @@
         "type": "xpath",
         "expr": ".//container[@name='entry']"
     },
+    "sense": {
+        "type": "xpath",
+        "expr": ".//container[@name='sense']"
+    },
     "entry_lang": {
         "type": "simple",
         "selector": {
@@ -49,5 +53,23 @@
         "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}constant",
         "rex": "",
         "const": "en"
+    },
+    "ex": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='cit']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerTextRec",
+        "rex": ""
+    },
+    "def": {
+        "type": "simple",
+        "selector": {
+            "type": "xpath",
+            "expr": ".//container[@name='def']"
+        },
+        "attr": "{http://elex.is/wp1/teiLex0Mapper/meta}innerTextRec",
+        "rex": ""
     }
 }
