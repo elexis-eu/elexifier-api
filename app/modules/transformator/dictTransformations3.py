@@ -440,6 +440,7 @@ ELT_note = "{%s}note" % NS_TEI
 ELT_gloss = "{%s}gloss" % NS_TEI
 ELT_usg = "{%s}usg" % NS_TEI
 ELT_xr = "{%s}xr" % NS_TEI
+ELT_ref = "{%s}ref" % NS_TEI
 ELT_sense = "{%s}sense" % NS_TEI
 ELT_gram = "{%s}gram" % NS_TEI
 ELT_gramGrp = "{%s}gramGrp" % NS_TEI
@@ -728,6 +729,7 @@ def MakeAcronym(s):
 # so the fact that we only see <gram> at that point may lead us to move <usg> too high up.
 allowedParentHash = {
     ELT_seg: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note, ELT_xr]),
+    ELT_ref: set([ELT_seg, ELT_entry, ELT_orth, ELT_def, ELT_gram, ELT_cit, ELT_dictScrap, ELT_sense, ELT_usg, ELT_gloss, ELT_note, ELT_xr]),
     ELT_def: set([ELT_sense, ELT_dictScrap]),
     ELT_orth: set([ELT_sense, ELT_dictScrap, ELT_entry]),
     ELT_gram: set([ELT_sense, ELT_dictScrap, ELT_entry]),
@@ -1458,15 +1460,18 @@ class TEntryMapper:
                 elt.set(ATTR_type_UNPREFIXED, ty)
                 elt.attrib.pop(ATTR_TEMP_type, None)
             # An <xr> may not contain character data directly, so it should be wrapped into <seg>s.
+            # - Update: now we want to use <ref>s instead of <seg>s.
             if elt.tag == ELT_xr:
                 children = [child for child in elt]
                 if elt.text and not elt.text.isspace():
-                    sib = self.mapper.Element(ELT_seg); sib.text = elt.text; elt.text = ""
+                    sib = self.mapper.Element(ELT_ref); sib.text = elt.text; elt.text = ""
+                    sib.set(ATTR_type_UNPREFIXED, "reference")
                     if children: children[0].addbefore(sib)
                     else: elt.append(sib)
                 for child in children:
+                    if child.tag == ELT_seg: child.tag = ELT_ref
                     if not (child.tail and not child.tail.isspace()): continue
-                    sib = self.mapper.Element(ELT_seg); sib.text = child.tail; child.tail = ""
+                    sib = self.mapper.Element(ELT_ref); sib.text = child.tail; child.tail = ""
                     child.addnext(sib)
         elif elt.tag == ELT_entry:
             # An entry may not contain <seg>s, so they should be changed into <dictScraps>.
@@ -2663,7 +2668,8 @@ class TMapper:
         augTrees = [] if makeAugmentedInputTrees else None
         def ProcessFile(fn, f):
             logging.info("Processing %s." % fn)
-            tree = etree.ElementTree(file = f, parser = self.parser)
+            #tree = etree.ElementTree(file = f, parser = self.parser)
+            tree = etree.parse(f, parser = self.parser)
             logging.info("Done parsing %s." % fn)
             self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
         logging.info("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s, promoteNestedEntries = %s" % (stripHeader,
@@ -2818,6 +2824,7 @@ def Test():
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw-carole.txt"), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\spec-drae.txt"), "apr21\\example-drae.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw_note_spec.txt"), "apr21\\anw_note.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(GetAnwMapping(), "jul21\\rhwcd-a02.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
@@ -2920,14 +2927,6 @@ if __name__ == "__main__":
         wsgi.server(eventlet.listen(("localhost", 8101)), MyWsgiHandler)
         sys.exit(0)
 
-"""
-ToDo:
-[OK] - TMapper.Transform naj vrne tudi obogateno razlicico vhodnega XMLja,
-  v katero smo dodali nekaj meta atributov: pri elementih, ki so se pomatchali
-  z nekim selektorjem, naj to pise (in za kateri output element je to bilo: sense, hw, ex itd.);
-  pise naj tudi, kateri atribut je bil uporabljen in mogoce zacetni/koncni index v primeru regex matcha;
-  poleg tega pa naj Transform vrne za vsak output element tudi seznam uspesno izvedenih
-  transformacij, v katerem bodo pari (vrednost selectanega atributa pred regexom,
-  vrednost po regexu).
-[OK] - Ko razbijemo <cit> na <cit> in <quote>, je treba atribut type pustiti v <cit>.  
+r"""
+d:\users\janez\dev\misc\RelaxNg\jing-trang-master\build>.\example.bat
 """
