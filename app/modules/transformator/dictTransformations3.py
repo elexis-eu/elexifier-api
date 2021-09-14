@@ -1466,7 +1466,7 @@ class TEntryMapper:
                 if elt.text and not elt.text.isspace():
                     sib = self.mapper.Element(ELT_ref); sib.text = elt.text; elt.text = ""
                     sib.set(ATTR_type_UNPREFIXED, "reference")
-                    if children: children[0].addbefore(sib)
+                    if children: children[0].addprevious(sib)
                     else: elt.append(sib)
                 for child in children:
                     if child.tag == ELT_seg: child.tag = ELT_ref
@@ -1676,10 +1676,19 @@ class TTreeMapper:
                 key = "m" + (str(n) if n > 0 else "")
                 if key in nsmap: n += 1
                 else: nsmap[key] = NS_META; break
+        if type(e) is CommentType:
+            ae = etree.Comment(e.text)
+            ae.tail = e.tail
+            self.keepAliveHash[id(e)] = e
+            self.keepAliveHash[id(ae)] = ae
+            # e.augNode = ae
+            augmentedNodes.add(id(e))
+            return ae
         ae = self.parser.makeelement(e.tag, e.attrib, nsmap)
         self.keepAliveHash[id(e)] = e
         self.keepAliveHash[id(ae)] = ae
         ae.text = e.text; ae.tail = e.tail
+        p = etree.XMLParser()
         e.augNode = ae
         augmentedNodes.add(id(e))
         #if e.tag == "Artikel": print("Setting %s.augNode to %s" % (e, ae))
@@ -2812,7 +2821,7 @@ def Test():
     #outTei, outAug = mapper.Transform(GetSldMapping(), "WP1\\JSI\\SLD*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW*.xml")
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
-    outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = True)
     #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
@@ -2824,6 +2833,7 @@ def Test():
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw-carole.txt"), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\spec-drae.txt"), "apr21\\example-drae.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw_note_spec.txt"), "apr21\\anw_note.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug = mapper.Transform(LoadMapping("sep21\\anw-final.txt"), "sep21\\xjjtdvtjmpjtnpmpcvnq.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "jul21\\rhwcd-a02.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
