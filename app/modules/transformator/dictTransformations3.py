@@ -1047,7 +1047,7 @@ class TEntryMapper:
         if elt is not None: Rec(elt)
         return h
     def StageOne_TransformSubtree(self, elt, isEntry, idsInEntrySubtree):
-        if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
+        if type(elt) is not TMyElement: return (copy.deepcopy(elt), [])
         class TOrder:
             TYPE_SIB = 1; TYPE_MILESTONES = 2; TYPE_CONSUME = 3
             # Note that the newElt of this order might not be what is called 'newElt' 
