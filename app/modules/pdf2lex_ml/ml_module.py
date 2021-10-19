@@ -155,7 +155,8 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     transformation_json = json.loads(json_data)
 
     # clean tokens
-    lexonomy_xml = lxml.etree.parse(input_file)
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    lexonomy_xml = lxml.etree.parse(input_file, parser=parser)
     if character_map is None:
         character_map = dict()
     clean_tokens(lexonomy_xml.getroot(), character_map)

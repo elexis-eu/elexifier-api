@@ -82,7 +82,8 @@ def prepare_dataset(uid, dsid, xfid, xpath, hw):
     mimetype, data = dataset.upload_mimetype, dataset.file_path
 
     for xml in xmls(mimetype, data):
-        tree = lxml.etree.parse(xml)
+        parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+        tree = lxml.etree.parse(xml, parser=parser)
         xpath = xpath.strip()
 
         namespaces = tree.getroot().nsmap

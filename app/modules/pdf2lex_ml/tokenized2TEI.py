@@ -92,7 +92,8 @@ def xml_walk3(node):
 
 
 def tokenized2TEI(in_file, out_file, char_map):
-    tree = etree.parse(in_file)
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = etree.parse(in_file, parser=parser)
     root = tree.getroot()
 
     if char_map is None:

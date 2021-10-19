@@ -26,7 +26,8 @@ def first_n_pages(original_file, out_file, n):
     body.append(metadata)
 
     # Parse original file and get BODY
-    tree = lxml.etree.parse(original_file).getroot()
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(original_file, parser=parser).getroot()
     tree = tree.xpath('.//BODY')[0]
 
     # Extract tokens from body
@@ -48,7 +49,8 @@ def first_n_pages(original_file, out_file, n):
 
 def additional_n_pages(original_file, lex_file, out_file, n):
     # Parse Lexonomy file and count bodies
-    lex_tree = lxml.etree.parse(lex_file).getroot()
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    lex_tree = lxml.etree.parse(lex_file, parser=parser).getroot()
     last_page_num = len(lex_tree) * n
     # Insert metadata into lexonomy bodies
     c = 1
@@ -68,7 +70,8 @@ def additional_n_pages(original_file, lex_file, out_file, n):
     body.append(metadata)
 
     # Parse original file and get BODY
-    tree = lxml.etree.parse(original_file).getroot()
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(original_file, parser=parser).getroot()
     tree = tree.xpath('.//BODY')[0]
 
     # Extract tokens from body
@@ -92,7 +95,8 @@ def additional_n_pages(original_file, lex_file, out_file, n):
 
 
 def split_preview(anno_file, out_file, n):
-    anno_tree = lxml.etree.parse(anno_file).getroot()
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    anno_tree = lxml.etree.parse(anno_file, parser=parser).getroot()
     new_root = lxml.etree.Element('DOCUMENT')
     body = lxml.etree.Element('BODY')
     metadata = lxml.etree.Element('METADATA')
