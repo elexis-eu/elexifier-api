@@ -163,7 +163,7 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     orig_xml = lxml.etree.tostring(lexonomy_xml)
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
-    myParser = lxml.etree.XMLParser(recover=True)
+    myParser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
     myParser.set_element_class_lookup(parserLookup)
     lexonomy_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
 

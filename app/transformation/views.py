@@ -134,7 +134,7 @@ def xf_entity_transform(xfid, entityid):
         return flask.make_response({'spec': None, 'entity_xml': None, 'output': None}, 200)
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
-    myParser = lxml.etree.XMLParser(remove_blank_text=True, recover=True)
+    myParser = lxml.etree.XMLParser(encoding='utf-8', remove_blank_text=True, recover=True)
     myParser.set_element_class_lookup(parserLookup)
     entity_xml = lxml.etree.fromstring(entity, parser=myParser)
 
@@ -183,7 +183,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 
         orig_xml = open(ds_path, 'rb').read()
         parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
-        myParser = lxml.etree.XMLParser(recover=True)
+        myParser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
         myParser.set_element_class_lookup(parserLookup)
         entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
         mapping = DictTransformator.TMapping(xf)
