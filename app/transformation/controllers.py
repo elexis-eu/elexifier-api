@@ -208,7 +208,7 @@ def update_single_entries(xfid, transform):
     entries = Datasets_single_entry.query.filter_by(xfid=str(xfid)).all()
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
-    myParser = lxml.etree.XMLParser()
+    myParser = lxml.etree.XMLParser(recover=True)
     myParser.set_element_class_lookup(parserLookup)
     mapping = DictTransformator.TMapping(transform)
     mapper = DictTransformator.TMapper()
