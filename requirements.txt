@@ -1,7 +1,7 @@
 flask==1.1.1
 flask-login==0.4.1
 pendulum==2.0.5
-lxml==4.4.0
+lxml==4.6.5
 python-magic==0.4.15
 flask-bcrypt==0.7.1
 flask-sqlalchemy==2.4.0
