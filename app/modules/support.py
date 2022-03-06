@@ -41,11 +41,15 @@ def add_error_log(db, dsid, tag=None, message=None):
     return
 
 
-def get_error_log(db, e_id=None):
-    if e_id is None:
-        logs = db.session.query(Error_log).order_by(sqlalchemy.desc(Error_log.created_ts)).all()
-    else:
-        logs = db.session.query(Error_log).filter(Error_log.id == e_id).first()
+def get_error_log(db, e_id=None, tag=None, dsid=None):
+    logs = db.session.query(Error_log)#.order_by(sqlalchemy.desc(Error_log.created_ts)).all()
+    if dsid is not None:
+        logs = logs.filter(Error_log.dsid == dsid)
+    if tag is not None:
+        logs = logs.filter(Error_log.tag == tag)
+    if e_id is not None:
+        logs = logs.filter(Error_log.id == e_id)
+    logs = logs.order_by(sqlalchemy.desc(Error_log.created_ts)).all()
     db.session.commit()
     return logs
 
@@ -68,7 +72,11 @@ def list_error_logs():
     db.session.close()
     if user is not None and not user.admin:
         raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
-    logs = get_error_log(db)
+    tag = flask.request.args.get('tag', default=None)
+    dsid = flask.request.args.get('dsid', default=None)
+    if dsid is not None:
+        dsid = int(dsid)
+    logs = get_error_log(db, tag=tag, dsid=dsid)
     logs = [{'id': log.id, 'dsid': log.dsid, 'tag': log.tag, 'message': log.message, 'time': log.created_ts} for log in logs]
     return flask.make_response({'logs': logs}, 200)
 
@@ -83,7 +91,7 @@ def view_error_log(e_id):
     if user is not None and not user.admin:
         raise InvalidUsage('User is not admin.', status_code=401, enum="UNAUTHORIZED")
 
-    log = get_error_log(db, e_id=e_id)
+    log = get_error_log(db, e_id=e_id)[0]
 
     dataset = Datasets.query.filter_by(id=log.dsid).first()
     pdf = flask.request.args.get('pdf', default=0, type=int) == 1
