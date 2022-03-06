@@ -12,6 +12,7 @@ import app.dataset.controllers as Datasets
 from app.modules.error_handling import InvalidUsage
 from app.modules.log import print_log
 from app.user.controllers import verify_user
+import app.modules.support as ErrorLog
 import app.modules.transformator.dictTransformations3 as DictTransformator
 
 
@@ -63,8 +64,13 @@ def xf_new_transform():
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
 
-    xfid = controllers.new_transform(xfname, dsid, entry_spec, headword, saved)
-    isok, retmsg = controllers.prepare_dataset(id, dsid, xfid, entry_spec, headword)
+    try:
+        xfid = controllers.new_transform(xfname, dsid, entry_spec, headword, saved)
+        isok, retmsg = controllers.prepare_dataset(id, dsid, xfid, entry_spec, headword)
+    except Exception as e:
+        print(traceback.format_exc())
+        message=f'Transformation Id: {xfid}\nTransformation definiton: {entry_spec}\n\n{traceback.format_exc()}'
+        ErrorLog.add_error_log(db, dsid, tag='xml_new', message=message)
 
     if not isok:
         raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
@@ -170,6 +176,7 @@ def entries_search(xfid, dsid):
 # --- download
 @celery.task
 def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
+    xf = None
     try:
         transformer = controllers.list_transforms(dsid, xfid=xfid)
         dataset = Datasets.list_datasets(uid, dsid=dsid)
@@ -209,7 +216,9 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 
     except Exception as e:
         print(traceback.format_exc())
-        controllers.transformer_download_status(xfid, set=True)  # reset status
+        message = f'Transformation Id: {xfid}\nTransformation definiton: {xf}\n\n{traceback.format_exc()}'
+        ErrorLog.add_error_log(db, dsid, tag='xml_download', message=message)
+        controllers.transformer_download_status(xfid, set=True, download_status='Error')
         return
 
     return
@@ -226,7 +235,7 @@ def ds_download2(xfid, dsid):
     if get_status:
         return flask.make_response({'status': status}, 200)
 
-    elif status is None:
+    elif status is None or status == 'Error':
         print_log(app.name, 'Transformed dataset download started uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
         strip_ns = flask.request.args.get('strip_ns', default='false', type=str) == 'true'
         strip_header = flask.request.args.get('strip_header', default='false', type=str) == 'true'
