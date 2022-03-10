@@ -122,7 +122,7 @@ def split_preview(anno_file, out_file, n):
     return
 
 
-def get_lex_xml(uid, dsid):
+def get_lex_annotate(uid, dsid):
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     xml_lex = dataset.xml_file_path[:-4] + "-LEX.xml"
     Datasets.dataset_add_ml_paths(dsid, xml_lex=xml_lex, xml_ml_out=dataset.xml_ml_out)

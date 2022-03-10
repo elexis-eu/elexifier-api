@@ -17,7 +17,7 @@ import app.dataset.controllers as Datasets
 import app.modules.support as ErrorLog
 from app.modules.error_handling import InvalidUsage
 from app.modules.log import print_log
-from app.modules.lexonomy import make_lexonomy_request, get_lex_xml
+from app.modules.lexonomy import make_lexonomy_request, get_lex_annotate
 
 # ML scripts
 from app.modules.pdf2lex_ml.xml2json_ML import xml2json
@@ -241,7 +241,7 @@ def ds_send_to_lexonomy(dsid):
 
     if additional_pages:
         # get file from lexonomy and save it
-        get_lex_xml(uid, dsid)
+        get_lex_annotate(uid, dsid)
 
     # Reset dataset status and delete old files @Lexonomy
     dataset.status['ml'] = None
@@ -286,7 +286,7 @@ def ml_run(dsid):
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     if dataset.status['annotate'] != 'Ready':
         raise InvalidUsage('File is not annotated at Lexonomy.', status_code=409, enum='STATUS_ERROR')
-    get_lex_xml(uid, dsid)
+    get_lex_annotate(uid, dsid)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
 
     # deleting preview
@@ -415,83 +415,3 @@ def char_map(dsid):
 def get_char_map(dsid):
     character_map = Datasets.dataset_character_map(dsid)
     return flask.make_response({'character_map': character_map}, 200)
-
-
-# --- OLD ---
-@celery.task
-@app.route('/api/ml/<int:dsid>', methods=['GET'])
-def ds_machine_learning(dsid):
-    token = flask.request.headers.get('Authorization')
-    uid = verify_user(token)
-
-    xml_format = flask.request.args.get('xml_format', default=None, type=str) == 'True'
-    get_file = flask.request.args.get('get_file', default=None, type=str) == 'True'
-    run_ml = flask.request.args.get('run_ml', default=None, type=str) == 'True'
-    send_file = flask.request.args.get('send_file', default=None, type=str) == 'True'
-
-    # TODO: Save paths to DB
-    dataset = Datasets.list_datasets(uid, dsid=dsid)
-    xml_lex = dataset.xml_lex
-    xml_raw = dataset.xml_file_path
-    print('xml_lex:', xml_lex, 'xml_raw:', xml_raw)
-
-    if xml_lex == None:
-        xml_ml_out = None
-    else:
-        xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
-    Datasets.dataset_add_ml_paths(dsid, xml_lex=dataset.xml_lex, xml_ml_out=xml_ml_out)
-
-    # Check if all params are None
-    if xml_format is None and get_file is None and run_ml is None and send_file is None:
-        raise InvalidUsage("Invalid API call. No params.", status_code=422, enum="GET_ERROR")
-    # Check if to many params
-    elif xml_format and (get_file or run_ml or send_file):
-        raise InvalidUsage("Invalid API call. Can't work on file and send it.", status_code=422, enum="GET_ERROR")
-
-    dataset.ml_task_id = Datasets.dataset_ml_task_id(dsid)
-    status = dataset.status
-
-    # Check if dataset has ml_task, then send status
-    if dataset.ml_task_id:
-        return flask.make_response({"message": "File is still processing.", "dsid": dsid, "Status": status}, 200)
-
-    # Check if user wants file and then return it
-    if xml_format and status not in ['Starting_ML', 'ML_Format', 'ML_Annotated', 'Lex2ML_Error', 'ML_Error',
-                                     'ML2Lex_Error']:
-        # TODO: get the latest annotated version from Lexonomy
-        Datasets.update_dataset_status(dsid, 'Preparing_download')
-        tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
-        character_map = Datasets.dataset_character_map(dsid)
-        prepare_TEI_download(dsid, xml_ml_out, tmp_file, character_map)
-        #tokenized2TEI(dsid, xml_ml_out, tmp_file, character_map)
-
-        @after_this_request
-        def after(response):
-            response.headers['x-suggested-filename'] = filename
-            response.headers.add('Access-Control-Expose-Headers', '*')
-            Datasets.update_dataset_status(dsid, 'Lex_Format')
-            os.remove(tmp_file)
-            return response
-
-        filename = dataset.name.split('.')[0] + '-transformed.xml'
-        return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
-    elif xml_format:
-        raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
-
-    # Run ML scripts
-    if get_file:  # Get file from Lexonomy
-        status = "Lexonomy_Annotated"
-        get_lex_xml(uid, dsid)
-        Datasets.update_dataset_status(dsid, status)
-
-    elif run_ml:
-        status = "Starting_ML"
-        Datasets.update_dataset_status(dsid, status)
-        task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_ml_out], countdown=0)
-        Datasets.dataset_ml_task_id(dsid, set=True, task_id=task.id)
-
-    elif send_file:  # Send file to Lexonomy
-        # stauts = "ML_Annotated_@Lexonomy"
-        ds_sendML_to_lexonomy(uid, dsid)
-
-    return flask.make_response({"message": "OK", "dsid": dsid, "Status": status}, 200)
