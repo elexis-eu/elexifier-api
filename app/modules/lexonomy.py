@@ -138,6 +138,16 @@ def get_lex_annotate(uid, dsid):
     return
 
 
+def get_lex_preview(uid, dsid):
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    request_headers = { "Authorization": app.config['LEXONOMY_AUTH_KEY'], "Content-Type": 'application/json' }
+    response = requests.get(dataset.lexonomy_ml_access, headers=request_headers)
+    f = open(dataset.xml_ml_out, "w")
+    f.write(response.text)
+    f.close()
+    return
+
+
 @celery.task
 def make_lexonomy_request(dsid, request_data, ml=False):
     # Send request async and save links to db

@@ -17,7 +17,7 @@ import app.dataset.controllers as Datasets
 import app.modules.support as ErrorLog
 from app.modules.error_handling import InvalidUsage
 from app.modules.log import print_log
-from app.modules.lexonomy import make_lexonomy_request, get_lex_annotate
+from app.modules.lexonomy import make_lexonomy_request, get_lex_annotate, get_lex_preview
 
 # ML scripts
 from app.modules.pdf2lex_ml.xml2json_ML import xml2json
@@ -145,7 +145,9 @@ def clean_tokens(node, char_map):
 
 
 @celery.task
-def prepare_TEI_download(dsid, input_file, output_file, character_map):
+def prepare_TEI_download(uid, dsid, input_file, output_file, character_map):
+    get_lex_preview(uid, dsid)
+
     # Load json for transformation
     json_file = os.path.join(app.config['APP_DIR'], 'modules/pdf2lex_ml/lexonomy_to_tei.json')
     with open(json_file, 'r') as file:
@@ -368,7 +370,7 @@ def ml_download(dsid):
     dataset.status['download'] = 'Preparing_download'
     Datasets.dataset_status(dsid, set=True, status=dataset.status)
     character_map = Datasets.dataset_character_map(dsid)
-    prepare_TEI_download.apply_async(args=[dsid, dataset.xml_ml_out, tmp_file, character_map])
+    prepare_TEI_download.apply_async(args=[uid, dsid, dataset.xml_ml_out, tmp_file, character_map])
     return flask.make_response({'msg': 'Dataset is preparing for download', 'status': dataset.status['download']}, 200)
 
 
