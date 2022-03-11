@@ -166,6 +166,7 @@ def train_on_data( data, n_rounds=10, verbose=True, logdir="", batch_size=5, max
     x_oh = sequence.pad_sequences( x_oh, max_sequence_len )
 
     max_carray_len = 0
+    #this is where the trouble lies
     for seq in x_chars:
         max_cur = max( [len(arr) for arr in seq] )
         if max_cur > max_carray_len:
