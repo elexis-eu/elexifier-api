@@ -460,7 +460,7 @@ def get_pos_map(dsid):
     uid = verify_user(token)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     refresh = int(flask.request.args.get('refresh', default=0))
-    if dataset.pos_elements is not None
+    if dataset.pos_elements is not None:
         pos_map = json.loads(dataset.pos_elements)
     else:
         pos_map = dict()
