@@ -263,7 +263,7 @@ def get_pos_elements(db, dsid, pos_json):
 def update_pos_elements(db, dsid, data):
     if not isinstance(data, str):
         data = json.dumps(data)
-    dataset = Datasets.query.filter_by(id=dsid).first()
+    dataset = db.session.query(Datasets).filter(Datasets.id == dsid).first()
     dataset.pos_elements = data
     db.session.commit()
     return data
