@@ -122,7 +122,7 @@ def split_preview(anno_file, out_file, n):
     return
 
 
-def get_lex_xml(uid, dsid):
+def get_lex_annotate(uid, dsid):
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     xml_lex = dataset.xml_file_path[:-4] + "-LEX.xml"
     Datasets.dataset_add_ml_paths(dsid, xml_lex=xml_lex, xml_ml_out=dataset.xml_ml_out)
@@ -133,6 +133,16 @@ def get_lex_xml(uid, dsid):
     #data = re.search("<BODY.*<\/BODY>", response.text).group()
 
     f = open(xml_lex, "w")
+    f.write(response.text)
+    f.close()
+    return
+
+
+def get_lex_preview(uid, dsid):
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    request_headers = { "Authorization": app.config['LEXONOMY_AUTH_KEY'], "Content-Type": 'application/json' }
+    response = requests.get(dataset.lexonomy_ml_access, headers=request_headers)
+    f = open(dataset.xml_ml_out, "w")
     f.write(response.text)
     f.close()
     return

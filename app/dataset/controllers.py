@@ -260,6 +260,15 @@ def get_pos_elements(db, dsid, pos_json):
     return pos_elms
 
 
+def update_pos_elements(db, dsid, data):
+    if not isinstance(data, str):
+        data = json.dumps(data)
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    dataset.pos_elements = data
+    db.session.commit()
+    return data
+
+
 def extract_xpaths(db, dsid):
     print('extract_xpaths')
 
