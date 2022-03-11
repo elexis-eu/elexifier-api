@@ -147,7 +147,7 @@ def clean_tokens(node, char_map):
 
 
 def remap_pos(node, pos_map):
-    for container in tree.xpath("//container[@name='pos']"):
+    for container in node.xpath("//container[@name='pos']"):
         pos_key = None
         for i, token in enumerate(container):
             if pos_key is None:
@@ -241,31 +241,6 @@ def extract_ml_pos_map(xml_file_path):
 
 
 # --- views ---
-@app.route('/api/ml/repair_status', methods=['GET'])
-def repair_status():
-    """
-    implement a method, that repairs all dataset statuses.
-    status should be json: {'annotate': [None, 'Starting', 'Processing', 'Lexonomy_Error', 'Ready'],
-                            'ml': [None, 'Starting_ML', 'Lex2ML_Error', 'ML_Format', 'ML_Error', 'ML_Annotated', 'ML2Lex_Error', 'Lex_Format'],
-                            'preview': [None, 'Starting', 'Processing', 'Lexonomy_Error', 'Ready'],
-                            'download': [None, 'Preparing_download', 'Ready']}
-    delete method after, leave status description
-    """
-    for dsid in range(0, 1000):
-        try:
-            dataset = Datasets.list_datasets(None, dsid=dsid)
-            status = {
-                'preview': None if dataset.lexonomy_ml_access is None else 'Ready',
-                'ml': None if dataset.lexonomy_ml_access is None else 'Lex_Format',
-                'annotate': None if dataset.lexonomy_access is None else 'Ready',
-                'download': None
-            }
-            Datasets.dataset_status(dsid, set=True, status=status)
-        except:
-            continue
-    return flask.make_response({'msg': 'ok'}, 200)
-
-
 @app.route('/api/ml/<int:dsid>/annotate', methods=['GET'])
 def ds_send_to_lexonomy(dsid):
     token = flask.request.headers.get('Authorization')
