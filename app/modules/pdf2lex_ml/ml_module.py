@@ -119,6 +119,8 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
+    pos_map = extract_ml_pos_map(xml_out)
+    Datasets.update_pos_elements(db, dsid, pos_map)
     Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
     clean_files()
     return
@@ -144,8 +146,23 @@ def clean_tokens(node, char_map):
     node.text = node.text.strip()
 
 
+def remap_pos(node, pos_map):
+    for container in tree.xpath("//container[@name='pos']"):
+        pos_key = None
+        for i, token in enumerate(container):
+            if pos_key is None:
+                pos_key = token.text
+            elif token.text is not None:
+                pos_key += ' ' + token.text
+            if i > 0:
+                container.remove(token)
+        if len(container) > 0:
+            container[0].text = pos_map[pos_key]
+    return
+
+
 @celery.task
-def prepare_TEI_download(uid, dsid, input_file, output_file, character_map):
+def prepare_TEI_download(uid, dsid, input_file, output_file, pos_map, character_map):
     get_lex_preview(uid, dsid)
 
     # Load json for transformation
@@ -156,9 +173,10 @@ def prepare_TEI_download(uid, dsid, input_file, output_file, character_map):
 
     transformation_json = json.loads(json_data)
 
-    # clean tokens
+    # remap pos and clean tokens
     parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
     lexonomy_xml = lxml.etree.parse(input_file, parser=parser)
+    remap_pos(lexonomy_xml.getroot(), pos_map)
     if character_map is None:
         character_map = dict()
     clean_tokens(lexonomy_xml.getroot(), character_map)
@@ -386,7 +404,8 @@ def ml_download(dsid):
     dataset.status['download'] = 'Preparing_download'
     Datasets.dataset_status(dsid, set=True, status=dataset.status)
     character_map = Datasets.dataset_character_map(dsid)
-    prepare_TEI_download.apply_async(args=[uid, dsid, dataset.xml_ml_out, tmp_file, character_map])
+    pos_map = json.loads(dataset.pos_elements)
+    prepare_TEI_download.apply_async(args=[uid, dsid, dataset.xml_ml_out, tmp_file, pos_map, character_map])
     return flask.make_response({'msg': 'Dataset is preparing for download', 'status': dataset.status['download']}, 200)
 
 
@@ -445,7 +464,7 @@ def get_pos_map(dsid):
         pos_map = json.loads(dataset.pos_elements)
     else:
         pos_map = dict()
-    if refresh:
+    if refresh and dataset.lexonomy_ml_access is not None:
         get_lex_preview(uid, dsid)
         new_pos_map = extract_ml_pos_map(dataset.xml_ml_out)
         for key, value in pos_map.items():
