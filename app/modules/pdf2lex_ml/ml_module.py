@@ -206,6 +206,22 @@ def prepare_TEI_download(uid, dsid, input_file, output_file, character_map):
     return
 
 
+def extract_ml_pos_map(xml_file_path):
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(xml_file_path, parser=parser)
+    results = set()
+    for container in tree.xpath("//container[@name='pos']"):
+        _tmp_pos = None
+        for token in container:
+            if _tmp_pos is None:
+                _tmp_pos = token.text
+            elif token.text is not None:
+                _tmp_pos += ' ' + token.text
+        results.add(_tmp_pos)
+    pos_map = {pos:pos for pos in results}
+    return pos_map
+
+
 # --- views ---
 @app.route('/api/ml/repair_status', methods=['GET'])
 def repair_status():
@@ -417,3 +433,33 @@ def char_map(dsid):
 def get_char_map(dsid):
     character_map = Datasets.dataset_character_map(dsid)
     return flask.make_response({'character_map': character_map}, 200)
+
+
+@app.route('/api/ml/<int:dsid>/pos_map', methods=['GET'])
+def get_pos_map(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    refresh = int(flask.request.args.get('refresh', default=0))
+    if dataset.pos_elements is not None
+        pos_map = json.loads(dataset.pos_elements)
+    else:
+        pos_map = dict()
+    if refresh:
+        get_lex_preview(uid, dsid)
+        new_pos_map = extract_ml_pos_map(dataset.xml_ml_out)
+        for key, value in pos_map.items():
+            if key in new_pos_map:
+                new_pos_map[key] = value
+        pos_map = new_pos_map
+        Datasets.update_pos_elements(db, dsid, pos_map)
+    return flask.make_response({'pos_map': pos_map}, 200)
+
+
+@app.route('/api/ml/<int:dsid>/pos_map', methods=['POST'])
+def update_pos_map(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    pos_map = flask.request.json.get('pos_map', '{}')
+    Datasets.update_pos_elements(db, dsid, pos_map)
+    return flask.make_response({'pos_map': pos_map}, 200)
