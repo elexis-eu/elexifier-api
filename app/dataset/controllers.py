@@ -129,7 +129,8 @@ def transform_pdf2xml(dsid):
     punctiation_counter = 0
     curr_line = '1'
 
-    root = lxml.etree.parse(xml_file_path).getroot()
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    root = lxml.etree.parse(xml_file_path, parser=parser).getroot()
     body = root.xpath('.//BODY')[0]
 
     for token in body[1:]:
@@ -199,7 +200,8 @@ def map_xml_tags(dsid):
         return acc
 
     dataset = Datasets.query.filter_by(id=dsid).first()
-    tree = lxml.etree.parse(dataset.file_path)
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(dataset.file_path, parser=parser)
     tags_json = xml_walk(tree.getroot())
     dataset.xml_tags = tags_json
     db.session.commit()
@@ -213,7 +215,8 @@ def get_xml_tags(dsid):
 
 
 def extract_pos_elements(xml_file, pos_element, attribute_name):
-    tree = lxml.etree.parse(xml_file)
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(xml_file, parser=parser)
     namespaces = tree.getroot().nsmap
 
     result = []
@@ -257,6 +260,15 @@ def get_pos_elements(db, dsid, pos_json):
     return pos_elms
 
 
+def update_pos_elements(db, dsid, data):
+    if not isinstance(data, str):
+        data = json.dumps(data)
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    dataset.pos_elements = data
+    db.session.commit()
+    return data
+
+
 def extract_xpaths(db, dsid):
     print('extract_xpaths')
 
@@ -264,7 +276,8 @@ def extract_xpaths(db, dsid):
     xml_file = dataset.file_path
     db.session.commit()
 
-    tree = lxml.etree.parse(xml_file)
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(xml_file, parser=parser)
     nodes = ['%s, %s' % (tree.getpath(e), e.text) for e in tree.iter()]
     unique_nodes = []
     for node in nodes:
@@ -306,7 +319,8 @@ def extract_xml_heads(db, dsid):
     else:
         xml_file = dataset.file_path
 
-        tree = lxml.etree.parse(xml_file)
+        parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+        tree = lxml.etree.parse(xml_file, parser=parser)
         unique_tags = set()
         for element in tree.iter():
             if type(element.tag) is not str:

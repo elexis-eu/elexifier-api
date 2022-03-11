@@ -82,7 +82,8 @@ def prepare_dataset(uid, dsid, xfid, xpath, hw):
     mimetype, data = dataset.upload_mimetype, dataset.file_path
 
     for xml in xmls(mimetype, data):
-        tree = lxml.etree.parse(xml)
+        parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+        tree = lxml.etree.parse(xml, parser=parser)
         xpath = xpath.strip()
 
         namespaces = tree.getroot().nsmap
@@ -207,7 +208,7 @@ def update_single_entries(xfid, transform):
     entries = Datasets_single_entry.query.filter_by(xfid=str(xfid)).all()
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
-    myParser = lxml.etree.XMLParser()
+    myParser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
     myParser.set_element_class_lookup(parserLookup)
     mapping = DictTransformator.TMapping(transform)
     mapper = DictTransformator.TMapper()

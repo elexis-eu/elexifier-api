@@ -1,7 +1,7 @@
 import os
 import random
 import string
-
+import traceback
 import flask
 import lxml
 from flask.json import jsonify
@@ -12,6 +12,7 @@ from app import app, db, celery
 from app.dataset.models import Datasets, Datasets_single_entry
 from app.modules.error_handling import InvalidUsage
 from app.user.controllers import verify_user
+import app.modules.support as ErrorLog
 
 
 @app.route('/api/dataset/list', methods=['GET'])
@@ -140,12 +141,16 @@ def ds_upload_new_dataset():
             controllers.dataset_metadata(dsid, set=True, metadata=metadata)
 
             # prepare dataset
-            dataset = controllers.list_datasets(uid, dsid)
-            if "pdf" in dataset.upload_mimetype:
-                controllers.transform_pdf2xml.apply_async(args=[dsid])
-            else:
-                controllers.clean_empty_namespace(dsid)
-                controllers.map_xml_tags.apply_async(args=[dsid])
+            try:
+                dataset = controllers.list_datasets(uid, dsid)
+                if "pdf" in dataset.upload_mimetype:
+                    controllers.transform_pdf2xml.apply_async(args=[dsid])
+                else:
+                    controllers.clean_empty_namespace(dsid)
+                    controllers.map_xml_tags.apply_async(args=[dsid])
+            except Exception as e:
+                print(traceback.format_exc())
+                ErrorLog.add_error_log(db, dsid, tag='upload', message=traceback.format_exc())
         return flask.make_response(Datasets.to_dict(dataset), 200)
 
 

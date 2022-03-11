@@ -17,7 +17,7 @@ import app.dataset.controllers as Datasets
 import app.modules.support as ErrorLog
 from app.modules.error_handling import InvalidUsage
 from app.modules.log import print_log
-from app.modules.lexonomy import make_lexonomy_request, get_lex_xml
+from app.modules.lexonomy import make_lexonomy_request, get_lex_annotate, get_lex_preview
 
 # ML scripts
 from app.modules.pdf2lex_ml.xml2json_ML import xml2json
@@ -119,6 +119,8 @@ def run_pdf2lex_ml_scripts(uid, dsid, xml_raw, xml_lex, xml_out):
         ErrorLog.add_error_log(db, dsid, tag='ml_error', message=traceback.format_exc())
         return
 
+    pos_map = extract_ml_pos_map(xml_out)
+    Datasets.update_pos_elements(db, dsid, pos_map)
     Datasets.dataset_ml_task_id(dsid, set=True, task_id="")
     clean_files()
     return
@@ -144,8 +146,25 @@ def clean_tokens(node, char_map):
     node.text = node.text.strip()
 
 
+def remap_pos(node, pos_map):
+    for container in tree.xpath("//container[@name='pos']"):
+        pos_key = None
+        for i, token in enumerate(container):
+            if pos_key is None:
+                pos_key = token.text
+            elif token.text is not None:
+                pos_key += ' ' + token.text
+            if i > 0:
+                container.remove(token)
+        if len(container) > 0:
+            container[0].text = pos_map[pos_key]
+    return
+
+
 @celery.task
-def prepare_TEI_download(dsid, input_file, output_file, character_map):
+def prepare_TEI_download(uid, dsid, input_file, output_file, pos_map, character_map):
+    get_lex_preview(uid, dsid)
+
     # Load json for transformation
     json_file = os.path.join(app.config['APP_DIR'], 'modules/pdf2lex_ml/lexonomy_to_tei.json')
     with open(json_file, 'r') as file:
@@ -154,15 +173,17 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
 
     transformation_json = json.loads(json_data)
 
-    # clean tokens
-    lexonomy_xml = lxml.etree.parse(input_file)
+    # remap pos and clean tokens
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    lexonomy_xml = lxml.etree.parse(input_file, parser=parser)
+    remap_pos(lexonomy_xml.getroot(), pos_map)
     if character_map is None:
         character_map = dict()
     clean_tokens(lexonomy_xml.getroot(), character_map)
     orig_xml = lxml.etree.tostring(lexonomy_xml)
 
     parserLookup = lxml.etree.ElementDefaultClassLookup(element=transformator.TMyElement)
-    myParser = lxml.etree.XMLParser()
+    myParser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
     myParser.set_element_class_lookup(parserLookup)
     lexonomy_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
 
@@ -203,6 +224,22 @@ def prepare_TEI_download(dsid, input_file, output_file, character_map):
     return
 
 
+def extract_ml_pos_map(xml_file_path):
+    parser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+    tree = lxml.etree.parse(xml_file_path, parser=parser)
+    results = set()
+    for container in tree.xpath("//container[@name='pos']"):
+        _tmp_pos = None
+        for token in container:
+            if _tmp_pos is None:
+                _tmp_pos = token.text
+            elif token.text is not None:
+                _tmp_pos += ' ' + token.text
+        results.add(_tmp_pos)
+    pos_map = {pos:pos for pos in results}
+    return pos_map
+
+
 # --- views ---
 @app.route('/api/ml/repair_status', methods=['GET'])
 def repair_status():
@@ -240,7 +277,7 @@ def ds_send_to_lexonomy(dsid):
 
     if additional_pages:
         # get file from lexonomy and save it
-        get_lex_xml(uid, dsid)
+        get_lex_annotate(uid, dsid)
 
     # Reset dataset status and delete old files @Lexonomy
     dataset.status['ml'] = None
@@ -285,7 +322,7 @@ def ml_run(dsid):
     dataset = Datasets.list_datasets(uid, dsid=dsid)
     if dataset.status['annotate'] != 'Ready':
         raise InvalidUsage('File is not annotated at Lexonomy.', status_code=409, enum='STATUS_ERROR')
-    get_lex_xml(uid, dsid)
+    get_lex_annotate(uid, dsid)
     dataset = Datasets.list_datasets(uid, dsid=dsid)
 
     # deleting preview
@@ -367,7 +404,8 @@ def ml_download(dsid):
     dataset.status['download'] = 'Preparing_download'
     Datasets.dataset_status(dsid, set=True, status=dataset.status)
     character_map = Datasets.dataset_character_map(dsid)
-    prepare_TEI_download.apply_async(args=[dsid, dataset.xml_ml_out, tmp_file, character_map])
+    pos_map = json.loads(dataset.pos_elements)
+    prepare_TEI_download.apply_async(args=[uid, dsid, dataset.xml_ml_out, tmp_file, pos_map, character_map])
     return flask.make_response({'msg': 'Dataset is preparing for download', 'status': dataset.status['download']}, 200)
 
 
@@ -416,81 +454,31 @@ def get_char_map(dsid):
     return flask.make_response({'character_map': character_map}, 200)
 
 
-# --- OLD ---
-@celery.task
-@app.route('/api/ml/<int:dsid>', methods=['GET'])
-def ds_machine_learning(dsid):
+@app.route('/api/ml/<int:dsid>/pos_map', methods=['GET'])
+def get_pos_map(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-
-    xml_format = flask.request.args.get('xml_format', default=None, type=str) == 'True'
-    get_file = flask.request.args.get('get_file', default=None, type=str) == 'True'
-    run_ml = flask.request.args.get('run_ml', default=None, type=str) == 'True'
-    send_file = flask.request.args.get('send_file', default=None, type=str) == 'True'
-
-    # TODO: Save paths to DB
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    xml_lex = dataset.xml_lex
-    xml_raw = dataset.xml_file_path
-    print('xml_lex:', xml_lex, 'xml_raw:', xml_raw)
-
-    if xml_lex == None:
-        xml_ml_out = None
+    refresh = int(flask.request.args.get('refresh', default=0))
+    if dataset.pos_elements is not None:
+        pos_map = json.loads(dataset.pos_elements)
     else:
-        xml_ml_out = xml_lex[:-4] + "-ML_OUT.xml"
-    Datasets.dataset_add_ml_paths(dsid, xml_lex=dataset.xml_lex, xml_ml_out=xml_ml_out)
+        pos_map = dict()
+    if refresh and dataset.lexonomy_ml_access is not None:
+        get_lex_preview(uid, dsid)
+        new_pos_map = extract_ml_pos_map(dataset.xml_ml_out)
+        for key, value in pos_map.items():
+            if key in new_pos_map:
+                new_pos_map[key] = value
+        pos_map = new_pos_map
+        Datasets.update_pos_elements(db, dsid, pos_map)
+    return flask.make_response({'pos_map': pos_map}, 200)
 
-    # Check if all params are None
-    if xml_format is None and get_file is None and run_ml is None and send_file is None:
-        raise InvalidUsage("Invalid API call. No params.", status_code=422, enum="GET_ERROR")
-    # Check if to many params
-    elif xml_format and (get_file or run_ml or send_file):
-        raise InvalidUsage("Invalid API call. Can't work on file and send it.", status_code=422, enum="GET_ERROR")
 
-    dataset.ml_task_id = Datasets.dataset_ml_task_id(dsid)
-    status = dataset.status
-
-    # Check if dataset has ml_task, then send status
-    if dataset.ml_task_id:
-        return flask.make_response({"message": "File is still processing.", "dsid": dsid, "Status": status}, 200)
-
-    # Check if user wants file and then return it
-    if xml_format and status not in ['Starting_ML', 'ML_Format', 'ML_Annotated', 'Lex2ML_Error', 'ML_Error',
-                                     'ML2Lex_Error']:
-        # TODO: get the latest annotated version from Lexonomy
-        Datasets.update_dataset_status(dsid, 'Preparing_download')
-        tmp_file = xml_ml_out.split(".xml")[0] + "_TEI.xml"
-        character_map = Datasets.dataset_character_map(dsid)
-        prepare_TEI_download(dsid, xml_ml_out, tmp_file, character_map)
-        #tokenized2TEI(dsid, xml_ml_out, tmp_file, character_map)
-
-        @after_this_request
-        def after(response):
-            response.headers['x-suggested-filename'] = filename
-            response.headers.add('Access-Control-Expose-Headers', '*')
-            Datasets.update_dataset_status(dsid, 'Lex_Format')
-            os.remove(tmp_file)
-            return response
-
-        filename = dataset.name.split('.')[0] + '-transformed.xml'
-        return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True)
-    elif xml_format:
-        raise InvalidUsage("File is not ready. Try running ML again", status_code=202, enum="STATUS_ERROR")
-
-    # Run ML scripts
-    if get_file:  # Get file from Lexonomy
-        status = "Lexonomy_Annotated"
-        get_lex_xml(uid, dsid)
-        Datasets.update_dataset_status(dsid, status)
-
-    elif run_ml:
-        status = "Starting_ML"
-        Datasets.update_dataset_status(dsid, status)
-        task = run_pdf2lex_ml_scripts.apply_async(args=[uid, dsid, xml_raw, xml_lex, xml_ml_out], countdown=0)
-        Datasets.dataset_ml_task_id(dsid, set=True, task_id=task.id)
-
-    elif send_file:  # Send file to Lexonomy
-        # stauts = "ML_Annotated_@Lexonomy"
-        ds_sendML_to_lexonomy(uid, dsid)
-
-    return flask.make_response({"message": "OK", "dsid": dsid, "Status": status}, 200)
+@app.route('/api/ml/<int:dsid>/pos_map', methods=['POST'])
+def update_pos_map(dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+    pos_map = flask.request.json.get('pos_map', '{}')
+    Datasets.update_pos_elements(db, dsid, pos_map)
+    return flask.make_response({'pos_map': pos_map}, 200)
