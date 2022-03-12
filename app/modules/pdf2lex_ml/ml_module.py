@@ -157,7 +157,10 @@ def remap_pos(node, pos_map):
             if i > 0:
                 container.remove(token)
         if len(container) > 0:
-            container[0].text = pos_map[pos_key]
+            try:
+                container[0].text = pos_map[pos_key]
+            except:
+                continue
     return
 
 
@@ -454,6 +457,6 @@ def get_pos_map(dsid):
 def update_pos_map(dsid):
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
-    pos_map = flask.request.json.get('pos_map', '{}')
+    pos_map = flask.request.json.get('pos_map', dict())
     Datasets.update_pos_elements(db, dsid, pos_map)
     return flask.make_response({'pos_map': pos_map}, 200)
