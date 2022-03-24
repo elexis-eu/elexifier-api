@@ -45,3 +45,4 @@ from app.transformation import views, models
 from app.modules.pdf2lex_ml.ml_module import *
 from app.modules.lexonomy import *
 from app.modules.support import *
+from app.modules.clarin import *
