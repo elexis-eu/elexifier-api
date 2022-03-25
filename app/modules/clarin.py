@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from app import app, db, celery
 from app.user.controllers import verify_user
 import app.dataset.controllers as Datasets
+from app.modules.error_handling import InvalidUsage
 
 
 # --- controllers
@@ -33,7 +34,7 @@ def get_clarin_definition(clarin_id):
     text = resp.text.replace("<?xml version='1.0' encoding='UTF-8'?>", '')
     definition = lxml.etree.fromstring(text, parser=parser)
     if len(definition.xpath('.//*[local-name()="error"][@code="idDoesNotExist"]')) > 0:
-        raise ValueError
+        raise InvalidUsage('Invalid handle.', status_code=400, enum='CLARIN_ERROR')
     return definition
 
 
@@ -68,7 +69,21 @@ def build_metadata(definition):
     return metadata
 
 
-def get_clarin_resources(definition):
+def find_clarin_resources(definition):
+    global VALID_MIMETYPES
+    found = []
+    for mimetype in VALID_MIMETYPES:
+        resources = definition.xpath(f'.//*[local-name()="ResourceType"][@mimetype="{mimetype}"]')
+        if len(resources) == 0:
+            continue
+        for resource in resources:
+            url = resource.getparent()[1].text
+            name = url.split('/')[-1].split('?')[0]
+            found.append(name)
+    return found
+
+
+def download_clarin_resources(definition, chosen_files):
     global VALID_MIMETYPES
     downloaded = []
     for mimetype in VALID_MIMETYPES:
@@ -78,6 +93,8 @@ def get_clarin_resources(definition):
         for resource in resources:
             url = resource.getparent()[1].text
             name = url.split('/')[-1].split('?')[0]
+            if name not in chosen_files:
+                continue  # We don't need this file
             filename = os.path.join(app.config['APP_MEDIA'], name)
             xml = requests.get(url)
             with open(filename, 'w') as file:
@@ -98,12 +115,20 @@ def get_clarin_resource():
     token = flask.request.headers.get('Authorization')
     uid = verify_user(token)
     handle = flask.request.json.get('handle', None)
+    chosen_files = flask.request.json.get('files', None)
     if handle is None:
         raise InvalidUsage('Missing handle.', status_code=400, enum='CLARIN_ERROR')
     handle = transform_handle(handle)
     clarin_definition = get_clarin_definition(handle)
     metadata = build_metadata(clarin_definition)
-    for filename, mimetype in get_clarin_resources(clarin_definition):
+    found_files = find_clarin_resources(clarin_definition)
+    
+    # We let user choose which files to import
+    if chosen_files is None:
+        return flask.make_response({'message': 'ok', 'metadata': metadata, 'found': found_files}, 200)
+
+    # Lets download chosen files 
+    for filename, mimetype in download_clarin_resources(clarin_definition, chosen_files):
         orig_name = os.path.basename(filename)
         total_filesize = os.path.getsize(filename)
         new_random_name = generate_filename(filename)
@@ -122,7 +147,10 @@ def get_clarin_resource():
         except Exception as e:
             print(traceback.format_exc())
             ErrorLog.add_error_log(db, dsid, tag='upload', message=traceback.format_exc())
-    return flask.make_response({'message': 'ok'}, 200)
+    return flask.make_response({'message': 'ok',
+                                'metadata': metadata,
+                                'found': found_files,
+                                'downloaded': chosen_files}, 200)
 
 
 # --- test ---
