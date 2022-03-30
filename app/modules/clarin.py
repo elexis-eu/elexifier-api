@@ -85,7 +85,7 @@ def find_clarin_resources(definition):
                 resp = urlopen(url)
                 if mimetype == 'application/zip':
                     zipfile = ZipFile(BytesIO(resp.read()))
-                    found.extend([i for i in zipfile.namelist() if i[-3:] in ['pdf', 'xml']])
+                    found.extend([i for i in zipfile.namelist() if i[-3:].lower() in ['pdf', 'xml']])
             else:
                 name = url.split('/')[-1].split('?')[0]
                 found.append(name)
@@ -117,6 +117,7 @@ def download_clarin_resources(definition, chosen_files):
                 for zip_filename in chosen_files:
                     if zip_filename in zipfile.namelist():
                         filename = zip_filename.split('/')[-1]
+                        filename = os.path.join(app.config['APP_MEDIA'], filename)
                         with open(filename, 'wb') as file:
                             file.write(zipfile.read(zip_filename))
                             downloaded.append((filename, filename[-3:]))
