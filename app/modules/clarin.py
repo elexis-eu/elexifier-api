@@ -116,13 +116,15 @@ def get_clarin_resource():
     uid = verify_user(token)
     handle = flask.request.json.get('handle', None)
     chosen_files = flask.request.json.get('files', None)
+    acronym = flask.request.json.get('acronym', 'CLRN')
+
     if handle is None:
         raise InvalidUsage('Missing handle.', status_code=400, enum='CLARIN_ERROR')
     handle = transform_handle(handle)
     clarin_definition = get_clarin_definition(handle)
     metadata = build_metadata(clarin_definition)
     found_files = find_clarin_resources(clarin_definition)
-    
+    metadata['acronym'] = acronym
     # We let user choose which files to import
     if chosen_files is None:
         return flask.make_response({'message': 'ok', 'metadata': metadata, 'found': found_files}, 200)
