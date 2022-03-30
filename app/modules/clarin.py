@@ -7,6 +7,9 @@ import lxml.etree
 import string
 import random
 from werkzeug.utils import secure_filename
+from urllib.request import urlopen
+from zipfile import ZipFile
+from io import BytesIO
 
 from app import app, db, celery
 from app.user.controllers import verify_user
@@ -15,7 +18,7 @@ from app.modules.error_handling import InvalidUsage
 
 
 # --- controllers
-VALID_MIMETYPES = ['text/xml', 'application/pdf'] # 'application/zip'
+VALID_MIMETYPES = ['text/xml', 'application/pdf', 'application/zip']
 
 
 def transform_handle(handle):
@@ -78,8 +81,14 @@ def find_clarin_resources(definition):
             continue
         for resource in resources:
             url = resource.getparent()[1].text
-            name = url.split('/')[-1].split('?')[0]
-            found.append(name)
+            if mimetype == 'application/zip':
+                resp = urlopen(url)
+                if mimetype == 'application/zip':
+                    zipfile = ZipFile(BytesIO(resp.read()))
+                    found.extend([i for i in zipfile.namelist() if i[-3:] in ['pdf', 'xml']])
+            else:
+                name = url.split('/')[-1].split('?')[0]
+                found.append(name)
     return found
 
 
@@ -93,14 +102,26 @@ def download_clarin_resources(definition, chosen_files):
         for resource in resources:
             url = resource.getparent()[1].text
             name = url.split('/')[-1].split('?')[0]
-            if name not in chosen_files:
-                continue  # We don't need this file
-            filename = os.path.join(app.config['APP_MEDIA'], name)
-            xml = requests.get(url)
-            with open(filename, 'w') as file:
-                file.write(xml.text)
-                downloaded.append((filename, mimetype))
+            if mimetype != 'application/zip' and name not in chosen_files:
+                # If it's not a ZIP file and we dont need it -> skip it
+                continue
+            resp = urlopen(url)
+            if mimetype != 'application/zip':
+                filename = os.path.join(app.config['APP_MEDIA'], name)
+                with open(filename, 'wb') as file:
+                    file.write(resp.read())
+                    downloaded.append((filename, mimetype))
+            # Special handling for ZIP files
+            else:
+                zipfile = ZipFile(BytesIO(resp.read()))
+                for zip_filename in chosen_files:
+                    if zip_filename in zipfile.namelist():
+                        filename = zip_filename.split('/')[-1]
+                        with open(filename, 'wb') as file:
+                            file.write(zipfile.read(zip_filename))
+                            downloaded.append((filename, filename[-3:]))
     return downloaded
+
 
 
 def generate_filename(filename, stringLength=20):
