@@ -44,7 +44,6 @@ def get_clarin_definition(clarin_id):
 def build_metadata(definition):
     metadata = {
         'acronym': 'CLRN',
-        'bibliographicCitation': 'BIBLIOGRAPHIC_CITATION',
         'creator': []
     }
     xpath = {
@@ -55,7 +54,8 @@ def build_metadata(definition):
         'identifier': './/*[local-name()="identifier"][@type="Handle"]',
         'created': './/*[local-name()="dates"]/*[local-name()="dateIssued"]',
         'source': './/*[local-name()="projectUrl"]',
-        'publisher': './/*[local-name()="publisher"]'
+        'publisher': './/*[local-name()="publisher"]',
+        'bibliographicCitation': './/*[local-name()="identifier"][@type="Handle"]',
     }
     for key in xpath:
         result = definition.xpath(xpath[key])
