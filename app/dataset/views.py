@@ -92,7 +92,7 @@ def ds_upload_new_dataset():
     uid = verify_user(token)
 
     # file
-    metadata = flask.request.form.get('metadata', None)
+    metadata = flask.request.form.get('metadata', dict())
     dictname = flask.request.files.get('dictname', None)
     file_content = flask.request.files.get('file', None)
     total_filesize = flask.request.form.get('dztotalfilesize', None)
@@ -138,6 +138,8 @@ def ds_upload_new_dataset():
             new_path = os.path.join(app.config['APP_MEDIA'], secure_filename(new_random_name))
             os.rename(filepath, new_path)
             dsid = controllers.add_dataset(db, uid, total_filesize, orig_filename, new_path, dzuuid)
+            # For demonstration purposes we want to limit the number of processed entries
+            metadata["_limit_entries"] = True
             controllers.dataset_metadata(dsid, set=True, metadata=metadata)
 
             # prepare dataset

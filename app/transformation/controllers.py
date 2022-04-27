@@ -97,6 +97,9 @@ def prepare_dataset(uid, dsid, xfid, xpath, hw):
             else:
                 namespace = ns
 
+        if "_limit_entries" in dataset.metadata.keys() and dataset.metadata["_limit_entries"]:
+            nodes = nodes[:100]
+
         if namespace_prefix:
             nodes = tree.xpath('//' + xpath, namespaces=namespace)
         else:
