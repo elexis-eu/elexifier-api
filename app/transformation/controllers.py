@@ -78,6 +78,7 @@ def clean_tag(xml_tag):
 
 def prepare_dataset(uid, dsid, xfid, xpath, hw):
     dataset = Datasets.query.filter_by(uid=uid, id=dsid).first()
+    metadata = json.loads(dataset.dictionary_metadata)
     print_log(app.name, 'Preparing dataset {}'.format(dataset))
     mimetype, data = dataset.upload_mimetype, dataset.file_path
 
@@ -97,7 +98,7 @@ def prepare_dataset(uid, dsid, xfid, xpath, hw):
             else:
                 namespace = ns
 
-        if "_limit_entries" in dataset.metadata.keys() and dataset.metadata["_limit_entries"]:
+        if "_limit_entries" in metadata.keys() and metadata["_limit_entries"]:
             nodes = nodes[:100]
 
         if namespace_prefix:
