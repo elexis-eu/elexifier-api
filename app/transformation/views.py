@@ -34,7 +34,7 @@ def xf_list_all_transforms():
 def xf_list_transforms(dsid):
     token = flask.request.headers.get('Authorization')
     id = verify_user(token)
-    order = flask.request.args.get('order').upper()
+    order = flask.request.args.get('order', 'ASC').upper()
     rv = controllers.list_transforms(dsid, order=order)
     rv = [Transformer.to_dict(i) for i in rv]
     return flask.make_response(flask.jsonify(rv), 200)
@@ -110,7 +110,14 @@ def xf_update_transform(xfid):
     print_log(app.name, 'Update transform {}'.format(xfid))
     if xfspec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
-    rv = controllers.update_transform(xfid, xfspec, name, saved)
+    try:
+        rv = controllers.update_transform(xfid, xfspec, name, saved)
+    except Exception as e:
+        print(traceback.format_exc())
+        transformer = controllers.list_transforms(None, xfid=xfid)
+        message=f'Transformation Id: {xfid}\nTransformation definiton: {xfspec}\n\n{traceback.format_exc()}'
+        ErrorLog.add_error_log(db, transformer.dsid, tag='xml_update', message=message)
+        rv = 0
     return flask.make_response({'updated': rv}, 200)
 
 
