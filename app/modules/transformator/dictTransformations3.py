@@ -222,13 +222,14 @@ class TIdFixer:
         t = "".join(L); self.cache[s] = t; return t
 
 class TTransformOrder:
-    __slots__ = ["elt", "rexMatch", "rexGroup", "attr", "attrVal", "matchedStr", "msFrom", "msTo", "trLanguage", "finalStr"]
+    __slots__ = ["elt", "rexMatch", "rexGroup", "attr", "attrVal", "matchedStr", "msFrom", "msTo", "trLanguage", "finalStr", "eltsToAdopt"]
     # msFrom and msTo may point to milestone elements, if a regular expression
     # was used on the inner text (possibly recursive).
-    def __init__(self, elt, rexMatch, rexGroup, attr, attrVal, matchedStr, finalStr):
+    def __init__(self, elt, rexMatch, rexGroup, attr, attrVal, matchedStr, finalStr, eltsToAdopt):
         self.elt = elt; self.rexMatch = rexMatch
         self.rexGroup = rexGroup; self.attr = attr
         self.attrVal = attrVal; self.matchedStr = matchedStr; self.finalStr = finalStr
+        self.eltsToAdopt = eltsToAdopt
         #print("TO %s -> %s" % (self.matchedStr, self.finalStr))
         self.msFrom = None; self.msTo = None; self.trLanguage = None
     def RemoveMilestones(self):
@@ -341,8 +342,8 @@ class TSimpleTransformer:
     # of those nodes, it takes the attribute 'attr'; searches for the
     # first occurrence of the regular expression 'reg' in it; and returns
     # the group 'rexGroup' from the resulting match.
-    __slots__ = ["selector", "attr", "rex", "crex", "rexGroup", "constValue", "xlat"]
-    def __init__(self, selector, attr, rex = "", rexGroup = None, constValue = None, xlat = None):
+    __slots__ = ["selector", "attr", "rex", "crex", "rexGroup", "constValue", "xlat", "adoptSelector"]
+    def __init__(self, selector, attr, rex = "", rexGroup = None, constValue = None, xlat = None, adoptSelector = None):
         self.selector = selector
         self.attr = attr
         self.rex = rex
@@ -350,6 +351,7 @@ class TSimpleTransformer:
         self.rexGroup = rexGroup
         self.constValue = constValue
         self.xlat = xlat
+        self.adoptSelector = adoptSelector
     def Xlat(self, s):
         if not self.xlat: return s
         else: 
@@ -362,19 +364,22 @@ class TSimpleTransformer:
             elif self.attr == ATTR_CONSTANT: attrVal = self.constValue
             else: attrVal = elt.get(self.attr, None)
             if attrVal is None: continue
-            if not self.rex: yield TTransformOrder(elt, None, None, self.attr, attrVal, attrVal, self.Xlat(attrVal)); continue
+            eltsToAdopt = [elt2 for elt2 in self.adoptSelector.findall(elt)] if self.adoptSelector else []
+            if False and self.adoptSelector: logging.info("%d elts to adopt selected." % len(eltsToAdopt))
+            if not self.rex: yield TTransformOrder(elt, None, None, self.attr, attrVal, attrVal, self.Xlat(attrVal), eltsToAdopt); continue
             m = self.crex.search(attrVal)
             if not m: continue
             s = ""
             try: s = m.group(0 if self.rexGroup is None else self.rexGroup)
             except: pass # must be an error in the mapping, perhaps an invalid group name
-            yield TTransformOrder(elt, m, self.rexGroup, self.attr, attrVal, s, self.Xlat(s))
+            yield TTransformOrder(elt, m, self.rexGroup, self.attr, attrVal, s, self.Xlat(s), eltsToAdopt)
     def ToJson(self): 
         h = {"type": "simple", "selector": self.selector.ToJson(), "attr": self.attr}
         if self.rex is not None: h["rex"] = self.rex
         if self.rexGroup is not None: h["rexGroup"] = self.rexGroup
         if self.constValue is not None: h["const"] = self.constValue
         if self.xlat is not None: h["xlat"] = {x: self.xlat[x] for x in self.xlat}
+        if self.adoptSelector is not None: h["adoptSelector"] = self.adoptSelector.ToJson()
         return h
 class TUnionTransformer:
     __slots__ = ["transformers"] # list ot TSimpleTransformer's
@@ -397,7 +402,7 @@ def JsonToTransformer(json):
     if ty == "simple": return TSimpleTransformer(
         JsonToSelector(json["selector"]), json["attr"],
         json.get("rex", None), json.get("regGroup", None), json.get("const", None),
-        json.get("xlat", None))
+        json.get("xlat", None), JsonToSelector(json.get("adoptSelector", None)))
     elif ty == "union": return TUnionTransformer([JsonToTransformer(x) for x in json["transformers"]])
     assert False, "JsonToTransformer: unknown type %s" % repr(ty)
 
@@ -595,7 +600,7 @@ def GetMldsMapping():
             TXpathSelector(".//ExampleCtn//Translation")),
         ATTR_INNER_TEXT)
     m.xfHwTrLang = TSimpleTransformer(TXpathSelector(".//Locale"), "lang")
-    m.xfEx = TSimpleTransformer(TXpathSelector(".//Example"), ATTR_INNER_TEXT)
+    m.xfEx = TSimpleTransformer(TXpathSelector(".//Example"), ATTR_INNER_TEXT, adoptSelector = TXpathSelector("..//Translation"))
     m.xfExTr = TSimpleTransformer(TXpathSelector(".//ExampleCtn//Translation"), ATTR_INNER_TEXT)
     m.xfExTrLang = TSimpleTransformer(TXpathSelector(".//ExampleCtn//Locale"), "lang")
     return m
@@ -1051,7 +1056,7 @@ class TEntryMapper:
         class TOrder:
             TYPE_SIB = 1; TYPE_MILESTONES = 2; TYPE_CONSUME = 3
             # Note that the newElt of this order might not be what is called 'newElt' 
-            # within the caller's context; it could be one of the newSibs, or a decendant 
+            # within the caller's context; it could be one of the newSibs, or a descendant 
             # created using milestones.  The newElt of this order is where typeAttr should
             # be applied, as well as trOrder.trLanguage.
             __slots__ = ["newTag", "trOrder", "typeAttr", "type", "newElt", "addOrigValueAsAttr", "addMappedValueAsAttr"]
@@ -1133,7 +1138,7 @@ class TEntryMapper:
         elif elt.tag == ELT_ENTRY_PLACEHOLDER: newTag = elt.tag
         else: newTag = ELT_seg
         newElt = self.mapper.Element(newTag)
-        if consumer: consumer.newElt = newElt
+        if consumer: consumer.newElt = newElt; newElt.trOrder = consumer.trOrder
         del newTag
         # Process the children.    
         newElt.text = elt.text
@@ -1164,6 +1169,7 @@ class TEntryMapper:
                 o.newElt = newDescendant
                 # ToDo: do anything with newDescendant?
             o.trOrder.RemoveMilestones()
+            o.newElt.trOrder = o.trOrder
             if Verbose: logging.info("After RemoveMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
         # If a <sense> or <entry> selector applies to 'elt', we'll either
         # rename newElt appropriately (if it's a <seg> now and there are no new siblings),
@@ -1195,10 +1201,59 @@ class TEntryMapper:
             else: newElt.set("{" + NS_ATTR + "}" + attrName, attrValue)
         newElt.originalElement = elt
         newElt.entryTime = getattr(elt, "entryTime", None)
+        #if getattr(newElt, "trOrder", None) and newElt.trOrder.eltsToAdopt: print("NewElt %d has %d elts to adopt." % (id(newElt), len(newElt.trOrder.eltsToAdopt)))
+        #newElt.eltsToAdopt = [e for o in orders for e in o.eltsToAdopt]
         # The last sibling gets the original elt's tail; if there are no siblings, newElt gets it.
         if newSibs: newSibs[-1].tail = elt.tail
         else: newElt.tail = elt.tail
         return (newElt, newSibs)
+    def StageOne_PerformAdoptions(self, newEntry):
+        origEltIdToNewElt = {}; newEltIdToOrigElt = {}; newElts = []
+        def MapNewAndOld(newElt):
+            if newElt is None: return
+            newEltId = id(newElt)
+            origElt = getattr(newElt, "originalElement", None)
+            if origElt is not None:
+                newElts.append(newElt)
+                origEltId = id(origElt)
+                origEltIdToNewElt[origEltId] = newElt
+                newEltIdToOrigElt[newEltId] = origElt
+            for child in newElt: MapNewAndOld(child)
+        MapNewAndOld(newEntry)
+        oldEltIdsAdopted = set()
+        nAdoptionsPerformed = 0; nAdoptionsSkipped_Multiple = 0; nAdoptionsSkipped_NotFound = 0 
+        for newElt in newElts:
+            trOrder = getattr(newElt, "trOrder", None)
+            if not trOrder: continue
+            for oldEltToAdopt in trOrder.eltsToAdopt:
+                oldEltId = id(oldEltToAdopt)
+                if oldEltId in oldEltIdsAdopted: nAdoptionsSkipped_Multiple += 1; continue
+                newEltToAdopt = origEltIdToNewElt.get(oldEltId, None)
+                if newEltToAdopt is None: nAdoptionsSkipped_NotFound += 1; continue
+                # Try to adopt this element.  First check if it isn't the ancestor of our current element.
+                isAncestor = False
+                e = newEltToAdopt
+                while e is not None:
+                    if id(e) == id(newElt): isAncestor = True; break
+                    e = e.getparent()
+                if isAncestor: continue
+                # Append its tail to that of its previous sibling (or to the parent's text, if there is no previous sibling).
+                prevSib = newEltToAdopt.getprevious()
+                parent = newEltToAdopt.getparent()
+                if newEltToAdopt.tail:
+                    if prevSib is not None:
+                        if not prevSib.tail: prevSib.tail += newEltToAdopt.tail
+                        else: prevSib.tail = newEltToAdopt.tail
+                    elif parent.text: parent.text += newEltToAdopt.tail
+                    else: parent.text = newEltToAdopt.tail
+                    newEltToAdopt.tail = None
+                # Move the element.
+                parent.remove(newEltToAdopt)
+                newElt.append(newEltToAdopt)
+                newEltToAdopt.isAdopted = True
+                oldEltIdsAdopted.add(oldEltId); nAdoptionsPerformed += 1
+        if False: logging.info("%d adoptions performed; %d were skipped due to collisions; for %d the target could not be found." % (nAdoptionsPerformed, nAdoptionsSkipped_Multiple, nAdoptionsSkipped_NotFound))
+    """
     def StageOne_TransformSubtree_Old(self, elt):
         if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
         eltId = id(elt); trOrder = None; typeAttr = None
@@ -1283,6 +1338,7 @@ class TEntryMapper:
             trOrder.RemoveMilestones()
             if Verbose: logging.info("After RemoveMilestones:\n%s" % etree.tostring(newElt, pretty_print = True).decode("utf8"))
         return (newElt, newSib)
+    """
     def SplitToAncestor(self, ms, anc):
         # We assume that 'ms' is a descendant of 'anc', and that all the
         # nodes on the path between them are <seg>s.  We will split them and
@@ -1409,12 +1465,19 @@ class TEntryMapper:
         idsInEntrySubtree = self.StageOne_GatherIdsInSubtree(self.entry)
         (newEntry, newSibs) = self.StageOne_TransformSubtree(self.entry, True, idsInEntrySubtree)
         assert len(newSibs) == 0
+        self.StageOne_PerformAdoptions(newEntry)
         return newEntry
 #    seg                                       -> CDATA, seg
 #    form/orth, def, gramGrp/gram, cit/quote   -> CDATA, seg, cit
 #    sense                                     -> CDATA, seg, cit, sense, form, gramGrp, def  
 #    dictScrap                                 -> CDATA  seg  cit  sense  form  gramGrp  def  
 #    entry                                     ->             cit  sense  form, gramGrp      dictScrap entry 
+    def TransferAdoptedChildrenToParent(self, elt):
+        parent = elt.getparent()
+        adoptedChildren = [child for child in elt if getattr(child, "isAdopted", False) == True]
+        for child in adoptedChildren:
+            elt.remove(child); parent.append(child)
+        if getattr(elt, "isAdopted", False) == True: parent.isAdopted = True
     def StageThree_ProcessSubtree(self, elt):
         nChildren = len(elt)
         for i in range(nChildren): self.StageThree_ProcessSubtree(elt[i])
@@ -1422,7 +1485,7 @@ class TEntryMapper:
         if elt.tag == ELT_orth: # orth -> form/orth
             newNode = self.mapper.Element(ELT_form)
             i = parent.index(elt); assert 0 <= i < len(parent)
-            parent[i] = newNode; newNode.append(elt)
+            parent[i] = newNode; newNode.append(elt); self.TransferAdoptedChildrenToParent(elt)
             ty = elt.get(ATTR_TEMP_type, None)
             if ty is not None: 
                 newNode.set(ATTR_type_UNPREFIXED, ty) # the type attribute moves to <form>
@@ -1431,7 +1494,7 @@ class TEntryMapper:
             newNode = self.mapper.Element(ELT_cit)
             i = parent.index(elt); assert 0 <= i < len(parent)
             parent[i] = newNode; newNode.append(elt)
-            elt.tag = ELT_quote
+            elt.tag = ELT_quote; self.TransferAdoptedChildrenToParent(elt)
             ty = elt.get(ATTR_TEMP_type, None)
             #print("tag = %s, ty = %s" % (elt.tag, ty))
             if ty is not None: 
@@ -1449,7 +1512,7 @@ class TEntryMapper:
         elif elt.tag == ELT_gram: # gram -> gramGrp/gram
             newNode = self.mapper.Element(ELT_gramGrp)
             i = parent.index(elt); assert 0 <= i < len(parent)
-            parent[i] = newNode; newNode.append(elt)
+            parent[i] = newNode; newNode.append(elt); self.TransferAdoptedChildrenToParent(elt)
             ty = elt.get(ATTR_TEMP_type, None)
             if ty is not None: 
                 elt.set(ATTR_type_UNPREFIXED, ty) # the type attribute stays in <gram>
@@ -1486,7 +1549,8 @@ class TEntryMapper:
             while child is not None:
                 if IsNonSp(child.tail): 
                     sib = self.mapper.Element(ELT_dictScrap); sib.text = child.tail
-                    elt.addnext(sib)
+                    child.tail = None
+                    child.addnext(sib)
                 child.tail = None; nextChild = child.getnext()
                 if child.tag == ELT_seg: 
                     child.tag = ELT_dictScrap
@@ -2083,7 +2147,7 @@ class TTreeMapper:
         # - TDummyExecutor (i.e. no concurrency): 1000 entries/sec  [calling plain old TransformEntry should be even better as it would save us the trouble of converting the entry to a string before and after the transformation]
         # - ThreadPoolExecutor(20 threads): 800 entries/sec
         # - ProcessPoolExecutor(20 processes): 3300-3700 entries/sec
-        if nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
+        if False and nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
             executor = concurrent.futures.ProcessPoolExecutor(nProcesses)
         else:
             executor = TDummyExecutor()
@@ -2626,7 +2690,7 @@ class TMapper:
         The 'stripDictScrap' parameter can be set to True or 1 to strip "unnecesary"
         <dictScrap> and <seg> elements from the resulting output (set it to 2 to
         strip even more of these elements, and set it to 3 to strip even more at
-        the cost of losing some character cata), and 'stripHeader' can be set to True 
+        the cost of losing some character data), and 'stripHeader' can be set to True 
         to strip the <teiHeader> element from the resulting output.
         
         The 'returnFirstEntryOnly' parameter can be set to True to return
@@ -2729,7 +2793,7 @@ class TMapper:
         if stripForValidation:
             logging.info("Calling StripForValidation.")
             self.StripForValidation(outTei)
-            if nEntries >= 1000:
+            if False and nEntries >= 1000:
                 logging.info("Skipping Relax-NG validation due to the size of the document.")
             else:
                 logging.info("Calling relaxNg.validate.")
@@ -2823,7 +2887,7 @@ def Test():
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = True)
-    #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = True, stripForValidation = True, returnFirstEntryOnly = True)
+    outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = False, stripForValidation = True, returnFirstEntryOnly = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
@@ -2833,8 +2897,11 @@ def Test():
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw-carole.txt"), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\spec-drae.txt"), "apr21\\example-drae.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr21\\anw_note_spec.txt"), "apr21\\anw_note.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
-    outTei, outAug = mapper.Transform(LoadMapping("sep21\\anw-final.txt"), "sep21\\xjjtdvtjmpjtnpmpcvnq.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "jul21\\rhwcd-a02.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("sep21\\anw-final.txt"), "sep21\\xjjtdvtjmpjtnpmpcvnq.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("sep21b\\mlds-zh1-fr.json"), "sep21b\\mlds_zh1-fr-all-def.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-mreznik.txt"), "apr22\\Mreznik_A-F_tina.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-oxford.txt"), "apr22\\Oxford_test01-small.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,

@@ -78,6 +78,10 @@ def clean_tag(xml_tag):
 
 def prepare_dataset(uid, dsid, xfid, xpath, hw):
     dataset = Datasets.query.filter_by(uid=uid, id=dsid).first()
+    if dataset.dictionary_metadata is not None:
+        metadata = json.loads(dataset.dictionary_metadata)
+    else:
+        metadata = dict()
     print_log(app.name, 'Preparing dataset {}'.format(dataset))
     mimetype, data = dataset.upload_mimetype, dataset.file_path
 
@@ -101,6 +105,9 @@ def prepare_dataset(uid, dsid, xfid, xpath, hw):
             nodes = tree.xpath('//' + xpath, namespaces=namespace)
         else:
             nodes = tree.xpath('//' + xpath)
+
+        if "_limit_entries" in metadata.keys() and metadata["_limit_entries"]:
+            nodes = nodes[:100]
 
         for entry in nodes:
             headword = entry.findall('.//' + hw)
