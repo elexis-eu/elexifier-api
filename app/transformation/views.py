@@ -188,12 +188,18 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
         transformer = controllers.list_transforms(dsid, xfid=xfid)
         dataset = Datasets.list_datasets(uid, dsid=dsid)
         metadata = Datasets.dataset_metadata(dsid)
+        config = Datasets.dataset_config(dsid)
         xf = transformer.transform
         ds_path = dataset.file_path
         file_name = dataset.name
         header_Title = metadata['title']
         header_Bibl = metadata['bibliographicCitation']
         header_Publisher = metadata['publisher']
+
+        if "limit_entries" in config:
+            limit_entries = config["limit_entries"]
+        else:
+            limit_entries = -1
 
         orig_xml = open(ds_path, 'rb').read()
         parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
@@ -202,13 +208,17 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
         entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
         mapping = DictTransformator.TMapping(xf)
         mapper = DictTransformator.TMapper()
-        out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
+        out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)],
+                                            makeAugmentedInputTrees=True,
                                             stripForValidation=strip_ns,
                                             stripHeader=strip_header, stripDictScrap=strip_DictScrap,
                                             promoteNestedEntries=True,
-                                            headerTitle=header_Title, headerPublisher=header_Publisher,
+                                            headerTitle=header_Title,
+                                            headerPublisher=header_Publisher,
                                             headerBibl=header_Bibl,
-                                            metadata=metadata)
+                                            metadata=metadata,
+                                            maxEntriesToProcess=limit_entries,
+                                            )
         target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
         orig_fname, file_type = file_name.split('.')

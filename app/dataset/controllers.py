@@ -361,6 +361,8 @@ def dataset_config(dsid, set=False, config=None):
         dataset.config = config
     else:
         config = dataset.config
+    if config is None:
+        config = dict()
     db.session.commit()
     return config
 

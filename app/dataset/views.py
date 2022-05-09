@@ -139,14 +139,13 @@ def ds_upload_new_dataset():
             new_path = os.path.join(app.config['APP_MEDIA'], secure_filename(new_random_name))
             os.rename(filepath, new_path)
             dsid = controllers.add_dataset(db, uid, total_filesize, orig_filename, new_path, dzuuid)
-            # For demonstration purposes we want to limit the number of processed entries
-            metadata = json.loads(metadata)
-            metadata["_limit_entries"] = True
             controllers.dataset_metadata(dsid, set=True, metadata=metadata)
 
             # prepare dataset
             try:
                 dataset = controllers.list_datasets(uid, dsid)
+                # For demonstration purposes we want to limit the number of processed entries
+                controllers.dataset_config(dsid, set=True, config={"limit_entries": 100})
                 if "pdf" in dataset.upload_mimetype:
                     controllers.transform_pdf2xml.apply_async(args=[dsid])
                 else:

@@ -1670,7 +1670,9 @@ def CallTransformEntry(inEntryStr, mapping, nestedEntriesWillBePromoted, xmlLang
     f.close()
     inEntry = tree.getroot()
     inEntry.xmlLangAttribute = xmlLangAttribute
-    treeMapper = TTreeMapper(tree, mapping, parser, None, False, nestedEntriesWillBePromoted)
+    # We pass None as the processingLimit parameter - the processing limit will be applied
+    # in the main thread, not in the worker threads managed by the executor.
+    treeMapper = TTreeMapper(tree, mapping, parser, None, False, nestedEntriesWillBePromoted, None, 0)
     treeMapper.FindEntries(inEntry) # fills treeMapper.entryHash and treeMapper.eltHash; but it might fail to find the entry because the xpath expression assumed that the entry is still a part of the original XML document; no matter, the important thing is to fill eltHash to keep the elements alive
     treeMapper.entryHash = { id(inEntry) : inEntry }
     entryMapper = TEntryMapper(inEntry, treeMapper.m, treeMapper.parser, treeMapper, treeMapper.nestedEntriesWillBePromoted)
@@ -1714,8 +1716,10 @@ class TTreeMapper:
         "outBody", # the resulting <body> element, with <entry>es as its chldren
         "augTree", # a copy of the input tree, to be augmented with attributes about the transformation
         "nestedEntriesWillBePromoted", # will nested entries eventually be promoted to the top level?
+        "processingLimit", # can be used to limit the number of entries to be processed
+        "stripDictScrap", # if >= 3, scrap between entries is not added in the first place
         ]
-    def __init__(self, tree, m, parser, relaxNg, makeAugTree, nestedEntriesWillBePromoted): # m = mapping
+    def __init__(self, tree, m, parser, relaxNg, makeAugTree, nestedEntriesWillBePromoted, processingLimit, stripDictScrap): # m = mapping
         self.tree = tree
         self.m = m
         self.parser = parser
@@ -1723,6 +1727,8 @@ class TTreeMapper:
         self.relaxNg = relaxNg
         self.augTree = None
         self.nestedEntriesWillBePromoted = nestedEntriesWillBePromoted
+        self.processingLimit = processingLimit
+        self.stripDictScrap = stripDictScrap
         if makeAugTree: 
             augRoot = self.MakeAugTree(self.tree.getroot())
             self.augTree = etree.ElementTree(augRoot)
@@ -1762,10 +1768,13 @@ class TTreeMapper:
         self.eltHash = {}; self.entryHash = {}
         for x in self.tree.iter(): 
             self.eltHash[id(x)] = x
+        entriesFound = 0
         for x in self.m.selEntry.findall(root):
             if x.tag == ELT_TEMP_ROOT: continue
             #if id(x) not in augmentedNodes: print("Warning: %s not found among %d augmented nodes." % (x, len(augmentedNodes)))
             self.entryHash[id(x)] = x
+            entriesFound += 1
+            if self.processingLimit and self.processingLimit.maxToProcess > 0 and entriesFound > self.processingLimit.maxToProcess: break
         #print("%d entries found." % len(self.entryHash))    
     def Element(self, *args, **kwargs):
         e = self.parser.makeelement(*args, **kwargs, nsmap = NS_MAP)
@@ -1897,10 +1906,18 @@ class TTreeMapper:
             if IsNonSp(segParent.text) or IsNonSp(segParent.tail): anythingScrapped = True
             if segCur is not None: segParent.append(segCur)
             if iCur < nChildren - 1:
+                sib = cur.getnext()
+                while sib is not None:
+                    segSib = self.SegifySubtree(sib)
+                    segParent.append(segSib)
+                    anythingScrapped = True
+                    sib = sib.getnext()
+                """
                 for iSib in range(iCur + 1, nChildren):
                     segSib = self.SegifySubtree(parent[iSib])
                     segParent.append(segSib)
                     anythingScrapped = True
+                """
             cur = parent
             segCur = segParent
         if anythingScrapped: 
@@ -2109,6 +2126,9 @@ class TTreeMapper:
             #parent[idx] = placeholder
             parent.replace(entry, placeholder)
             #print("Transformed entry: %s %d" % (placeholder.transformedEntry, len(placeholder.transformedEntry)))
+            if self.processingLimit:
+                self.processingLimit.nProcessed += 1
+                if self.processingLimit.maxToProcess > 0 and self.processingLimit.nProcessed >= self.processingLimit.maxToProcess: break
     def ReplacePlaceholders(self, root):  # for non-top entries
         #for placeholder in self.entryPlaceholders:
         Verbose = False
@@ -2139,33 +2159,39 @@ class TTreeMapper:
         # in the original tree gets scrapified and included in the transformed entries.
         # Entries are processed in batches, each batch being submitted to an executor
         # from 'concurrent.futures'.
-        outBody = self.Element(ELT_body); self.outBody = outBody
-        nTopEntries = len(self.topEntryList)
+        if self.outBody is None: self.outBody = self.Element(ELT_body)
+        outBody = self.outBody
+        #outBody = self.Element(ELT_body); self.outBody = outBody
+        nTopEntries_Orig = len(self.topEntryList)
+        nTopEntries = nTopEntries_Orig
+        if self.processingLimit and self.processingLimit.maxToProcess > 0: 
+            nTopEntries = min(nTopEntries, max(0, self.processingLimit.maxToProcess - self.processingLimit.nProcessed))
         import concurrent.futures
         nProcesses = 20
         # Experiments on lozjpctpsbpxqomuzuwy-LEX-ML_OUT.xml , batches of 10000 entries:
         # - TDummyExecutor (i.e. no concurrency): 1000 entries/sec  [calling plain old TransformEntry should be even better as it would save us the trouble of converting the entry to a string before and after the transformation]
         # - ThreadPoolExecutor(20 threads): 800 entries/sec
         # - ProcessPoolExecutor(20 processes): 3300-3700 entries/sec
-        if False and nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
+        if True and nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
             executor = concurrent.futures.ProcessPoolExecutor(nProcesses)
         else:
             executor = TDummyExecutor()
         #executor = concurrent.futures.ThreadPoolExecutor(nProcesses)
         #executor = TDummyExecutor()
         #print("\n\n###### BuildBody")
+        skipScrap = (self.stripDictScrap >= 3) or (self.processingLimit and self.processingLimit.maxToProcess > 0)
         if nTopEntries == 0:
             logging.warning("Warning: no entries found.")
             outBody.append(self.SegifySubtree(self.tree.getroot()))
         else:
-            nextLeft = self.ScrapifyLeft(self.topEntryList[0])
+            nextLeft = None if skipScrap else self.ScrapifyLeft(self.topEntryList[0])
             tmStart = time.perf_counter(); iPrev = 0; tmPrev = tmStart
             batchSize = 10000; nBatches = (nTopEntries + batchSize - 1) // batchSize
             for batchNo in range(nBatches):
                 batchFrom = batchNo * batchSize; batchTo = min(batchFrom + batchSize, nTopEntries)
                 Verbose3 = False
                 def Tm(): return float(time.perf_counter() - tmPrev)
-                if True or Verbose2: #  and i % 1000 == 0: 
+                if False or Verbose2: #  and i % 1000 == 0: 
                     tmNow = time.perf_counter()
                     sys.stdout.write("BuildBody transforming entry %d/%d  (%.2f sec; %.2f entries/sec, recently %.2f)     \r" % (batchFrom, nTopEntries,
                         tmNow - tmStart, batchFrom / max(0.1, tmNow - tmStart), (batchFrom - iPrev) / max(0.1, tmNow - tmPrev))); sys.stdout.flush()
@@ -2179,9 +2205,9 @@ class TTreeMapper:
                     curLeft = nextLeft
                     tmS -= Tm()
                     if i == nTopEntries - 1:
-                        curRight = self.ScrapifyRight(self.topEntryList[i])
+                        curRight = None if skipScrap else self.ScrapifyRight(self.topEntryList[i])
                     else:
-                        nextLeft, curRight = self.ScrapifyBetween(self.topEntryList[i], self.topEntryList[i + 1])
+                        nextLeft, curRight = (None, None) if skipScrap else self.ScrapifyBetween(self.topEntryList[i], self.topEntryList[i + 1])
                     tmS += Tm()
                     inEntry = self.topEntryList[i]
                     inEntry.tail = None # if there was a tail, it was already included in the curRight scrap
@@ -2236,6 +2262,7 @@ class TTreeMapper:
                     outBody.append(outEntry)
                 if Verbose3: sys.stdout.write("[%.2f] Batch %d, done\n" % (Tm(), batchNo)); sys.stdout.flush()
         executor.shutdown(True)
+        if self.processingLimit: self.processingLimit.nProcessed += nTopEntries
         #return outBody
     def SetEntryLangs(self, root):
         # The xml:lang attribute of an <entry> might rely on something outside of that
@@ -2297,6 +2324,10 @@ class TTreeMapper:
         print("- RIGHT PART:")
         print("NULL" if scrapR is None else etree.tostring(scrapR, pretty_print = True).decode("utf8"))
 
+class TProcessingLimit:
+    __slots__ = ["nProcessed", "maxToProcess"]
+    def __init__(self, maxToProcess): 
+        self.nProcessed = 0; self.maxToProcess = maxToProcess
 
 class TMapper:
     __slots__ = [
@@ -2318,18 +2349,23 @@ class TMapper:
         for child in children: e.append(child)
         e.text = text; e.tail = tail
         return e
-    def TransformTree(self, mapping, tree, outBody, outAugTrees, nestedEntriesWillBePromoted):
+    def TransformTree(self, mapping, tree, outBody, outAugTrees, nestedEntriesWillBePromoted, processingLimit, skipDictScrap):
         # Transforms 'tree' using a temporary instance of TTreeMapper and
         # moves the entries from its body into 'outBody'.
+        # - Update: this can be slow if the subtrees are large; let's juse have TTreeMapper
+        # add things directly to 'outBody'.
         makeAugTrees = outAugTrees is not None
-        treeMapper = TTreeMapper(tree, mapping, self.parser, self.relaxNg, makeAugTrees, nestedEntriesWillBePromoted)
+        treeMapper = TTreeMapper(tree, mapping, self.parser, self.relaxNg, makeAugTrees, nestedEntriesWillBePromoted, processingLimit, skipDictScrap)
+        treeMapper.outBody = outBody
         treeMapper.Transform()
+        """"
         inBody = treeMapper.outBody; nElts = 0
         children = [child for child in inBody]
         for child in children:
             inBody.remove(child)
             outBody.append(child)
             nElts += 1
+        """
         if makeAugTrees: 
             outAugTrees.append(treeMapper.augTree); treeMapper.augTree = None
         # ToDo: do something to force faster cleanup of 'treeMapper'?
@@ -2664,7 +2700,7 @@ class TMapper:
             stripForValidation = False, stripDictScrap = False, stripHeader = False,
             returnFirstEntryOnly = False, promoteNestedEntries = False,
             headerTitle = None, headerPublisher = None, headerBibl = None,
-            metadata = None):
+            metadata = None, maxEntriesToProcess = -1):
         """This method processes one or more XML trees and returns
         an (outTei, augTrees) pair, where outTei is the root <TEI> element 
         of the transformed output document, and augTrees is a list containing
@@ -2699,6 +2735,10 @@ class TMapper:
         The 'promoteNestedEntries' parameter can be set to True to move all nested
         entries out of their containing entries, thus changing the formerly nested 
         entry from a descendant to a sibling.
+
+        The 'maxEntriesToProcess' parameter can be set to a positive integer
+        to specify an upper limit on the number of entries to be processed.
+        Any entries beyond that will be ignored.  
         """
         outBody = self.E(ELT_body)
         L = []
@@ -2739,14 +2779,15 @@ class TMapper:
         outTei = self.E(ELT_tei, {}, L)
         #
         augTrees = [] if makeAugmentedInputTrees else None
+        processingLimit = TProcessingLimit(maxEntriesToProcess)
         def ProcessFile(fn, f):
             logging.info("Processing %s." % fn)
             #tree = etree.ElementTree(file = f, parser = self.parser)
             tree = etree.parse(f, parser = self.parser)
             logging.info("Done parsing %s." % fn)
-            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
-        logging.info("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s, promoteNestedEntries = %s" % (stripHeader,
-            stripDictScrap, stripForValidation, returnFirstEntryOnly, promoteNestedEntries))
+            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries, processingLimit, stripDictScrap)
+        logging.info("stripHeader = %s, stripDictScrap = %s, stripForValidation = %s, returnFirstEntryOnly = %s, promoteNestedEntries = %s, maxEntriesToProcess = %s" % (stripHeader,
+            stripDictScrap, stripForValidation, returnFirstEntryOnly, promoteNestedEntries, maxEntriesToProcess))
         if type(fnOrFileList) is type(""): fnOrFileList = [fnOrFileList]    
         for fn in fnOrFileList:
             if type(fn) is not str:
@@ -2761,7 +2802,7 @@ class TMapper:
             else:
                 with open(fn, "rb") as f: ProcessFile(fn, f)
         for tree in treeList: 
-            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries)
+            self.TransformTree(mapping, tree, outBody, augTrees, promoteNestedEntries, processingLimit, stripDictScrap)
         if stripDictScrap: 
             logging.info("Calling StripDictScrap (%s)." % stripDictScrap)
             if 2 <= stripDictScrap <= 3: self.StripDictScrap_Thorough(outBody, stripDictScrap >= 3)
@@ -2887,7 +2928,7 @@ def Test():
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "ANW_wijn_wine.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "WP1\\INT\\ANW_kat_cat.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetDdoMapping(), "WP1\\DSL\\DSL samples\\DDO.xml", makeAugmentedInputTrees = False, stripForValidation = True, stripDictScrap = True)
-    outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = False, stripForValidation = True, returnFirstEntryOnly = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(GetMldsMapping(), "WP1\\KD\\MLDS-FR.xml", makeAugmentedInputTrees = False, stripForValidation = True, returnFirstEntryOnly = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(GetSpMapping(), "WP1\\JSI\\SP2001.xml", makeAugmentedInputTrees = True, stripForValidation = True)
     #outTei, outAug = mapper.Transform(GetMcCraeTestMapping(), "WP1\\JMcCrae\\McC_xray.xml", makeAugmentedInputTrees = True, stripForValidation = False)
     #outTei, outAug = mapper.Transform(m, "WP1\\INT\\example-anw.xml", makeAugmentedInputTrees = True, stripForValidation = False, stripDictScrap = False)
@@ -2900,7 +2941,7 @@ def Test():
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "jul21\\rhwcd-a02.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("sep21\\anw-final.txt"), "sep21\\xjjtdvtjmpjtnpmpcvnq.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("sep21b\\mlds-zh1-fr.json"), "sep21b\\mlds_zh1-fr-all-def.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
-    #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-mreznik.txt"), "apr22\\Mreznik_A-F_tina.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-mreznik.txt"), "apr22\\Mreznik_A-F_tina.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"}, maxEntriesToProcess = 10)
     #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-oxford.txt"), "apr22\\Oxford_test01-small.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
@@ -2969,6 +3010,9 @@ def MyWsgiHandler(env, start_response):
         callParams["stripHeader"] = (GetArg("stripHeader") == "true")
         callParams["returnFirstEntryOnly"] = (GetArg("firstEntryOnly") == "true")
         callParams["promoteNestedEntries"] = (GetArg("promoteNestedEntries") == "true")
+        try: maxEntriesToProcess = int(GetArg("maxEntriesToProcess", "-1"))
+        except: maxEntriesToProcess = -1
+        callParams["maxEntriesToProcess"] = maxEntriesToProcess
         TransferArg("headerTitle"); TransferArg("headerPublisher"); TransferArg("headerBibl")
         #for name in params: print("param %s" % repr(name))
         print(list(name for name in params))
