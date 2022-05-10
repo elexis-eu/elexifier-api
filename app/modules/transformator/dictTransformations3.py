@@ -20,7 +20,7 @@ class TXpathSelector:
         #print("\ntree = %s %s, expr = %s" % (type(tree), etree.tostring(tree, pretty_print=True), self.expr))
         #if type(tree) is not TMyElement: tree = tree.getroot()
         #for x in tree.findall(self.expr): yield x
-        for x in tree.xpath(self.expr): yield x
+        for x in tree.xpath(self.expr): yield x # , namespaces = tree.nsmap - causes an error because xpath does not support the notion of a default namespace (with a None prefix)
     def ToJson(self): return { "type": "xpath", "expr": self.expr }
 class TUnionSelector:
     __slots__ = ["selectors"]
@@ -250,8 +250,8 @@ class TTransformOrder:
         if not self.rexMatch: return
         if self.attr != ATTR_INNER_TEXT and self.attr != ATTR_INNER_TEXT_REC: return
         recurse = (self.attr == ATTR_INNER_TEXT_REC)
-        startIdx = self.rexMatch.start(self.rexGroup)
-        endIdx = self.rexMatch.end(self.rexGroup)
+        startIdx = self.rexMatch.start(0 if self.rexGroup is None else self.rexGroup)
+        endIdx = self.rexMatch.end(0 if self.rexGroup is None else self.rexGroup)
         if startIdx < 0 or endIdx < 0: return
         if self.matchedStr == self.attrVal: return # the whole string was matched
         if startIdx == 0 and endIdx == len(self.attrVal): return # should be covered by the previous case
@@ -333,7 +333,7 @@ class TTransformOrder:
         #assert self.attrVal == GetInnerText(self.elt, recurse)
         newInnerText = GetInnerText(root, True)
         assert oldInnerText == newInnerText # inserting milestones should not change anything else
-        logging.info("TransformOrder for <%s>, rex %s, matched %s -> %s, inserted %d start and %d end milestones." % (
+        if False: logging.info("TransformOrder for <%s>, rex %s, matched %s -> %s, inserted %d start and %d end milestones." % (
             self.elt.tag, self.rexMatch.re.pattern, repr(self.matchedStr), repr(self.finalStr), 
             len(self.msFrom), -1 if self.msTo is None else len(self.msTo)))
 
@@ -401,7 +401,7 @@ def JsonToTransformer(json):
     ty = json.get("type", None)
     if ty == "simple": return TSimpleTransformer(
         JsonToSelector(json["selector"]), json["attr"],
-        json.get("rex", None), json.get("regGroup", None), json.get("const", None),
+        json.get("rex", None), json.get("rexGroup", None), json.get("const", None),
         json.get("xlat", None), JsonToSelector(json.get("adoptSelector", None)))
     elif ty == "union": return TUnionTransformer([JsonToTransformer(x) for x in json["transformers"]])
     assert False, "JsonToTransformer: unknown type %s" % repr(ty)
@@ -2172,7 +2172,7 @@ class TTreeMapper:
         # - TDummyExecutor (i.e. no concurrency): 1000 entries/sec  [calling plain old TransformEntry should be even better as it would save us the trouble of converting the entry to a string before and after the transformation]
         # - ThreadPoolExecutor(20 threads): 800 entries/sec
         # - ProcessPoolExecutor(20 processes): 3300-3700 entries/sec
-        if True and nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
+        if False and nTopEntries >= 100: # avoid the overheads of creating subprocesses for very small input documents
             executor = concurrent.futures.ProcessPoolExecutor(nProcesses)
         else:
             executor = TDummyExecutor()
@@ -2941,8 +2941,10 @@ def Test():
     #outTei, outAug = mapper.Transform(GetAnwMapping(), "jul21\\rhwcd-a02.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = 3, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("sep21\\anw-final.txt"), "sep21\\xjjtdvtjmpjtnpmpcvnq.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("sep21b\\mlds-zh1-fr.json"), "sep21b\\mlds_zh1-fr-all-def.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
-    outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-mreznik.txt"), "apr22\\Mreznik_A-F_tina.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"}, maxEntriesToProcess = 10)
+    #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-mreznik.txt"), "apr22\\Mreznik_A-F_tina.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"}, maxEntriesToProcess = 10)
     #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-oxford.txt"), "apr22\\Oxford_test01-small.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier-ns.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
