@@ -203,7 +203,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
 
         orig_xml = open(ds_path, 'rb').read()
         parserLookup = lxml.etree.ElementDefaultClassLookup(element=DictTransformator.TMyElement)
-        myParser = lxml.etree.XMLParser(encoding='utf-8', recover=True)
+        myParser = lxml.etree.XMLParser(encoding='utf-8', remove_blank_text=True, recover=True)
         myParser.set_element_class_lookup(parserLookup)
         entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
         mapping = DictTransformator.TMapping(xf)
