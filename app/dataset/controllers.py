@@ -355,6 +355,18 @@ def dataset_status(dsid, set=False, status=None):
     return status
 
 
+def dataset_config(dsid, set=False, config=None):
+    dataset = Datasets.query.filter_by(id=dsid).first()
+    if set:
+        dataset.config = config
+    else:
+        config = dataset.config
+    if config is None:
+        config = dict()
+    db.session.commit()
+    return config
+
+
 # --- lexonomy ---
 def dataset_add_lexonomy_access(dsid, lexonomy_access=None, lexonomy_edit=None, lexonomy_delete=None, lexonomy_status=None):
     dataset = Datasets.query.filter_by(id=dsid).first()

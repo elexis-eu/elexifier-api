@@ -35,6 +35,7 @@ class Datasets(db.Model):
     dictionary_metadata = db.Column(db.String, server_default=None)
     xml_tags = db.Column(db.JSON, server_default=None)
     character_map = db.Column(db.JSON, server_default=None)
+    config = db.Column(db.JSON, server_default=None)
 
     def __repr__(self):
         return '<Dataset id: {0}, uid: {1}, file: {2}>'.format(self.id, self.uid, self.file_path)
