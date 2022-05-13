@@ -145,7 +145,7 @@ def ds_upload_new_dataset():
             try:
                 dataset = controllers.list_datasets(uid, dsid)
                 # For demonstration purposes we want to limit the number of processed entries
-                controllers.dataset_config(dsid, set=True, config={"limit_entries": 100})
+                # controllers.dataset_config(dsid, set=True, config={"limit_entries": 100})
                 if "pdf" in dataset.upload_mimetype:
                     controllers.transform_pdf2xml.apply_async(args=[dsid])
                 else:
