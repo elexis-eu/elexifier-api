@@ -4,6 +4,7 @@ import os
 import lxml
 import lxml.etree
 import traceback
+import json
 
 from app import app, db, celery
 from app.transformation.models import Transformer
@@ -166,6 +167,14 @@ def xf_entity_transform(xfid, entityid):
         '<entry>')
 
     original = '\n' + lxml.etree.tostring(entity_xml, pretty_print=True, encoding='unicode')
+    validation = [
+        {
+            **e,
+            "long_message": f'{e["line"]}:{e["column"]}:{e["levelName"]}:{e["typeName"]}:{e["message"]}'
+        }
+        for e in validation
+    ]
+
     return flask.make_response({'spec': spec, 'entity_xml': original, 'output': target_xml, 'validation': validation}, 200)
 
 
@@ -230,6 +239,19 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
             out.write(target_xml)
             out.close()
             controllers.transformer_download_status(xfid, set=True, download_status='Ready')
+
+        validation = [
+            {
+                **e,
+                "long_message": f'{e["line"]}:{e["column"]}:{e["levelName"]}:{e["typeName"]}:{e["message"]}'
+            }
+            for e in validation
+        ]
+        validation_path = target_path.replace(".xml", ".log")
+        open(validation_path, 'a').close()
+        with open(validation_path, 'w') as out:
+            out.write(json.dumps(validation, indent=4, sort_keys=True))
+            out.close()
 
     except Exception as e:
         print(traceback.format_exc())
@@ -299,3 +321,27 @@ def ds_download2(xfid, dsid):
 
     return flask.make_response({'message': 'ok', 'status': status}, 200)
 
+
+@app.route('/api/transform/<int:xfid>/validation/<int:dsid>', methods=['GET'])
+def get_validation_log(xfid, dsid):
+    token = flask.request.headers.get('Authorization')
+    uid = verify_user(token)
+
+    dataset = Datasets.list_datasets(uid, dsid=dsid)
+    file_name, _ = dataset.name.split('.')
+    target_file_name = file_name + '_' + str(xfid) + '_TEI.log'
+    target_path = os.path.join(app.config['APP_MEDIA'], target_file_name)
+    transform_name = controllers.list_transforms(dsid, xfid=xfid).name
+    out_name = dataset.name[:-4] + '-' + transform_name + '-validation.log'
+
+    if not os.path.exists(target_path):
+        raise InvalidUsage('No validation file found, retry downloading file without namespaces.', status_code=409)
+
+    @after_this_request
+    def remove_file(response):
+        response.headers['x-suggested-filename'] = out_name
+        response.headers.add('Access-Control-Expose-Headers', '*')
+        os.remove(target_path)
+        return response
+
+    return flask.send_file(target_path, attachment_filename=out_name, as_attachment=True)
