@@ -153,7 +153,7 @@ def xf_entity_transform(xfid, entityid):
 
     mapping = DictTransformator.TMapping(spec)
     mapper = DictTransformator.TMapper()
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
+    out_TEI, out_aug, validation = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True,
                                         stripForValidation=strip_ns,
                                         stripDictScrap=strip_DictScrap, stripHeader=strip_header,
                                         promoteNestedEntries=True,
@@ -166,7 +166,7 @@ def xf_entity_transform(xfid, entityid):
         '<entry>')
 
     original = '\n' + lxml.etree.tostring(entity_xml, pretty_print=True, encoding='unicode')
-    return flask.make_response({'spec': spec, 'entity_xml': original, 'output': target_xml}, 200)
+    return flask.make_response({'spec': spec, 'entity_xml': original, 'output': target_xml, 'validation': validation}, 200)
 
 
 @app.route('/api/transform/<int:xfid>/search/<int:dsid>')
@@ -208,17 +208,17 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
         entity_xml = lxml.etree.fromstring(orig_xml, parser=myParser)
         mapping = DictTransformator.TMapping(xf)
         mapper = DictTransformator.TMapper()
-        out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)],
-                                            makeAugmentedInputTrees=True,
-                                            stripForValidation=strip_ns,
-                                            stripHeader=strip_header, stripDictScrap=strip_DictScrap,
-                                            promoteNestedEntries=True,
-                                            headerTitle=header_Title,
-                                            headerPublisher=header_Publisher,
-                                            headerBibl=header_Bibl,
-                                            metadata=metadata,
-                                            maxEntriesToProcess=limit_entries,
-                                            )
+        out_TEI, out_aug, validation = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)],
+                                                        makeAugmentedInputTrees=True,
+                                                        stripForValidation=strip_ns,
+                                                        stripHeader=strip_header, stripDictScrap=strip_DictScrap,
+                                                        promoteNestedEntries=True,
+                                                        headerTitle=header_Title,
+                                                        headerPublisher=header_Publisher,
+                                                        headerBibl=header_Bibl,
+                                                        metadata=metadata,
+                                                        maxEntriesToProcess=limit_entries,
+                                                    )
         target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
         orig_fname, file_type = file_name.split('.')

@@ -61,6 +61,7 @@ def delete_dataset(dsid):
         os.remove(dataset.xml_file_path)
         os.remove(dataset.xml_lex)
         os.remove(dataset.xml_out)
+        # TODO: delete lexonomy files
     except:
         pass
     return

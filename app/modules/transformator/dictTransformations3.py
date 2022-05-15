@@ -13,15 +13,19 @@ Verbose = False
 Verbose2 = False
 
 class TXpathSelector:
-    __slots__ = ["expr"]
-    def __init__(self, expr):
+    __slots__ = ["expr", "namespaces"]
+    def __init__(self, expr, namespaces = None):
         self.expr = expr
+        self.namespaces = namespaces # defines the namespace prefixes that are used in the xpath expression 'expr'
     def findall(self, tree):
         #print("\ntree = %s %s, expr = %s" % (type(tree), etree.tostring(tree, pretty_print=True), self.expr))
         #if type(tree) is not TMyElement: tree = tree.getroot()
         #for x in tree.findall(self.expr): yield x
-        for x in tree.xpath(self.expr): yield x # , namespaces = tree.nsmap - causes an error because xpath does not support the notion of a default namespace (with a None prefix)
-    def ToJson(self): return { "type": "xpath", "expr": self.expr }
+        for x in tree.xpath(self.expr, namespaces = self.namespaces): yield x # , namespaces = tree.nsmap - causes an error because xpath does not support the notion of a default namespace (with a None prefix)
+    def ToJson(self): 
+        h = { "type": "xpath", "expr": self.expr }
+        if self.namespaces: h["namespaces"] = self.namespaces
+        return h
 class TUnionSelector:
     __slots__ = ["selectors"]
     def __init__(self, selectors):
@@ -49,7 +53,7 @@ class TExcludeSelector:
 def JsonToSelector(json):
     if not json: return None
     ty = json.get("type", None)
-    if ty == "xpath": return TXpathSelector(json["expr"])
+    if ty == "xpath": return TXpathSelector(json["expr"], json.get("namespaces", None))
     elif ty == "union": return TUnionSelector([JsonToSelector(x) for x in json["selectors"]])
     elif ty == "exclude": return TExcludeSelector(JsonToSelector(json["left"]), JsonToSelector(json["right"]))
     assert False, "JsonToSelector: unknown type %s" % repr(ty)
@@ -2702,13 +2706,15 @@ class TMapper:
             headerTitle = None, headerPublisher = None, headerBibl = None,
             metadata = None, maxEntriesToProcess = -1):
         """This method processes one or more XML trees and returns
-        an (outTei, augTrees) pair, where outTei is the root <TEI> element 
-        of the transformed output document, and augTrees is a list containing
+        an (outTei, augTrees, relaxNgErrors) tuple.  Here, 'outTei' is the root <TEI> element 
+        of the transformed output document; 'augTrees' is a list containing
         augmented copies of the input XML trees.  These augmented copies
         contain additional attributes that indicate which nodes were matched
         by which selectors and transformers from the given mapping.
         If makeAugmentedInputTree is False, no augmented trees are produced
-        and augTrees will be None.
+        and augTrees will be None.  'relaxNgErrors' is a list of dictionaries,
+        each of which describes one of the error messages that occurred during
+        RelaxNG validation (if this validation was performed).
 
         To specify the input XML trees, use the 'fnOrFileList' and/or 'treeList' parameters.
         fnOrFileList can be either a single filename (as a string)
@@ -2831,9 +2837,10 @@ class TMapper:
         #print(outBody.nsmap)
         #etree.cleanup_namespaces(outTei, top_nsmap = NS_MAP)
         #return outTei, augTrees
+        relaxNgErrors = []
         if stripForValidation:
             logging.info("Calling StripForValidation.")
-            self.StripForValidation(outTei)
+            #self.StripForValidation(outTei)
             if False and nEntries >= 1000:
                 logging.info("Skipping Relax-NG validation due to the size of the document.")
             else:
@@ -2842,7 +2849,9 @@ class TMapper:
                     logging.info("Relax-NG validation failed:\n%s" % (self.relaxNg.error_log))
                 else:
                     logging.info("Relag-NG validation succeeded.")
-        return outTei, augTrees
+            for err in self.relaxNg.error_log:
+                relaxNgErrors.append({"line": err.line, "column": err.column, "level": err.level, "levelName": err.level_name, "type": err.type, "typeName": err.type_name, "message": err.message})
+        return outTei, augTrees, relaxNgErrors
 
 def TestXpath():
     root = etree.fromstring("<root>foo<a>ena</a>dve<a>ena</a></root>")
@@ -2943,8 +2952,9 @@ def Test():
     #outTei, outAug = mapper.Transform(LoadMapping("sep21b\\mlds-zh1-fr.json"), "sep21b\\mlds_zh1-fr-all-def.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-mreznik.txt"), "apr22\\Mreznik_A-F_tina.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"}, maxEntriesToProcess = 10)
     #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-oxford.txt"), "apr22\\Oxford_test01-small.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
-    outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier-ns.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier-ns.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug, outRelaxNgErrs = mapper.Transform(LoadMapping("may22\\spec2.json"), "may22\\single.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
@@ -3027,7 +3037,7 @@ def MyWsgiHandler(env, start_response):
         with io.BytesIO(inputStr.encode("utf8")) as f:
             inputXml = etree.ElementTree(file = f, parser = mapper.parser)
         mapping = TMapping(mappingJs)
-        outputXml, augTrees = mapper.Transform(mapping, [], [inputXml], **callParams)
+        outputXml, augTrees, relaxNgErrors = mapper.Transform(mapping, [], [inputXml], **callParams)
         #
         outputBin = etree.tostring(outputXml, pretty_print = True, encoding = "utf8")
         with open(os.path.join(outPath, "output.xml"), "wb") as f: f.write(outputBin)
