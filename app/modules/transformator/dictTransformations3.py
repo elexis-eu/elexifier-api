@@ -8,6 +8,7 @@ urllib_request = eventlet.import_patched("urllib.request")
 urllib_error = eventlet.import_patched("urllib.error")
 
 logging.basicConfig(format = "[%(asctime)s] [%(levelname)s] %(message)s", level = logging.DEBUG)
+logging.disable(logging.INFO)
 
 Verbose = False
 Verbose2 = False
