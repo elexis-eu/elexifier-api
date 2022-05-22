@@ -193,7 +193,7 @@ def prepare_TEI_download(uid, dsid, input_file, output_file, pos_map, character_
 
     # transform lexonomy format to tei format
     metadata = Datasets.dataset_metadata(dsid)
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
+    out_TEI, out_aug, _ = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
                                         stripForValidation=False,
                                         stripHeader=False,
                                         #stripDictScrap=True, # TODO: change when fixed

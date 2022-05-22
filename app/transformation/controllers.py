@@ -224,7 +224,7 @@ def update_single_entries(xfid, transform):
     counter = 0
     for e in entries:
         entity_xml = lxml.etree.fromstring(e.contents, parser=myParser)
-        out_TEI, _aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripHeader=True, stripDictScrap=True, promoteNestedEntries=True)
+        out_TEI, _aug, _ = mapper.Transform(mapping, [], [lxml.etree.ElementTree(entity_xml)], makeAugmentedInputTrees=True, stripHeader=True, stripDictScrap=True, promoteNestedEntries=True)
         try:
             headword = out_TEI.findall('.//orth', namespaces=out_TEI.nsmap)[0].text.strip()
         except:
