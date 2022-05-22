@@ -128,7 +128,7 @@ def download_clarin_resources(definition, chosen_files):
 
 
 def generate_filename(filename, stringLength=20):
-    extension = filename.split('.')[-1]
+    extension = os.path.splitext(filename)[-1]
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
 

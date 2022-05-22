@@ -196,7 +196,7 @@ def prepare_TEI_download(uid, dsid, input_file, output_file, pos_map, character_
 
     # transform lexonomy format to tei format
     metadata = Datasets.dataset_metadata(dsid)
-    out_TEI, out_aug = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
+    out_TEI, out_aug, _ = mapper.Transform(mapping, [], [lxml.etree.ElementTree(lexonomy_xml)], makeAugmentedInputTrees=True,
                                         stripForValidation=False,
                                         stripHeader=False,
                                         #stripDictScrap=True, # TODO: change when fixed
@@ -375,7 +375,7 @@ def ml_download(dsid):
             os.remove(tmp_file)
             return response
 
-        filename = dataset.name.split('.')[0] + '-transformed.xml'
+        filename = os.path.splitext(dataset.name)[0] + '-transformed.xml'
         return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True, conditional=True)
 
     # prepare download

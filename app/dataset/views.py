@@ -82,7 +82,7 @@ def ds_fetch_dataset_entry(dsid, entryid):
 
 
 def generate_filename(filename, stringLength=20):
-    extension = filename.split('.')[-1]
+    extension = os.path.splitext(filename)[-1]
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
 
@@ -105,8 +105,7 @@ def ds_upload_new_dataset():
 
     # get file extension
     try:
-        orig_filename = file_content.filename
-        extension = '.' + file_content.filename.split('.')[-1]
+        orig_filename, extension = os.path.splitext(file_content.filename)
     except AttributeError:
         orig_filename = 'Dictionary'
         extension = '.xml'
