@@ -230,7 +230,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
                                                     )
         target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
-        orig_fname, file_type = file_name.split('.')
+        orig_fname, file_type = os.path.splitext(file_name)
         target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
         target_path = os.path.join(app.config['APP_MEDIA'], target_fname)
 
@@ -303,7 +303,7 @@ def ds_download2(xfid, dsid):
         print_log(app.name, 'Transformed dataset download finished uid: {0:s}, xfid: {1:s} , dsid: {2:s}'.format(str(uid), str(xfid), str(dsid)))
         # return file and delete afterwards
         dataset = Datasets.list_datasets(uid, dsid=dsid)
-        file_name, file_type = dataset.name.split('.')
+        file_name, file_type = os.path.splitext(dataset.name)
         target_file_name = file_name + '_' + str(xfid) + '_TEI.' + file_type
         target_path = os.path.join(app.config['APP_MEDIA'], target_file_name)
 
@@ -328,7 +328,7 @@ def get_validation_log(xfid, dsid):
     uid = verify_user(token)
 
     dataset = Datasets.list_datasets(uid, dsid=dsid)
-    file_name, _ = dataset.name.split('.')
+    file_name, _ = os.path.splitext(dataset.name)
     target_file_name = file_name + '_' + str(xfid) + '_TEI.log'
     target_path = os.path.join(app.config['APP_MEDIA'], target_file_name)
     transform_name = controllers.list_transforms(dsid, xfid=xfid).name

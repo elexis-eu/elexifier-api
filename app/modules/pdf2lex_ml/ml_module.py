@@ -372,7 +372,7 @@ def ml_download(dsid):
             os.remove(tmp_file)
             return response
 
-        filename = dataset.name.split('.')[0] + '-transformed.xml'
+        filename = os.path.splitext(dataset.name)[0] + '-transformed.xml'
         return flask.send_file(tmp_file, attachment_filename=filename, as_attachment=True, conditional=True)
 
     # prepare download
