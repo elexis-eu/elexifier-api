@@ -65,6 +65,7 @@ def xf_new_transform():
     if dsuuid is None or xfname is None or dsid is None or entry_spec is None:
         raise InvalidUsage("Invalid API call.", status_code=422, enum="POST_ERROR")
 
+    isok = False
     try:
         xfid = controllers.new_transform(xfname, dsid, entry_spec, headword, saved)
         isok, retmsg = controllers.prepare_dataset(id, dsid, xfid, entry_spec, headword)

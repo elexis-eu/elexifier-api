@@ -84,7 +84,7 @@ def ds_fetch_dataset_entry(dsid, entryid):
 def generate_filename(filename, stringLength=20):
     extension = os.path.splitext(filename)[-1]
     letters = string.ascii_lowercase
-    return ''.join(random.choice(letters) for i in range(stringLength)) + '.' + extension
+    return ''.join(random.choice(letters) for i in range(stringLength)) + extension
 
 
 @app.route('/api/dataset/upload', methods=['POST'])
