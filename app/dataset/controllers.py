@@ -174,6 +174,9 @@ def transform_pdf2xml(dsid):
 @celery.task
 def map_xml_tags(dsid):
     def xml_walk(node, acc={}):
+        if node is None:
+            return acc
+            
         tag = node.tag
         if type(tag) is not str:
             return acc
