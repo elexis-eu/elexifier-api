@@ -75,7 +75,7 @@ def xf_new_transform():
         ErrorLog.add_error_log(db, dsid, tag='xml_new', message=message)
 
     if not isok:
-        raise InvalidUsage(retmsg, status_code=422, enum="POST_ERROR")
+        raise InvalidUsage("Error creating transformation", status_code=422, enum="POST_ERROR")
     return flask.make_response({'xfid': xfid}, 200)
 
 

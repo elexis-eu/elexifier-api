@@ -105,7 +105,8 @@ def ds_upload_new_dataset():
 
     # get file extension
     try:
-        orig_filename, extension = os.path.splitext(file_content.filename)
+        orig_filename = file_content.filename
+        _, extension = os.path.splitext(file_content.filename)
     except AttributeError:
         orig_filename = 'Dictionary'
         extension = '.xml'
