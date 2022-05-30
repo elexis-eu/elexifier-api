@@ -2841,7 +2841,7 @@ class TMapper:
         relaxNgErrors = []
         if stripForValidation:
             logging.info("Calling StripForValidation.")
-            #self.StripForValidation(outTei)
+            self.StripForValidation(outTei)
             if False and nEntries >= 1000:
                 logging.info("Skipping Relax-NG validation due to the size of the document.")
             else:
