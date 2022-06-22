@@ -232,7 +232,7 @@ def prepare_download(uid, xfid, dsid, strip_ns, strip_header, strip_DictScrap):
         target_xml = lxml.etree.tostring(out_TEI, pretty_print=True, encoding='unicode')
 
         orig_fname, file_type = os.path.splitext(file_name)
-        target_fname = orig_fname + '_' + str(xfid) + '_TEI.' + file_type
+        target_fname = orig_fname + '_' + str(xfid) + '_TEI' + file_type
         target_path = os.path.join(app.config['APP_MEDIA'], target_fname)
 
         open(target_path, 'a').close()
@@ -305,7 +305,7 @@ def ds_download2(xfid, dsid):
         # return file and delete afterwards
         dataset = Datasets.list_datasets(uid, dsid=dsid)
         file_name, file_type = os.path.splitext(dataset.name)
-        target_file_name = file_name + '_' + str(xfid) + '_TEI.' + file_type
+        target_file_name = file_name + '_' + str(xfid) + '_TEI' + file_type
         target_path = os.path.join(app.config['APP_MEDIA'], target_file_name)
 
         @after_this_request
