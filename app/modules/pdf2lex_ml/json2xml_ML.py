@@ -35,6 +35,7 @@ def json2xml( json_in_file, xml_raw, xml_out_file ):
         label_cur = ["", "", ""]
 
         if token_r.text is None:  # empty tokens were skipped
+            token_labels.append(label_cur)
             continue
 
         cur_page = int( token_r.attrib['page'] )
