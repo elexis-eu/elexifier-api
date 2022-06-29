@@ -153,7 +153,10 @@ def make_lexonomy_request(dsid, request_data, ml=False):
     # Send request async and save links to db
     response = requests.post('https://{}/elexifier/new'.format(app.config['LEXONOMY_URL']),
                              headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']},
-                             data=json.dumps(request_data))
+                             data=json.dumps(request_data),
+                             timeout=600
+                             )
+    print_log(app.name, f"Lexonomy response [{response.status_code}]: {response.text}")
     status = Datasets.dataset_status(dsid)
     resp_js = json.loads(response.text)
     if ml:
