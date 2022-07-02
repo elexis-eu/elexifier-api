@@ -182,17 +182,9 @@ def make_lexonomy_request(dsid, request_data, ml=False):
     else:
         status[status_key] = "Lexonomy_Error"
 
-    # we need to wait for Lexonomy to finish processing the file
-    resp_status_js = {"error":0, "success": 0}
-    while resp_status_js["error"] + resp_status_js["success"] < 1:
-        resp_status = requests.get(
-            resp_js["status_link"],
-            headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']}
-        )
-        resp_status_js = json.loads(resp_status.text)
-        time.sleep(3)
-    if resp_status["error"] > 0:
-        status[status_key] = "Lexonomy_Error"
+    # the ops.checkImportStatus function has been removed so we can't check the status
+    # we still need to wait for Lexonomy to finish processing the file
+    time.sleep(10)
     Datasets.dataset_status(dsid, set=True, status=status)
     return
 
