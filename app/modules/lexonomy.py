@@ -190,7 +190,9 @@ def make_lexonomy_request(dsid, request_data, ml=False):
             resp_js["status_link"],
             headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']}
         )
+        print_log(app.name, f"Waiting for Lexonomy [{resp_status.status_code}]: {resp_status.text}")
         resp_status_js = json.loads(resp_status.text)
+    print_log(app.name, f"Lexonomy dict completed with status [{resp_status.status_code}]: {resp_status.text}")
     if resp_status["error"] > 0:
         status[status_key] = "Lexonomy_Error"
     Datasets.dataset_status(dsid, set=True, status=status)
