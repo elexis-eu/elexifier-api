@@ -167,7 +167,7 @@ def make_lexonomy_request(dsid, request_data, ml=False):
         status_key = "annotate"
         update_lex_links_func = Datasets.dataset_add_lexonomy_access
 
-    if resp_json["error"] == 0:
+    if resp_js["error"] == 0:
         try:
             update_lex_links_func(
                 dsid,
