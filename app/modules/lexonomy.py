@@ -183,8 +183,8 @@ def make_lexonomy_request(dsid, request_data, ml=False):
         status[status_key] = "Lexonomy_Error"
 
     # we need to wait for Lexonomy to finish processing the file
-    resp_status_js = {"error": 0, "success": 0}
-    while resp_status_js["error"] + resp_status_js["success"] < 1:
+    resp_status_js = {"error": 0, "finished": 0}
+    while resp_status_js["error"] + resp_status_js["finished"] < 1:
         time.sleep(3)
         resp_status = requests.get(
             resp_js["status_link"],
