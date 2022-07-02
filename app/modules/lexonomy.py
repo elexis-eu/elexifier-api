@@ -5,6 +5,7 @@ import requests
 import lxml
 import lxml.etree
 import json
+import time
 
 from app.user.models import User
 from app.user.controllers import verify_user
@@ -160,25 +161,38 @@ def make_lexonomy_request(dsid, request_data, ml=False):
     status = Datasets.dataset_status(dsid)
     resp_js = json.loads(response.text)
     if ml:
-        if resp_js['error'] == 'email not found':
-            status['preview'] = 'Lexonomy_Error'
-            Datasets.dataset_status(dsid, set=True, status=status)
-            return
-        try:
-            Datasets.dataset_add_ml_lexonomy_access(dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
-            status['preview'] = 'Ready'
-        except:
-            status['preview'] = 'Lexonomy_Error'
+        status_key = "preview"
+        update_lex_links_func = Datasets.dataset_add_ml_lexonomy_access
     else:
-        if resp_js['error'] == 'email not found':
-            status['annotate'] = 'Lexonomy_Error'
-            Datasets.dataset_status(dsid, set=True, status=status)
-            return
+        status_key = "annotate"
+        update_lex_links_func = Datasets.dataset_add_lexonomy_access
+
+    if resp_json["error"] == 0:
         try:
-            Datasets.dataset_add_lexonomy_access(dsid, resp_js['access_link'], resp_js['edit_link'], resp_js['delete_link'], resp_js['status_link'])
-            status['annotate'] = 'Ready'
+            update_lex_links_func(
+                dsid,
+                resp_js["access_link"],
+                resp_js["edit_link"],
+                resp_js["delete_link"],
+                resp_js["status_link"]
+            )
+            status[status_key] = "Ready"
         except:
-            status['annotate'] = 'Lexonomy_Error'
+            status[status_key] = "Lexonomy_Error"
+    else:
+        status[status_key] = "Lexonomy_Error"
+
+    # we need to wait for Lexonomy to finish processing the file
+    resp_status_js = {"error":0, "success": 0}
+    while resp_status_js["error"] + resp_status_js["success"] < 1:
+        resp_status = requests.get(
+            resp_js["status_link"],
+            headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']}
+        )
+        resp_status_js = json.loads(resp_status.text)
+        time.sleep(3)
+    if resp_status["error"] > 0:
+        status[status_key] = "Lexonomy_Error"
     Datasets.dataset_status(dsid, set=True, status=status)
     return
 
