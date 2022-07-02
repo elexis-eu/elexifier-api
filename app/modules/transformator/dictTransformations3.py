@@ -1151,7 +1151,11 @@ class TEntryMapper:
             (newChild, newChildSibs) = self.StageOne_TransformSubtree(elt[i], False, None)
             assert newChild is not None
             newElt.append(newChild)
-            for newChildSib in newChildSibs: newElt.append(newChildSib)
+            for newChildSib in newChildSibs: 
+                newElt.append(newChildSib)
+                if not hasattr(newElt, "newSiblings"): newChild.newSiblings = []
+                newChild.newSiblings.append(newChildSib)
+                #logging.info("New sibling %d %s of %d %s." % (id(newChildSib), newChildSib, id(newChild), newChild))
         # Do the milestone processing where necessary.
         for o in orders:
             if o.type != TOrder.TYPE_MILESTONES: continue
@@ -1226,7 +1230,7 @@ class TEntryMapper:
             for child in newElt: MapNewAndOld(child)
         MapNewAndOld(newEntry)
         oldEltIdsAdopted = set()
-        nAdoptionsPerformed = 0; nAdoptionsSkipped_Multiple = 0; nAdoptionsSkipped_NotFound = 0 
+        nAdoptionsPerformed = 0; nAdoptionsSkipped_Multiple = 0; nAdoptionsSkipped_NotFound = 0; nExtraSiblingsAdopted = 0
         for newElt in newElts:
             trOrder = getattr(newElt, "trOrder", None)
             if not trOrder: continue
@@ -1235,29 +1239,38 @@ class TEntryMapper:
                 if oldEltId in oldEltIdsAdopted: nAdoptionsSkipped_Multiple += 1; continue
                 newEltToAdopt = origEltIdToNewElt.get(oldEltId, None)
                 if newEltToAdopt is None: nAdoptionsSkipped_NotFound += 1; continue
-                # Try to adopt this element.  First check if it isn't the ancestor of our current element.
-                isAncestor = False
-                e = newEltToAdopt
-                while e is not None:
-                    if id(e) == id(newElt): isAncestor = True; break
-                    e = e.getparent()
-                if isAncestor: continue
-                # Append its tail to that of its previous sibling (or to the parent's text, if there is no previous sibling).
-                prevSib = newEltToAdopt.getprevious()
-                parent = newEltToAdopt.getparent()
-                if newEltToAdopt.tail:
-                    if prevSib is not None:
-                        if not prevSib.tail: prevSib.tail += newEltToAdopt.tail
-                        else: prevSib.tail = newEltToAdopt.tail
-                    elif parent.text: parent.text += newEltToAdopt.tail
-                    else: parent.text = newEltToAdopt.tail
-                    newEltToAdopt.tail = None
-                # Move the element.
-                parent.remove(newEltToAdopt)
-                newElt.append(newEltToAdopt)
-                newEltToAdopt.isAdopted = True
-                oldEltIdsAdopted.add(oldEltId); nAdoptionsPerformed += 1
-        if False: logging.info("%d adoptions performed; %d were skipped due to collisions; for %d the target could not be found." % (nAdoptionsPerformed, nAdoptionsSkipped_Multiple, nAdoptionsSkipped_NotFound))
+                def TryToAdopt(newEltToAdopt):
+                    # Try to adopt this element.  First check if it isn't the ancestor of our current element.
+                    isAncestor = False
+                    e = newEltToAdopt
+                    while e is not None:
+                        if id(e) == id(newElt): isAncestor = True; break
+                        e = e.getparent()
+                    if isAncestor: return False
+                    # Append its tail to that of its previous sibling (or to the parent's text, if there is no previous sibling).
+                    prevSib = newEltToAdopt.getprevious()
+                    parent = newEltToAdopt.getparent()
+                    if newEltToAdopt.tail:
+                        if prevSib is not None:
+                            if not prevSib.tail: prevSib.tail += newEltToAdopt.tail
+                            else: prevSib.tail = newEltToAdopt.tail
+                        elif parent.text: parent.text += newEltToAdopt.tail
+                        else: parent.text = newEltToAdopt.tail
+                        newEltToAdopt.tail = None
+                    # Move the element.
+                    parent.remove(newEltToAdopt)
+                    newElt.append(newEltToAdopt)
+                    newEltToAdopt.isAdopted = True
+                    return True
+                if TryToAdopt(newEltToAdopt):
+                    #logging.info("Adopted [oldElt %d %s] newElt %d %s" % (oldEltId, oldEltToAdopt, id(newEltToAdopt), newEltToAdopt))
+                    oldEltIdsAdopted.add(oldEltId); nAdoptionsPerformed += 1
+                    # Also try to adopt any extra siblings that were made on the basis of this
+                    # element due to selectors that refer to attributes or parts of its inner text.
+                    for extraSib in getattr(newEltToAdopt, "newSiblings", []):
+                        if TryToAdopt(extraSib): 
+                            nExtraSiblingsAdopted += 1
+        if False: logging.info("%d adoptions performed + %d extra siblings; %d were skipped due to collisions; for %d the target could not be found." % (nAdoptionsPerformed, nExtraSiblingsAdopted, nAdoptionsSkipped_Multiple, nAdoptionsSkipped_NotFound))
     """
     def StageOne_TransformSubtree_Old(self, elt):
         if type(elt) is not TMyElement: return (copy.deepcopy(elt), None)
@@ -2955,7 +2968,9 @@ def Test():
     #outTei, outAug = mapper.Transform(LoadMapping("apr22\\spec-oxford.txt"), "apr22\\Oxford_test01-small.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier-ns.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     #outTei, outAug = mapper.Transform(LoadMapping("may22\\spec-trier.txt"), "may22\\begz_zhl-withEntities.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
-    outTei, outAug, outRelaxNgErrs = mapper.Transform(LoadMapping("may22\\spec2.json"), "may22\\single.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug, outRelaxNgErrs = mapper.Transform(LoadMapping("may22\\spec2.json"), "may22\\single.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    #outTei, outAug, outRelaxNgErrs = mapper.Transform(LoadMapping("may22b\\spec-oxford.txt"), "may22b\\Oxford_test01.xml", makeAugmentedInputTrees = False, stripForValidation = True, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
+    outTei, outAug, outRelaxNgErrs = mapper.Transform(LoadMapping("jun22\\spec.json"), "jun22\\slovar.xml", makeAugmentedInputTrees = False, stripForValidation = False, promoteNestedEntries = False, stripDictScrap = False, metadata = {"title": "One two three", "acronym": "A(B)C"})
     f = open("transformed.xml", "wt", encoding = "utf8")
     # encoding="utf8" is important when calling etree.tostring, otherwise
     # it represents non-ascii characters in attribute names with entities,
