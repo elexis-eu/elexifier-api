@@ -183,14 +183,14 @@ def make_lexonomy_request(dsid, request_data, ml=False):
         status[status_key] = "Lexonomy_Error"
 
     # we need to wait for Lexonomy to finish processing the file
-    resp_status_js = {"error":0, "success": 0}
+    resp_status_js = {"error": 0, "success": 0}
     while resp_status_js["error"] + resp_status_js["success"] < 1:
+        time.sleep(3)
         resp_status = requests.get(
             resp_js["status_link"],
             headers={"Content-Type": 'application/json', "Authorization": app.config['LEXONOMY_AUTH_KEY']}
         )
         resp_status_js = json.loads(resp_status.text)
-        time.sleep(3)
     if resp_status["error"] > 0:
         status[status_key] = "Lexonomy_Error"
     Datasets.dataset_status(dsid, set=True, status=status)
