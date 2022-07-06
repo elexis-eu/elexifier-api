@@ -166,8 +166,6 @@ def remap_pos(node, pos_map):
 
 @celery.task
 def prepare_TEI_download(uid, dsid, input_file, output_file, pos_map, character_map):
-    get_lex_preview(uid, dsid)
-
     # Load json for transformation
     json_file = os.path.join(app.config['APP_DIR'], 'modules/pdf2lex_ml/lexonomy_to_tei.json')
     with open(json_file, 'r') as file:
