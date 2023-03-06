@@ -15,6 +15,7 @@ services:
               - flask-app
     ports:
       - 5000:8080
+    restart: unless-stopped
   redis:
     image: redis
     extra_hosts:
@@ -23,6 +24,7 @@ services:
       elexifier-network:
         aliases:
           - redis
+    restart: unless-stopped
   worker1:
     build: .
     command: celery -A app:celery worker -P threads --loglevel=info
@@ -34,6 +36,7 @@ services:
       elexifier-network:
         aliases:
           - worker1
+    restart: unless-stopped
     depends_on:
       - redis
   worker2:
@@ -47,6 +50,7 @@ services:
       elexifier-network:
         aliases:
           - worker2
+    restart: unless-stopped
     depends_on:
       - redis
 
